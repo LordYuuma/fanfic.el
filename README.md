@@ -43,4 +43,6 @@ Set these variables and faces to your liking before activating `fanfic-mode`.
   adds highlights according to the variables and faces
   above.
 
+* `fanfic-mode-recast` re-evaluates the variables above to adjust highlights.
+
 * `fanfic-strip-scenes` filter scenes depending on content.
