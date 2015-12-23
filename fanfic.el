@@ -5,11 +5,11 @@
 ;; Author: Lord Yuuma
 ;; Maintainer: Lord Yuuma
 ;; Created: Tue Sep 15 11:52:17 2015 (+0200)
-;; Version: 1.0
+;; Version: 1.1
 ;; Package-Requires: ()
-;; Last-Updated: Wed Dec 23 23:26:32 2015 (+0100)
+;; Last-Updated: Thu Dec 24 00:43:02 2015 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 155
+;;     Update #: 158
 ;; URL:
 ;; Doc URL:
 ;; Keywords: convenience
@@ -55,6 +55,8 @@
 ;;        `fanfic-mode' (minor-mode)
 ;;           adds highlights according to the variables and faces
 ;;           above.
+;;        `fanfic-mode-recast'
+;;           re-evaluates the variables above to adjust highlights.
 ;;        `fanfic-strip-scenes'
 ;;           filter scenes depending on content.
 ;;
@@ -62,6 +64,12 @@
 ;;
 ;;; Change Log:
 ;;
+;;  1.1:   Rename `fanfic-mode-activate-or-deactivate' to
+;;         `fanfic-mode-recast' and make it a command.
+;;         Use newly added `fanfic--font-lock' and
+;;         `fanfic--font-unlock' to allow for changes to happen
+;;         to cast-related variables.
+;;         Remove `fanfic--add-or-remove-keywords'.
 ;;  1.0:   Generate new buffer in `fanfic-strip-scenes'.
 ;;         Document EVERYTHING.
 ;;  0.8.1: Force cookies for safe local variables.
@@ -112,65 +120,81 @@
 ;;; Code:
 
 ;;;###autoload
-(defadvice font-lock-refresh-defaults (after fanfic-font-lock-defaults) (if fanfic-mode (fanfic-mode-activate-or-deactivate)))
+(defadvice font-lock-refresh-defaults (after fanfic-font-lock-defaults) (if fanfic-mode (fanfic-mode-recast)))
 
-(defun fanfic-mode-activate-or-deactivate ()
-  "Hook run on the change of `fanfic-mode'. Sets `font-lock-keywords' and refontifies the buffer."
-  (let ((cast fanfic-cast)
-        (protagonists fanfic-protagonists)
-        (antagonists fanfic-antagonists)
-        (nicks nil)
-        (protag-nicks nil)
-        (antag-nicks nil))
+(defun fanfic-mode-recast ()
+  "Refreshes `font-lock-keywords' according to the `fanfic-' variables.
 
-    ;; add from cast-nick-alist
-    (dolist (association fanfic-cast-nick-alist)
-      (add-to-list 'cast (car association))
-      (setq nicks (append nicks (cdr association))))
+At the first step, highlights already set by `fanfic-mode' are reset.
+Afterwards, when `fanfic-mode' is truthy, keywords are set to what they
+should be according to `fanfic-cast', `fanfic-protagonists', `fanfic-antagonists',
+their respective alists and possible `fanfic-declarations' thereof.
+As a last step, `font-lock-fontify-buffer' will be called to make these changes
+visible.
 
-    ;; add from protagonist-nick-alist
-    (dolist (association fanfic-protagonist-nick-alist)
-      (add-to-list 'protagonists (car association))
-      (setq protag-nicks (append protag-nicks (cdr association))))
+This command is automatically run as a hook after `fanfic-mode'.
+You may feel the need to run it yourself after editing cast-related variables."
+  (interactive)
+  (fanfic--font-unlock)
+  (setq fanfic--highlights nil)
 
-    (dolist (association fanfic-antagonist-nick-alist)
-      (add-to-list 'antagonists (car association))
-      (setq antag-nicks (append antag-nicks (cdr association))))
+  (when fanfic-mode
+    (let ((cast fanfic-cast)
+          (protagonists fanfic-protagonists)
+          (antagonists fanfic-antagonists)
+          (nicks nil)
+          (protag-nicks nil)
+          (antag-nicks nil))
 
-    ;; apply declination formats
-    (setq cast (fanfic--decline cast))
-    (setq protagonists (fanfic--decline protagonists))
-    (setq antagonists (fanfic--decline antagonists))
-    (setq nicks (fanfic--decline nicks))
-    (setq protag-nicks (fanfic--decline protag-nicks))
-    (setq antag-nicks (fanfic--decline antag-nicks))
+      ;; add from cast-nick-alist
+      (dolist (association fanfic-cast-nick-alist)
+        (add-to-list 'cast (car association))
+        (setq nicks (append nicks (cdr association))))
 
-    ;; nicks have lowest priority in font lock
-    ;; so they need to be added first to make their highlights
-    ;; overwritten by the full name
-    (let ((pattern (regexp-opt nicks 'words)))
-      (fanfic--add-or-remove-keywords `((,pattern 0 'fanfic-nick-face nil))))
-    (let ((pattern (regexp-opt protag-nicks 'words)))
-      (fanfic--add-or-remove-keywords `((,pattern 0 'fanfic-protagonist-nick-face nil))))
-    (let ((pattern (regexp-opt antag-nicks 'words)))
-      (fanfic--add-or-remove-keywords `((,pattern 0 'fanfic-antagonist-nick-face nil))))
+      ;; add from protagonist-nick-alist
+      (dolist (association fanfic-protagonist-nick-alist)
+        (add-to-list 'protagonists (car association))
+        (setq protag-nicks (append protag-nicks (cdr association))))
 
-    ;; cast is not that important so he's added in the middle
-    ;; in most cases the order of cast and protagonist would not matter
-    ;; but better safe than sorry
-    (let ((pattern (regexp-opt cast 'words)))
-      (fanfic--add-or-remove-keywords `((,pattern 0 'fanfic-cast-face nil))))
+      (dolist (association fanfic-antagonist-nick-alist)
+        (add-to-list 'antagonists (car association))
+        (setq antag-nicks (append antag-nicks (cdr association))))
 
-    (let ((pattern (regexp-opt antagonists 'words)))
-      (fanfic--add-or-remove-keywords `((,pattern 0 'fanfic-antagonist-face nil))))
+      ;; apply declination formats
+      (setq cast (fanfic--decline cast))
+      (setq protagonists (fanfic--decline protagonists))
+      (setq antagonists (fanfic--decline antagonists))
+      (setq nicks (fanfic--decline nicks))
+      (setq protag-nicks (fanfic--decline protag-nicks))
+      (setq antag-nicks (fanfic--decline antag-nicks))
 
-    ;; protagonists have the highest priority so they enter as the
-    ;; last ones dramatically and don't leave until the rest does as well
-    (let ((pattern (regexp-opt protagonists 'words)))
-      (fanfic--add-or-remove-keywords `((,pattern 0 'fanfic-protagonist-face nil))))
+      ;; nicks have lowest priority in font lock
+      ;; so they need to be added first to make their highlights
+      ;; overwritten by the full name
+      (let ((pattern (regexp-opt nicks 'words)))
+        (add-to-list 'fanfic--highlights `((,pattern 0 'fanfic-nick-face nil))))
+      (let ((pattern (regexp-opt protag-nicks 'words)))
+        (add-to-list 'fanfic--highlights `((,pattern 0 'fanfic-protagonist-nick-face nil))))
+      (let ((pattern (regexp-opt antag-nicks 'words)))
+        (add-to-list 'fanfic--highlights `((,pattern 0 'fanfic-antagonist-nick-face nil))))
 
-    ;; run fontify so that changes are immediately visible
-    (font-lock-fontify-buffer)))
+      ;; cast is not that important so he's added in the middle
+      ;; in most cases the order of cast and protagonist would not matter
+      ;; but better safe than sorry
+      (let ((pattern (regexp-opt cast 'words)))
+        (add-to-list 'fanfic--highlights `((,pattern 0 'fanfic-cast-face nil))))
+
+      (let ((pattern (regexp-opt antagonists 'words)))
+        (add-to-list 'fanfic--highlights `((,pattern 0 'fanfic-antagonist-face nil))))
+
+      ;; protagonists have the highest priority so they enter as the
+      ;; last ones dramatically and don't leave until the rest does as well
+      (let ((pattern (regexp-opt protagonists 'words)))
+        (add-to-list 'fanfic--highlights `((,pattern 0 'fanfic-protagonist-face nil))))
+
+      (fanfic--font-lock)))
+  ;; run fontify so that changes are immediately visible
+  (font-lock-fontify-buffer))
 
 ;;;###autoload
 (defun fanfic-strip-scenes (content)
@@ -212,7 +236,7 @@ or just the normal cast for obvious reasons.
 an advice, which is run after `font-lock-refresh-defaults' prevents their removal
 to some degree. (This is mostly used as a hack for `markdown-mode'.)"
   nil " Fanfiction"
-  :after-hook (fanfic-mode-activate-or-deactivate)
+  :after-hook (fanfic-mode-recast)
   :group 'fanfic
   (if fanfic-mode
       (ad-activate-regexp "fanfic-font-lock-default")
@@ -307,11 +331,9 @@ when constructing a list of highlights."
 
 ;;; Private area.
 
-(defun fanfic--add-or-remove-keywords (kwds)
-  "Used internally by `fanfic-mode' to ease highlighting. NOT for external use."
-  (if fanfic-mode
-      (font-lock-add-keywords nil kwds)
-    (font-lock-remove-keywords nil kwds)))
+(defvar fanfic--highlights nil "All `font-lock-keywords' for the current buffer which come from `fanfic-mode'.
+DO NOT MODIFY THIS VARIABLE! It is needed to properly undo any changes made.")
+(make-variable-buffer-local 'fanfic--highlights)
 
 (defun fanfic--decline (xs)
   "Used internally by `fanfic-mode' to produce correct format strings. NOT for external use."
@@ -319,6 +341,16 @@ when constructing a list of highlights."
     (dolist (decl fanfic-declinations ds)
       (dolist (x xs)
         (add-to-list 'ds (format decl x))))))
+
+(defun fanfic--font-lock ()
+  "Adds all highlights in `fanfic--highlights' to `font-lock-keywords'. Not very meaningful when used externally."
+  (dolist (highlight fanfic--highlights)
+    (font-lock-add-keywords nil highlight)))
+
+(defun fanfic--font-unlock ()
+  "Removes all changes to `font-lock-keywords' done by `fanfic-mode'. Not intended for external use."
+  (dolist (highlight fanfic--highlights)
+    (font-lock-remove-keywords nil highlight)))
 
 ;;;###autoload
 (defun fanfic--safe-declination-p (str)
