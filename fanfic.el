@@ -7,9 +7,9 @@
 ;; Created: Tue Sep 15 11:52:17 2015 (+0200)
 ;; Version: 1.0
 ;; Package-Requires: ()
-;; Last-Updated: Sat Dec 19 14:56:20 2015 (+0100)
+;; Last-Updated: Wed Dec 23 23:26:32 2015 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 154
+;;     Update #: 155
 ;; URL:
 ;; Doc URL:
 ;; Keywords: convenience
@@ -347,7 +347,6 @@ when constructing a list of highlights."
   (let ((v t))
     (and (listp xs) (dolist (x xs v) (setq v (and v (stringp x)))))))
 
-
 ;;; Hack Area
 
 ;; `update-fileautoloads' does not take `:safe' in `defcustom' well
@@ -368,7 +367,6 @@ when constructing a list of highlights."
 (put 'fanfic-protagonist-nick-alist 'safe-local-variable 'fanfic--safe-alist-p)
 ;;;###autoload
 (put 'fanfic-antagonist-nick-alist 'safe-local-variable 'fanfic--safe-alist-p)
-
 
 (provide 'fanfic)
 
