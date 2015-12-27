@@ -7,9 +7,9 @@
 ;; Created: Tue Sep 15 11:52:17 2015 (+0200)
 ;; Version: 1.1.1
 ;; Package-Requires: ()
-;; Last-Updated: Sun Dec 27 15:30:08 2015 (+0100)
+;; Last-Updated: Sun Dec 27 19:16:48 2015 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 160
+;;     Update #: 161
 ;; URL:
 ;; Doc URL:
 ;; Keywords: convenience
@@ -148,47 +148,47 @@ You may feel the need to run it yourself after editing cast-related variables."
           (nicks nil)
           (protag-nicks nil)
           (antag-nicks nil))
+      (cl-flet ((add-highlight (pattern face) (add-to-list 'fanfic--highlights `((,pattern 0 (quote ,face) prepend)))))
+        ;; add from cast-nick-alist
+        (dolist (association fanfic-cast-nick-alist)
+          (add-to-list 'cast (car association))
+          (setq nicks (append nicks (cdr association))))
 
-      ;; add from cast-nick-alist
-      (dolist (association fanfic-cast-nick-alist)
-        (add-to-list 'cast (car association))
-        (setq nicks (append nicks (cdr association))))
+        ;; add from protagonist-nick-alist
+        (dolist (association fanfic-protagonist-nick-alist)
+          (add-to-list 'protagonists (car association))
+          (setq protag-nicks (append protag-nicks (cdr association))))
 
-      ;; add from protagonist-nick-alist
-      (dolist (association fanfic-protagonist-nick-alist)
-        (add-to-list 'protagonists (car association))
-        (setq protag-nicks (append protag-nicks (cdr association))))
+        (dolist (association fanfic-antagonist-nick-alist)
+          (add-to-list 'antagonists (car association))
+          (setq antag-nicks (append antag-nicks (cdr association))))
 
-      (dolist (association fanfic-antagonist-nick-alist)
-        (add-to-list 'antagonists (car association))
-        (setq antag-nicks (append antag-nicks (cdr association))))
+        ;; apply declination formats
+        (setq cast (fanfic--decline cast))
+        (setq protagonists (fanfic--decline protagonists))
+        (setq antagonists (fanfic--decline antagonists))
+        (setq nicks (fanfic--decline nicks))
+        (setq protag-nicks (fanfic--decline protag-nicks))
+        (setq antag-nicks (fanfic--decline antag-nicks))
 
-      ;; apply declination formats
-      (setq cast (fanfic--decline cast))
-      (setq protagonists (fanfic--decline protagonists))
-      (setq antagonists (fanfic--decline antagonists))
-      (setq nicks (fanfic--decline nicks))
-      (setq protag-nicks (fanfic--decline protag-nicks))
-      (setq antag-nicks (fanfic--decline antag-nicks))
+        ;; since we are using prepend now and add-to-list inserts an element at the start
+        ;; the most important highlights have to be added first.
+        (let ((pattern (regexp-opt protagonists 'words)))
+          (add-highlight pattern 'fanfic-protagonist-face))
+        (let ((pattern (regexp-opt antagonists 'words)))
+          (add-highlight pattern 'fanfic-antagonist-face))
+        (let ((pattern (regexp-opt cast 'words)))
+          (add-highlight pattern 'fanfic-cast-face))
 
-      ;; since we are using prepend now and add-to-list inserts an element at the start
-      ;; the most important highlights have to be added first.
-      (let ((pattern (regexp-opt protagonists 'words)))
-        (add-to-list 'fanfic--highlights `((,pattern 0 'fanfic-protagonist-face prepend))))
-      (let ((pattern (regexp-opt antagonists 'words)))
-        (add-to-list 'fanfic--highlights `((,pattern 0 'fanfic-antagonist-face prepend))))
-      (let ((pattern (regexp-opt cast 'words)))
-        (add-to-list 'fanfic--highlights `((,pattern 0 'fanfic-cast-face prepend))))
+        ;; nicks
+        (let ((pattern (regexp-opt protag-nicks 'words)))
+          (add-highlight pattern 'fanfic-protagonist-nick-face))
+        (let ((pattern (regexp-opt antag-nicks 'words)))
+          (add-highlight pattern 'fanfic-antagonist-nick-face))
+        (let ((pattern (regexp-opt nicks 'words)))
+          (add-highlight pattern 'fanfic-nick-face))
 
-      ;; nicks
-      (let ((pattern (regexp-opt protag-nicks 'words)))
-        (add-to-list 'fanfic--highlights `((,pattern 0 'fanfic-protagonist-nick-face prepend))))
-      (let ((pattern (regexp-opt antag-nicks 'words)))
-        (add-to-list 'fanfic--highlights `((,pattern 0 'fanfic-antagonist-nick-face prepend))))
-      (let ((pattern (regexp-opt nicks 'words)))
-        (add-to-list 'fanfic--highlights `((,pattern 0 'fanfic-nick-face prepend))))
-
-      (fanfic--font-lock)))
+        (fanfic--font-lock))))
   ;; run fontify so that changes are immediately visible
   (font-lock-fontify-buffer))
 
