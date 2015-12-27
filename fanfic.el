@@ -5,11 +5,11 @@
 ;; Author: Lord Yuuma
 ;; Maintainer: Lord Yuuma
 ;; Created: Tue Sep 15 11:52:17 2015 (+0200)
-;; Version: 1.1
+;; Version: 1.1.1
 ;; Package-Requires: ()
-;; Last-Updated: Thu Dec 24 00:43:02 2015 (+0100)
+;; Last-Updated: Sun Dec 27 10:28:23 2015 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 158
+;;     Update #: 159
 ;; URL:
 ;; Doc URL:
 ;; Keywords: convenience
@@ -64,6 +64,9 @@
 ;;
 ;;; Change Log:
 ;;
+;;  1.1.1: Fix bug in which `fanfic-mode' would break existing
+;;         highlights. Make it so that highlights are applied upon
+;;         them.
 ;;  1.1:   Rename `fanfic-mode-activate-or-deactivate' to
 ;;         `fanfic-mode-recast' and make it a command.
 ;;         Use newly added `fanfic--font-lock' and
@@ -172,25 +175,25 @@ You may feel the need to run it yourself after editing cast-related variables."
       ;; so they need to be added first to make their highlights
       ;; overwritten by the full name
       (let ((pattern (regexp-opt nicks 'words)))
-        (add-to-list 'fanfic--highlights `((,pattern 0 'fanfic-nick-face nil))))
+        (add-to-list 'fanfic--highlights `((,pattern 0 'fanfic-nick-face prepend))))
       (let ((pattern (regexp-opt protag-nicks 'words)))
-        (add-to-list 'fanfic--highlights `((,pattern 0 'fanfic-protagonist-nick-face nil))))
+        (add-to-list 'fanfic--highlights `((,pattern 0 'fanfic-protagonist-nick-face prepend))))
       (let ((pattern (regexp-opt antag-nicks 'words)))
-        (add-to-list 'fanfic--highlights `((,pattern 0 'fanfic-antagonist-nick-face nil))))
+        (add-to-list 'fanfic--highlights `((,pattern 0 'fanfic-antagonist-nick-face prepend))))
 
       ;; cast is not that important so he's added in the middle
       ;; in most cases the order of cast and protagonist would not matter
       ;; but better safe than sorry
       (let ((pattern (regexp-opt cast 'words)))
-        (add-to-list 'fanfic--highlights `((,pattern 0 'fanfic-cast-face nil))))
+        (add-to-list 'fanfic--highlights `((,pattern 0 'fanfic-cast-face prepend))))
 
       (let ((pattern (regexp-opt antagonists 'words)))
-        (add-to-list 'fanfic--highlights `((,pattern 0 'fanfic-antagonist-face nil))))
+        (add-to-list 'fanfic--highlights `((,pattern 0 'fanfic-antagonist-face prepend))))
 
       ;; protagonists have the highest priority so they enter as the
       ;; last ones dramatically and don't leave until the rest does as well
       (let ((pattern (regexp-opt protagonists 'words)))
-        (add-to-list 'fanfic--highlights `((,pattern 0 'fanfic-protagonist-face nil))))
+        (add-to-list 'fanfic--highlights `((,pattern 0 'fanfic-protagonist-face prepend))))
 
       (fanfic--font-lock)))
   ;; run fontify so that changes are immediately visible
@@ -345,7 +348,9 @@ DO NOT MODIFY THIS VARIABLE! It is needed to properly undo any changes made.")
 (defun fanfic--font-lock ()
   "Adds all highlights in `fanfic--highlights' to `font-lock-keywords'. Not very meaningful when used externally."
   (dolist (highlight fanfic--highlights)
-    (font-lock-add-keywords nil highlight)))
+    ;; any non-nil value would do as the fourth argument, but I figured 'append would make the most sense
+    ;; from a semantic perspective.
+    (font-lock-add-keywords nil highlight 'append)))
 
 (defun fanfic--font-unlock ()
   "Removes all changes to `font-lock-keywords' done by `fanfic-mode'. Not intended for external use."
