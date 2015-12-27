@@ -7,9 +7,9 @@
 ;; Created: Tue Sep 15 11:52:17 2015 (+0200)
 ;; Version: 1.1.1
 ;; Package-Requires: ()
-;; Last-Updated: Sun Dec 27 10:28:23 2015 (+0100)
+;; Last-Updated: Sun Dec 27 15:30:08 2015 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 159
+;;     Update #: 160
 ;; URL:
 ;; Doc URL:
 ;; Keywords: convenience
@@ -171,29 +171,22 @@ You may feel the need to run it yourself after editing cast-related variables."
       (setq protag-nicks (fanfic--decline protag-nicks))
       (setq antag-nicks (fanfic--decline antag-nicks))
 
-      ;; nicks have lowest priority in font lock
-      ;; so they need to be added first to make their highlights
-      ;; overwritten by the full name
-      (let ((pattern (regexp-opt nicks 'words)))
-        (add-to-list 'fanfic--highlights `((,pattern 0 'fanfic-nick-face prepend))))
+      ;; since we are using prepend now and add-to-list inserts an element at the start
+      ;; the most important highlights have to be added first.
+      (let ((pattern (regexp-opt protagonists 'words)))
+        (add-to-list 'fanfic--highlights `((,pattern 0 'fanfic-protagonist-face prepend))))
+      (let ((pattern (regexp-opt antagonists 'words)))
+        (add-to-list 'fanfic--highlights `((,pattern 0 'fanfic-antagonist-face prepend))))
+      (let ((pattern (regexp-opt cast 'words)))
+        (add-to-list 'fanfic--highlights `((,pattern 0 'fanfic-cast-face prepend))))
+
+      ;; nicks
       (let ((pattern (regexp-opt protag-nicks 'words)))
         (add-to-list 'fanfic--highlights `((,pattern 0 'fanfic-protagonist-nick-face prepend))))
       (let ((pattern (regexp-opt antag-nicks 'words)))
         (add-to-list 'fanfic--highlights `((,pattern 0 'fanfic-antagonist-nick-face prepend))))
-
-      ;; cast is not that important so he's added in the middle
-      ;; in most cases the order of cast and protagonist would not matter
-      ;; but better safe than sorry
-      (let ((pattern (regexp-opt cast 'words)))
-        (add-to-list 'fanfic--highlights `((,pattern 0 'fanfic-cast-face prepend))))
-
-      (let ((pattern (regexp-opt antagonists 'words)))
-        (add-to-list 'fanfic--highlights `((,pattern 0 'fanfic-antagonist-face prepend))))
-
-      ;; protagonists have the highest priority so they enter as the
-      ;; last ones dramatically and don't leave until the rest does as well
-      (let ((pattern (regexp-opt protagonists 'words)))
-        (add-to-list 'fanfic--highlights `((,pattern 0 'fanfic-protagonist-face prepend))))
+      (let ((pattern (regexp-opt nicks 'words)))
+        (add-to-list 'fanfic--highlights `((,pattern 0 'fanfic-nick-face prepend))))
 
       (fanfic--font-lock)))
   ;; run fontify so that changes are immediately visible
