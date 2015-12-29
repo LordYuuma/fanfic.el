@@ -7,9 +7,9 @@
 ;; Created: Tue Sep 15 11:52:17 2015 (+0200)
 ;; Version: 1.1.1
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Tue Dec 29 14:33:44 2015 (+0100)
+;; Last-Updated: Tue Dec 29 14:49:45 2015 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 170
+;;     Update #: 171
 ;; URL:
 ;; Doc URL:
 ;; Keywords: convenience
@@ -150,8 +150,8 @@ You may feel the need to run it yourself after editing cast-related variables."
           (cast-nicks nil)
           (protag-nicks nil)
           (antag-nicks nil))
-      (cl-flet ((add-highlight (pattern face)
-                               (add-to-list 'fanfic--highlights `((,pattern 0 (quote ,face) t))))
+      (cl-flet ((add-highlights (list face)
+                               (add-to-list 'fanfic--highlights `((,(regexp-opt list 'words) 0 (quote ,face) t))))
                 (decline (personae)
                          (eval `(setq ,personae (-mapcat (lambda (fmt) (--map (format fmt it) ,personae)) fanfic-declinations))))
                 (split-nick-list (personae nicks list)
@@ -170,21 +170,12 @@ You may feel the need to run it yourself after editing cast-related variables."
         (decline 'antag-nicks)
 
         ;; since we are using prepend now and add-to-list inserts an element at the start
-        ;; the most important highlights have to be added first.
-        (let ((pattern (regexp-opt protags 'words)))
-          (add-highlight pattern 'fanfic-protagonist-face))
-        (let ((pattern (regexp-opt antags 'words)))
-          (add-highlight pattern 'fanfic-antagonist-face))
-        (let ((pattern (regexp-opt cast 'words)))
-          (add-highlight pattern 'fanfic-cast-face))
-
-        ;; nicks
-        (let ((pattern (regexp-opt protag-nicks 'words)))
-          (add-highlight pattern 'fanfic-protagonist-nick-face))
-        (let ((pattern (regexp-opt antag-nicks 'words)))
-          (add-highlight pattern 'fanfic-antagonist-nick-face))
-        (let ((pattern (regexp-opt cast-nicks 'words)))
-          (add-highlight pattern 'fanfic-nick-face))
+        (add-highlights protags 'fanfic-protagonist-face)
+        (add-highlights antags 'fanfic-antagonist-face)
+        (add-highlights cast 'fanfic-cast-face)
+        (add-highlights protag-nicks 'fanfic-protagonist-nick-face)
+        (add-highlights antag-nicks 'fanfic-antagonist-nick--face)
+        (add-highlights cast-nicks 'fanfic-nick-face)
 
         (fanfic--font-lock))))
   ;; run fontify so that changes are immediately visible
