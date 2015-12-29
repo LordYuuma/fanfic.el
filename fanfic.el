@@ -5,11 +5,11 @@
 ;; Author: Lord Yuuma
 ;; Maintainer: Lord Yuuma
 ;; Created: Tue Sep 15 11:52:17 2015 (+0200)
-;; Version: 1.1.1
+;; Version: 1.2
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Tue Dec 29 14:49:45 2015 (+0100)
+;; Last-Updated: Tue Dec 29 15:41:40 2015 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 171
+;;     Update #: 172
 ;; URL:
 ;; Doc URL:
 ;; Keywords: convenience
@@ -64,6 +64,9 @@
 ;;
 ;;; Change Log:
 ;;
+;;  1.2:   Reimplement `fanfic-mode-recast', `fanfic--safe-list-p'
+;;         and `fanfic--safe-alist-p' using `dash'.
+;;         Remove `fanfic--decline'.
 ;;  1.1.1: Fix bug in which `fanfic-mode' would break existing
 ;;         highlights. Make it so that highlights are applied upon
 ;;         them.
@@ -133,7 +136,7 @@
 At the first step, highlights already set by `fanfic-mode' are reset.
 Afterwards, when `fanfic-mode' is truthy, keywords are set to what they
 should be according to `fanfic-cast', `fanfic-protagonists', `fanfic-antagonists',
-their respective alists and possible `fanfic-declarations' thereof.
+their respective alists and possible `fanfic-declinations' thereof.
 As a last step, `font-lock-fontify-buffer' will be called to make these changes
 visible.
 
@@ -151,31 +154,26 @@ You may feel the need to run it yourself after editing cast-related variables."
           (protag-nicks nil)
           (antag-nicks nil))
       (cl-flet ((add-highlights (list face)
-                               (add-to-list 'fanfic--highlights `((,(regexp-opt list 'words) 0 (quote ,face) t))))
+                                (add-to-list 'fanfic--highlights `((,(regexp-opt list 'words) 0 ,face t))))
                 (decline (personae)
-                         (eval `(setq ,personae (-mapcat (lambda (fmt) (--map (format fmt it) ,personae)) fanfic-declinations))))
-                (split-nick-list (personae nicks list)
+                         (eval `(setq ,personae (-flatten (--map (-map (lambda (fmt) (format fmt it)) fanfic-declinations) ,personae)))))
+                (split-nick-list (list personae nicks)
                                  (eval `(setq ,personae (append ,personae (-map 'car ,list))))
                                  (eval `(setq ,nicks (-mapcat 'cdr ,list)))))
-        (split-nick-list 'cast 'cast-nicks 'fanfic-cast-nick-alist)
-        (split-nick-list 'protags 'protag-nicks 'fanfic-protagonist-nick-alist)
-        (split-nick-list 'antags 'antag-nicks 'fanfic-antagonist-nick-alist)
+        (--each '((fanfic-cast-nick-alist        cast    cast-nicks)
+                  (fanfic-protagonist-nick-alist protags protag-nicks)
+                  (fanfic-antagonist-nick-alist  antags  antag-nicks))
+          (split-nick-list (nth 0 it) (nth 1 it) (nth 2 it)))
 
-        ;; apply declination formats
-        (decline 'cast)
-        (decline 'protags)
-        (decline 'antags)
-        (decline 'cast-nicks)
-        (decline 'protag-nicks)
-        (decline 'antag-nicks)
+        (--each '(cast protags antags cast-nicks protag-nicks antag-nicks) (decline it))
 
-        ;; since we are using prepend now and add-to-list inserts an element at the start
-        (add-highlights protags 'fanfic-protagonist-face)
-        (add-highlights antags 'fanfic-antagonist-face)
-        (add-highlights cast 'fanfic-cast-face)
-        (add-highlights protag-nicks 'fanfic-protagonist-nick-face)
-        (add-highlights antag-nicks 'fanfic-antagonist-nick--face)
-        (add-highlights cast-nicks 'fanfic-nick-face)
+        (--each '((protags      'fanfic-protagonist-face)
+                  (antags       'fanfic-antagonist-face)
+                  (cast         'fanfic-cast-face)
+                  (protag-nicks 'fanfic-protagonist-nick-face)
+                  (antag-nicks  'fanfic-antagonist-nick-face)
+                  (cast-nicks   'fanfic-nick-face))
+          (add-highlights (symbol-value (nth 0 it)) (nth 1 it)))
 
         (fanfic--font-lock))))
   ;; run fontify so that changes are immediately visible
