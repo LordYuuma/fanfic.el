@@ -7,9 +7,9 @@
 ;; Created: Tue Sep 15 11:52:17 2015 (+0200)
 ;; Version: 1.1.1
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Tue Dec 29 14:13:26 2015 (+0100)
+;; Last-Updated: Tue Dec 29 14:33:44 2015 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 165
+;;     Update #: 170
 ;; URL:
 ;; Doc URL:
 ;; Keywords: convenience
@@ -145,40 +145,35 @@ You may feel the need to run it yourself after editing cast-related variables."
 
   (when fanfic-mode
     (let ((cast fanfic-cast)
-          (protagonists fanfic-protagonists)
-          (antagonists fanfic-antagonists)
-          (nicks nil)
+          (protags fanfic-protagonists)
+          (antags fanfic-antagonists)
+          (cast-nicks nil)
           (protag-nicks nil)
           (antag-nicks nil))
-      (cl-flet ((add-highlight (pattern face) (add-to-list 'fanfic--highlights `((,pattern 0 (quote ,face) t))))
-                (decline (personae) (eval `(setq ,personae (-mapcat (lambda (fmt) (--map (format fmt it) ,personae)) fanfic-declinations)))))
-        ;; add from cast-nick-alist
-        (dolist (association fanfic-cast-nick-alist)
-          (add-to-list 'cast (car association))
-          (setq nicks (append nicks (cdr association))))
-
-        ;; add from protagonist-nick-alist
-        (dolist (association fanfic-protagonist-nick-alist)
-          (add-to-list 'protagonists (car association))
-          (setq protag-nicks (append protag-nicks (cdr association))))
-
-        (dolist (association fanfic-antagonist-nick-alist)
-          (add-to-list 'antagonists (car association))
-          (setq antag-nicks (append antag-nicks (cdr association))))
+      (cl-flet ((add-highlight (pattern face)
+                               (add-to-list 'fanfic--highlights `((,pattern 0 (quote ,face) t))))
+                (decline (personae)
+                         (eval `(setq ,personae (-mapcat (lambda (fmt) (--map (format fmt it) ,personae)) fanfic-declinations))))
+                (split-nick-list (personae nicks list)
+                                 (eval `(setq ,personae (append ,personae (-map 'car ,list))))
+                                 (eval `(setq ,nicks (-mapcat 'cdr ,list)))))
+        (split-nick-list 'cast 'cast-nicks 'fanfic-cast-nick-alist)
+        (split-nick-list 'protags 'protag-nicks 'fanfic-protagonist-nick-alist)
+        (split-nick-list 'antags 'antag-nicks 'fanfic-antagonist-nick-alist)
 
         ;; apply declination formats
         (decline 'cast)
-        (decline 'protagonists)
-        (decline 'antagonists)
-        (decline 'nicks)
+        (decline 'protags)
+        (decline 'antags)
+        (decline 'cast-nicks)
         (decline 'protag-nicks)
         (decline 'antag-nicks)
 
         ;; since we are using prepend now and add-to-list inserts an element at the start
         ;; the most important highlights have to be added first.
-        (let ((pattern (regexp-opt protagonists 'words)))
+        (let ((pattern (regexp-opt protags 'words)))
           (add-highlight pattern 'fanfic-protagonist-face))
-        (let ((pattern (regexp-opt antagonists 'words)))
+        (let ((pattern (regexp-opt antags 'words)))
           (add-highlight pattern 'fanfic-antagonist-face))
         (let ((pattern (regexp-opt cast 'words)))
           (add-highlight pattern 'fanfic-cast-face))
@@ -188,7 +183,7 @@ You may feel the need to run it yourself after editing cast-related variables."
           (add-highlight pattern 'fanfic-protagonist-nick-face))
         (let ((pattern (regexp-opt antag-nicks 'words)))
           (add-highlight pattern 'fanfic-antagonist-nick-face))
-        (let ((pattern (regexp-opt nicks 'words)))
+        (let ((pattern (regexp-opt cast-nicks 'words)))
           (add-highlight pattern 'fanfic-nick-face))
 
         (fanfic--font-lock))))
