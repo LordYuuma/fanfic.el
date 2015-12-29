@@ -7,9 +7,9 @@
 ;; Created: Tue Sep 15 11:52:17 2015 (+0200)
 ;; Version: 1.1.1
 ;; Package-Requires: ()
-;; Last-Updated: Sun Dec 27 19:16:48 2015 (+0100)
+;; Last-Updated: Tue Dec 29 12:40:53 2015 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 161
+;;     Update #: 162
 ;; URL:
 ;; Doc URL:
 ;; Keywords: convenience
@@ -148,7 +148,7 @@ You may feel the need to run it yourself after editing cast-related variables."
           (nicks nil)
           (protag-nicks nil)
           (antag-nicks nil))
-      (cl-flet ((add-highlight (pattern face) (add-to-list 'fanfic--highlights `((,pattern 0 (quote ,face) prepend)))))
+      (cl-flet ((add-highlight (pattern face) (add-to-list 'fanfic--highlights `((,pattern 0 (quote ,face) t)))))
         ;; add from cast-nick-alist
         (dolist (association fanfic-cast-nick-alist)
           (add-to-list 'cast (car association))
