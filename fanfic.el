@@ -7,9 +7,9 @@
 ;; Created: Tue Sep 15 11:52:17 2015 (+0200)
 ;; Version: 1.2
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Tue Dec 29 15:41:40 2015 (+0100)
+;; Last-Updated: Tue Dec 29 17:58:21 2015 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 172
+;;     Update #: 173
 ;; URL:
 ;; Doc URL:
 ;; Keywords: convenience
@@ -125,6 +125,7 @@
 ;;
 ;;; Code:
 
+;;;###autoload
 (require 'dash)
 
 ;;;###autoload
