@@ -6,10 +6,10 @@
 ;; Maintainer: Lord Yuuma
 ;; Created: Tue Sep 15 11:52:17 2015 (+0200)
 ;; Version: 1.1.1
-;; Package-Requires: ()
-;; Last-Updated: Tue Dec 29 12:40:53 2015 (+0100)
+;; Package-Requires: ((dash "2.12.1"))
+;; Last-Updated: Tue Dec 29 14:13:26 2015 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 162
+;;     Update #: 165
 ;; URL:
 ;; Doc URL:
 ;; Keywords: convenience
@@ -122,6 +122,8 @@
 ;;
 ;;; Code:
 
+(require 'dash)
+
 ;;;###autoload
 (defadvice font-lock-refresh-defaults (after fanfic-font-lock-defaults) (if fanfic-mode (fanfic-mode-recast)))
 
@@ -148,7 +150,8 @@ You may feel the need to run it yourself after editing cast-related variables."
           (nicks nil)
           (protag-nicks nil)
           (antag-nicks nil))
-      (cl-flet ((add-highlight (pattern face) (add-to-list 'fanfic--highlights `((,pattern 0 (quote ,face) t)))))
+      (cl-flet ((add-highlight (pattern face) (add-to-list 'fanfic--highlights `((,pattern 0 (quote ,face) t))))
+                (decline (personae) (eval `(setq ,personae (-mapcat (lambda (fmt) (--map (format fmt it) ,personae)) fanfic-declinations)))))
         ;; add from cast-nick-alist
         (dolist (association fanfic-cast-nick-alist)
           (add-to-list 'cast (car association))
@@ -164,12 +167,12 @@ You may feel the need to run it yourself after editing cast-related variables."
           (setq antag-nicks (append antag-nicks (cdr association))))
 
         ;; apply declination formats
-        (setq cast (fanfic--decline cast))
-        (setq protagonists (fanfic--decline protagonists))
-        (setq antagonists (fanfic--decline antagonists))
-        (setq nicks (fanfic--decline nicks))
-        (setq protag-nicks (fanfic--decline protag-nicks))
-        (setq antag-nicks (fanfic--decline antag-nicks))
+        (decline 'cast)
+        (decline 'protagonists)
+        (decline 'antagonists)
+        (decline 'nicks)
+        (decline 'protag-nicks)
+        (decline 'antag-nicks)
 
         ;; since we are using prepend now and add-to-list inserts an element at the start
         ;; the most important highlights have to be added first.
@@ -331,13 +334,6 @@ when constructing a list of highlights."
 DO NOT MODIFY THIS VARIABLE! It is needed to properly undo any changes made.")
 (make-variable-buffer-local 'fanfic--highlights)
 
-(defun fanfic--decline (xs)
-  "Used internally by `fanfic-mode' to produce correct format strings. NOT for external use."
-  (let ((ds))
-    (dolist (decl fanfic-declinations ds)
-      (dolist (x xs)
-        (add-to-list 'ds (format decl x))))))
-
 (defun fanfic--font-lock ()
   "Adds all highlights in `fanfic--highlights' to `font-lock-keywords'. Not very meaningful when used externally."
   (dolist (highlight fanfic--highlights)
@@ -368,14 +364,12 @@ DO NOT MODIFY THIS VARIABLE! It is needed to properly undo any changes made.")
 ;;;###autoload
 (defun fanfic--safe-alist-p (xs)
   "Used by `fanfic.el' to define safety parameters for customization options. NOT for external use.'"
-  (let ((v t))
-    (and (listp xs) (dolist (x xs v) (setq v (and v (fanfic--safe-list-p x)))))))
+  (and (listp xs) (-all-p 'fanfic--safe-list-p xs)))
 
 ;;;###autoload
 (defun fanfic--safe-list-p (xs)
   "Used by `fanfic.el' to define safety parameters for customization options. NOT for external use.'"
-  (let ((v t))
-    (and (listp xs) (dolist (x xs v) (setq v (and v (stringp x)))))))
+  (and (listp xs) (-all-p 'stringp xs)))
 
 ;;; Hack Area
 
