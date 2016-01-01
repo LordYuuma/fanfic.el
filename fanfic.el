@@ -7,9 +7,9 @@
 ;; Created: Tue Sep 15 11:52:17 2015 (+0200)
 ;; Version: 1.2
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Fri Jan  1 13:08:08 2016 (+0100)
+;; Last-Updated: Fri Jan  1 15:00:54 2016 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 175
+;;     Update #: 177
 ;; URL:
 ;; Doc URL:
 ;; Keywords: convenience
@@ -197,6 +197,15 @@ You may feel the need to run it yourself after editing cast-related variables."
       (display-buffer output))))
 
 ;;;###autoload
+(defun fanfic-dramatis-personae ()
+  (interactive)
+  (let ((output (get-buffer-create "*Dramatis Personae*")))
+    (with-current-buffer output
+      (erase-buffer)
+      (insert (fanfic--dramatis-personae)))
+    (display-buffer output)))
+
+;;;###autoload
 (defgroup fanfic nil "Utilities for typesetting fanfiction."
   :prefix "fanfic-"
   :group 'convenience)
@@ -320,6 +329,19 @@ when constructing a list of highlights."
 (defvar fanfic--highlights nil "All `font-lock-keywords' for the current buffer which come from `fanfic-mode'.
 DO NOT MODIFY THIS VARIABLE! It is needed to properly undo any changes made.")
 (make-variable-buffer-local 'fanfic--highlights)
+
+(defun fanfic--dramatis-personae ()
+  (let ((cast fanfic-cast)
+        (protags fanfic-protagonists)
+        (antags fanfic-antagonists))
+    (cl-flet ((add-from-alist (list personae)
+                              (set personae (--remove (-contains-p (-map 'car (symbol-value list)) it) (symbol-value personae)))
+                              (set personae (append (symbol-value personae) (-map 'car (symbol-value list))))))
+      (--each '((fanfic-cast-nick-alist        cast)
+                (fanfic-protagonist-nick-alist protags)
+                (fanfic-antagonist-nick-alist  antags))
+        (add-from-alist (nth 0 it) (nth 1 it)))
+      (--reduce-from  (format "%s\n%s\n" acc (--reduce (format "%s\n%s" acc it) (symbol-value it))) "~ Dramatis Personae ~\n" '(protags antags cast)))))
 
 (defun fanfic--font-lock ()
   "Adds all highlights in `fanfic--highlights' to `font-lock-keywords'. Not very meaningful when used externally."
