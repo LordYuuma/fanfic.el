@@ -7,9 +7,9 @@
 ;; Created: Tue Sep 15 11:52:17 2015 (+0200)
 ;; Version: 1.2
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Fri Jan  1 12:35:28 2016 (+0100)
+;; Last-Updated: Fri Jan  1 13:08:08 2016 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 174
+;;     Update #: 175
 ;; URL:
 ;; Doc URL:
 ;; Keywords: convenience
@@ -157,10 +157,10 @@ You may feel the need to run it yourself after editing cast-related variables."
       (cl-flet ((add-highlights (list face)
                                 (add-to-list 'fanfic--highlights `((,(regexp-opt list 'words) 0 ,face t))))
                 (decline (personae)
-                         (eval `(setq ,personae (-flatten (--map (-map (lambda (fmt) (format fmt it)) fanfic-declinations) ,personae)))))
+                         (set personae (-flatten (--map (-map (lambda (fmt) (format fmt it)) fanfic-declinations) (symbol-value personae)))))
                 (split-nick-list (list personae nicks)
-                                 (eval `(setq ,personae (append ,personae (-map 'car ,list))))
-                                 (eval `(setq ,nicks (-mapcat 'cdr ,list)))))
+                                 (set personae (append (symbol-value personae) (-map 'car (symbol-value list))))
+                                 (set nicks (-mapcat 'cdr (symbol-value list)))))
         (--each '((fanfic-cast-nick-alist        cast    cast-nicks)
                   (fanfic-protagonist-nick-alist protags protag-nicks)
                   (fanfic-antagonist-nick-alist  antags  antag-nicks))
