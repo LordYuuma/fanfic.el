@@ -7,9 +7,9 @@
 ;; Created: Tue Sep 15 11:52:17 2015 (+0200)
 ;; Version: 1.2
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Fri Jan  1 15:00:54 2016 (+0100)
+;; Last-Updated: Fri Jan  1 23:34:08 2016 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 177
+;;     Update #: 179
 ;; URL:
 ;; Doc URL:
 ;; Keywords: convenience
@@ -197,13 +197,14 @@ You may feel the need to run it yourself after editing cast-related variables."
       (display-buffer output))))
 
 ;;;###autoload
-(defun fanfic-dramatis-personae ()
-  (interactive)
-  (let ((output (get-buffer-create "*Dramatis Personae*")))
-    (with-current-buffer output
-      (erase-buffer)
-      (insert (fanfic--dramatis-personae)))
-    (display-buffer output)))
+(defun fanfic-dramatis-personae (&optional prefix)
+  "Inserts a dramatis personae at the current point.
+If PREFIX is given, insert at the start of the file."
+  (interactive "P")
+  (save-excursion
+    (when prefix
+      (goto-char (point-min)))
+    (insert (fanfic--dramatis-personae))))
 
 ;;;###autoload
 (defgroup fanfic nil "Utilities for typesetting fanfiction."
@@ -336,7 +337,7 @@ DO NOT MODIFY THIS VARIABLE! It is needed to properly undo any changes made.")
         (antags fanfic-antagonists))
     (cl-flet ((add-from-alist (list personae)
                               (set personae (--remove (-contains-p (-map 'car (symbol-value list)) it) (symbol-value personae)))
-                              (set personae (append (symbol-value personae) (-map 'car (symbol-value list))))))
+                              (set personae (append (--map (format "%s (\"%s\")" (car it) (car (cdr it))) (symbol-value list)) (symbol-value personae)))))
       (--each '((fanfic-cast-nick-alist        cast)
                 (fanfic-protagonist-nick-alist protags)
                 (fanfic-antagonist-nick-alist  antags))
