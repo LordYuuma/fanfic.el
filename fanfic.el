@@ -7,9 +7,9 @@
 ;; Created: Tue Sep 15 11:52:17 2015 (+0200)
 ;; Version: 1.2
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Tue Dec 29 17:58:21 2015 (+0100)
+;; Last-Updated: Fri Jan  1 12:35:28 2016 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 173
+;;     Update #: 174
 ;; URL:
 ;; Doc URL:
 ;; Keywords: convenience
@@ -181,14 +181,16 @@ You may feel the need to run it yourself after editing cast-related variables."
   (font-lock-fontify-buffer))
 
 ;;;###autoload
-(defun fanfic-strip-scenes (content)
+(defun fanfic-strip-scenes (content &optional exclude)
   "Strip the fanfic to paragraphs including CONTENT. Outputs to a new buffer."
+  (interactive (list (read-string (format "%s: " this-command)) current-prefix-arg))
   (save-excursion
     (goto-char (point-min))
     (let ((output (generate-new-buffer "*Stripped*")))
       (while (< (point) (point-max))
         (let ((scene (thing-at-point 'paragraph)))
-          (when (string-match-p (regexp-quote content) scene)
+          (when (eq (not (string-match-p (regexp-quote content) scene))
+                    (not (not exclude)))
             (with-current-buffer output
               (insert scene))))
         (forward-paragraph))
