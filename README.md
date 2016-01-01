@@ -46,3 +46,5 @@ Set these variables and faces to your liking before activating `fanfic-mode`.
 * `fanfic-mode-recast` re-evaluates the variables above to adjust highlights.
 
 * `fanfic-strip-scenes` filter scenes depending on content.
+
+* `fanfic-dramatis-personae` inserts a dramatis personae into the current buffer.

@@ -5,11 +5,11 @@
 ;; Author: Lord Yuuma
 ;; Maintainer: Lord Yuuma
 ;; Created: Tue Sep 15 11:52:17 2015 (+0200)
-;; Version: 1.2
+;; Version: 1.3
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Sat Jan  2 00:36:10 2016 (+0100)
+;; Last-Updated: Sat Jan  2 00:43:13 2016 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 183
+;;     Update #: 184
 ;; URL:
 ;; Doc URL:
 ;; Keywords: convenience
@@ -59,11 +59,14 @@
 ;;           re-evaluates the variables above to adjust highlights.
 ;;        `fanfic-strip-scenes'
 ;;           filter scenes depending on content.
+;;        `fanfic-dramatis-personae'
+;;           inserts a dramatis personae into the current buffer.
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;; Change Log:
 ;;
+;;  1.3:   Implement `fanfic-dramatis-personae'.
 ;;  1.2:   Reimplement `fanfic-mode-recast', `fanfic--safe-list-p'
 ;;         and `fanfic--safe-alist-p' using `dash'.
 ;;         Remove `fanfic--decline'.
