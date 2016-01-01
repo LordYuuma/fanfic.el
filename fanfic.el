@@ -7,9 +7,9 @@
 ;; Created: Tue Sep 15 11:52:17 2015 (+0200)
 ;; Version: 1.2
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Fri Jan  1 23:34:08 2016 (+0100)
+;; Last-Updated: Sat Jan  2 00:36:10 2016 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 179
+;;     Update #: 183
 ;; URL:
 ;; Doc URL:
 ;; Keywords: convenience
@@ -212,6 +212,11 @@ If PREFIX is given, insert at the start of the file."
   :group 'convenience)
 
 ;;;###autoload
+(defgroup fanfic-dramatis-personae nil "Dramatis Personae"
+  :prefix "fanfic-dramatis-personae"
+  :group 'fanfic)
+
+;;;###autoload
 (define-minor-mode fanfic-mode
   "A minor mode for highlighting the name of a fanfic's cast.
 
@@ -325,6 +330,48 @@ when constructing a list of highlights."
   "Face to highlight nicknames of antagonists in."
   :group 'fanfic)
 
+;;;###autoload
+(defcustom fanfic-dramatis-personae-annotate-group nil
+  "When activated, annotate each group with their group name, otherwise leave a blank line."
+  :type 'boolean
+  :safe 'booleanp
+  :group 'fanfic-dramatis-personae)
+
+;;;###autoload
+(defcustom fanfic-dramatis-personae-group-prefix ""
+  "String to be inserted before each group in `fanfic-dramatis-personae'."
+  :type 'string
+  :safe 'stringp
+  :group 'fanfic-dramatis-personae)
+
+;;;###autoload
+(defcustom fanfic-dramatis-personae-group-suffix ""
+  "String to be inserted after each group in `fanfic-dramatis-personae'."
+  :type 'string
+  :safe 'stringp
+  :group 'fanfic-dramatis-personae)
+
+;;;###autoload
+(defcustom fanfic-dramatis-personae-header "~ Dramatis Personae ~\n"
+  "Header to insert before the actual dramatis personae."
+  :type 'string
+  :safe 'stringp
+  :group 'fanfic-dramatis-personae)
+
+;;;###autoload
+(defcustom fanfic-dramatis-personae-item-prefix ""
+  "String to be inserted before each name in `fanfic-dramatis-personae'."
+  :type 'string
+  :safe 'stringp
+  :group 'fanfic-dramatis-personae)
+
+;;;###autoload
+(defcustom fanfic-dramatis-personae-item-suffix ""
+  "String to be inserted after each name in `fanfic-dramatis-personae'."
+  :type 'string
+  :safe 'stringp
+  :group 'fanfic-dramatis-personae)
+
 ;;; Private area.
 
 (defvar fanfic--highlights nil "All `font-lock-keywords' for the current buffer which come from `fanfic-mode'.
@@ -342,7 +389,16 @@ DO NOT MODIFY THIS VARIABLE! It is needed to properly undo any changes made.")
                 (fanfic-protagonist-nick-alist protags)
                 (fanfic-antagonist-nick-alist  antags))
         (add-from-alist (nth 0 it) (nth 1 it)))
-      (--reduce-from  (format "%s\n%s\n" acc (--reduce (format "%s\n%s" acc it) (symbol-value it))) "~ Dramatis Personae ~\n" '(protags antags cast)))))
+      (--reduce-from  (format "%s\%s%s%s\n" acc fanfic-dramatis-personae-group-prefix
+                              (--reduce-from (format "%s\n%s%s%s" acc fanfic-dramatis-personae-item-prefix it fanfic-dramatis-personae-item-suffix)
+                                             (if fanfic-dramatis-personae-annotate-group
+                                                 (nth 1 (assoc it
+                                                               '((protags "Protagonists:")
+                                                                 (antags "Antagonists:")
+                                                                 (cast "Minor Characters:"))))
+                                               "")
+                                             (symbol-value it))
+                              fanfic-dramatis-personae-group-suffix) fanfic-dramatis-personae-header '(protags antags cast)))))
 
 (defun fanfic--font-lock ()
   "Adds all highlights in `fanfic--highlights' to `font-lock-keywords'. Not very meaningful when used externally."
@@ -401,6 +457,20 @@ DO NOT MODIFY THIS VARIABLE! It is needed to properly undo any changes made.")
 (put 'fanfic-protagonist-nick-alist 'safe-local-variable 'fanfic--safe-alist-p)
 ;;;###autoload
 (put 'fanfic-antagonist-nick-alist 'safe-local-variable 'fanfic--safe-alist-p)
+
+
+;;;###autoload
+(put 'fanfic-dramatis-personae-annotate-group 'safe-local-variable 'booleanp)
+;;;###autoload
+(put 'fanfic-dramatis-personae-item-prefix 'safe-local-variable 'stringp)
+;;;###autoload
+(put 'fanfic-dramatis-personae-item-suffix 'safe-local-variable 'stringp)
+;;;###autoload
+(put 'fanfic-dramatis-personae-header 'safe-local-variable 'stringp)
+;;;###autoload
+(put 'fanfic-dramatis-personae-group-prefix 'safe-local-variable 'stringp)
+;;;###autoload
+(put 'fanfic-dramatis-personae-group-suffix 'safe-local-variable 'stringp)
 
 (provide 'fanfic)
 
