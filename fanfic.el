@@ -7,9 +7,9 @@
 ;; Created: Tue Sep 15 11:52:17 2015 (+0200)
 ;; Version: 1.3
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Sat Jan  2 01:21:34 2016 (+0100)
+;; Last-Updated: Sat Jan  2 18:27:46 2016 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 188
+;;     Update #: 189
 ;; URL:
 ;; Doc URL:
 ;; Keywords: convenience
@@ -429,7 +429,7 @@ DO NOT MODIFY THIS VARIABLE! It is needed to properly undo any changes made.")
                 (fanfic-antagonist-nick-alist  antags))
         (add-from-alist (nth 0 it) (nth 1 it)))
 
-      (--reduce-from  (format "%s\%s%s%s\n" acc fanfic-dramatis-personae-group-prefix
+      (--reduce-from  (format "%s%s%s%s\n" acc fanfic-dramatis-personae-group-prefix
                               (--reduce-from (format "%s\n%s%s%s" acc fanfic-dramatis-personae-item-prefix it fanfic-dramatis-personae-item-suffix)
                                              (if fanfic-dramatis-personae-annotate-group
                                                  (nth 1 (assoc it
