@@ -7,9 +7,9 @@
 ;; Created: Tue Sep 15 11:52:17 2015 (+0200)
 ;; Version: 1.3
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Sat Jan  2 23:50:41 2016 (+0100)
+;; Last-Updated: Sat Jan  2 23:59:19 2016 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 191
+;;     Update #: 192
 ;; URL:
 ;; Doc URL:
 ;; Keywords: convenience
@@ -315,7 +315,7 @@ when constructing a list of highlights."
 
 ;;;###autoload
 (defface fanfic-cast-face
-  '((t (:inherit font-lock-keyword-face :foreground "deep sky blue")))
+  '((t (:inherit fanfic-keyword-face :foreground "deep sky blue")))
   "Face to highlight the names of the cast in."
   :group 'fanfic)
 
