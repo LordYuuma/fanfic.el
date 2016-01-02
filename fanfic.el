@@ -7,9 +7,9 @@
 ;; Created: Tue Sep 15 11:52:17 2015 (+0200)
 ;; Version: 1.3
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Sat Jan  2 23:59:19 2016 (+0100)
+;; Last-Updated: Sun Jan  3 00:41:59 2016 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 192
+;;     Update #: 193
 ;; URL:
 ;; Doc URL:
 ;; Keywords: convenience
@@ -34,6 +34,7 @@
 ;;
 ;;    Usage:
 ;;      Variables:
+;;        `fanfic-keywords'
 ;;        `fanfic-antagonists'
 ;;        `fanfic-antagonist-nick-alist'
 ;;        `fanfic-cast'
@@ -42,6 +43,7 @@
 ;;        `fanfic-protagonist-nick-alist'
 ;;
 ;;      Faces:
+;;        `fanfic-keyword-face'
 ;;        `fanfic-antagonist-face'
 ;;        `fanfic-antagonist-nick-face'
 ;;        `fanfic-cast-face'
@@ -140,7 +142,7 @@
 At the first step, highlights already set by `fanfic-mode' are reset.
 Afterwards, when `fanfic-mode' is truthy, keywords are set to what they
 should be according to `fanfic-cast', `fanfic-protagonists', `fanfic-antagonists',
-their respective alists and possible `fanfic-declinations' thereof.
+their respective alists, possible `fanfic-declinations' thereof and `fanfic-keywords'.
 As a last step, `font-lock-fontify-buffer' will be called to make these changes
 visible.
 
@@ -225,11 +227,15 @@ If PREFIX is given, insert at the start of the file."
 (define-minor-mode fanfic-mode
   "A minor mode for highlighting the name of a fanfic's cast.
 
-`fanfic-mode' reacts to three groups of variables, which can be set through
-customization or as file-local variables.
-These are `fanfic-protagonists' `fanfic-antagonists' `fanfic-cast' and their
-respective alists `fanfic-protagonist-nick-alist', `fanfic-antagonist-nick-alist'
-and `fanfic-cast-nick-alist'.
+`fanfic-mode' reacts to `fanfic-keywords' as well as three groups of variables,
+which can all be set through customization or as file-local variables.
+`fanfic-keywords' are handled like a list strings to be fontified as a keyword.
+
+The other groups (`fanfic-protagonists', `fanfic-antagonists', `fanfic-cast' and
+their alists `fanfic-protagonist-nick-alist', `fanfic-antagonist-nick-alist'
+and `fanfic-cast-nick-alist') are handled a bit differently: Their values
+are not taken as-is, but they are formatted as in the format strings given
+in `fanfic-declinations'.
 An entry in one of these lists defines a name as belonging to a certain group,
 which can be a protagonist, antagonist or just a member of the cast. A key entry
 in one of the alists does the same. A value entry corresponds to a nickname
