@@ -7,9 +7,9 @@
 ;; Created: Tue Sep 15 11:52:17 2015 (+0200)
 ;; Version: 1.3
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Sat Jan  2 18:27:46 2016 (+0100)
+;; Last-Updated: Sat Jan  2 23:34:58 2016 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 189
+;;     Update #: 190
 ;; URL:
 ;; Doc URL:
 ;; Keywords: convenience
@@ -179,6 +179,8 @@ You may feel the need to run it yourself after editing cast-related variables."
                   (cast-nicks   'fanfic-nick-face))
           (add-highlights (symbol-value (nth 0 it)) (nth 1 it)))
 
+        (add-highlights (-flatten fanfic-keywords) ''fanfic-keyword-face)
+
         (fanfic--font-lock))))
   ;; run fontify so that changes are immediately visible
   (font-lock-fontify-buffer))
@@ -247,6 +249,13 @@ to some degree. (This is mostly used as a hack for `markdown-mode'.)"
     (ad-deactivate-regexp "fanfic-font-lock-default")))
 
 ;;;###autoload
+(defcustom fanfic-keywords '(("MacGuffin" "Phlebotinum" "Plot Device")
+                             ("orb" "orbs" "crystal" "crystals" "whatever"))
+  "Important objects/places/whatever your plot needs."
+  :type '(repeat (choice (string :tag "Keyword") (repeat :tag "Keywords" string)))
+  :group 'fanfic)
+
+;;;###autoload
 (defcustom fanfic-cast '("Carol" "Dave")
   "The cast of the fic. Not necessarily important people, but they still are a part."
   :type '(repeat string)
@@ -296,6 +305,12 @@ Each value is a string in which `%s' will get replaced by the name of your chara
 when constructing a list of highlights."
   :type '(repeat string)
   :safe 'fanfic--safe-declination-p)
+
+;;;###autoload
+(defface fanfic-keyword-face
+  '((t (:inherit font-lock-keyword-face)))
+  "Face to highlight keywords in."
+  :group 'fanfic)
 
 ;;;###autoload
 (defface fanfic-cast-face
@@ -388,7 +403,6 @@ when constructing a list of highlights."
   :type 'string
   :safe 'stringp
   :group 'fanfic-dramatis-personae)
-
 
 ;;; Private area.
 
