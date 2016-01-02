@@ -7,9 +7,9 @@
 ;; Created: Tue Sep 15 11:52:17 2015 (+0200)
 ;; Version: 1.3
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Sat Jan  2 00:43:13 2016 (+0100)
+;; Last-Updated: Sat Jan  2 01:21:34 2016 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 184
+;;     Update #: 188
 ;; URL:
 ;; Doc URL:
 ;; Keywords: convenience
@@ -375,6 +375,21 @@ when constructing a list of highlights."
   :safe 'stringp
   :group 'fanfic-dramatis-personae)
 
+;;;###autoload
+(defcustom fanfic-dramatis-personae-nick-prefix "(\""
+  "String to be inserted before each nick in `fanfic-dramatis-personae'."
+  :type 'string
+  :safe 'stringp
+  :group 'fanfic-dramatis-personae)
+
+;;;###autoload
+(defcustom fanfic-dramatis-personae-nick-suffix "\")"
+  "String to be inserted after each nick in `fanfic-dramatis-personae'."
+  :type 'string
+  :safe 'stringp
+  :group 'fanfic-dramatis-personae)
+
+
 ;;; Private area.
 
 (defvar fanfic--highlights nil "All `font-lock-keywords' for the current buffer which come from `fanfic-mode'.
@@ -387,11 +402,33 @@ DO NOT MODIFY THIS VARIABLE! It is needed to properly undo any changes made.")
         (antags fanfic-antagonists))
     (cl-flet ((add-from-alist (list personae)
                               (set personae (--remove (-contains-p (-map 'car (symbol-value list)) it) (symbol-value personae)))
-                              (set personae (append (--map (format "%s (\"%s\")" (car it) (car (cdr it))) (symbol-value list)) (symbol-value personae)))))
+                              (set personae (append (--map (format "%s %s%s%s"
+                                                                   (car it)
+                                                                   fanfic-dramatis-personae-nick-prefix
+                                                                   (car (cdr it))
+                                                                   fanfic-dramatis-personae-nick-suffix)
+                                                           (symbol-value list)) (symbol-value personae))))
+              (remove-ambiguous (strong weak) (set weak (--remove (-contains-p (symbol-value strong) it) (symbol-value weak))))
+              (remove-ambiguous-alist (strong weak) (set weak (--remove (-contains-p (-map 'car (symbol-value strong)) it) (symbol-value weak)))))
+
+      ;; we usually ignore duplicate values, but here it's important to rule them out, as simple "overwriting" will not do the trick
+      ;; first, we make sure, that alists have predecence
+      ;; after all, when your character is important enough to have a nick, he is more important than someone else sharing his name
+      (-each '(fanfic-cast-nick-alist fanfic-protagonist-nick-alist fanfic-antagonist-nick-alist)
+        (lambda (strong) (-each '(protags antags cast) (lambda (personae) (remove-ambiguous-alist strong personae)))))
+
+      ;; in the second step we rank after group
+      ;; protagonists > antagonists > cast
+      (--each '((antags  cast)
+                (protags cast)
+                (protags antags))
+        (remove-ambiguous (nth 0 it) (nth 1 it)))
+
       (--each '((fanfic-cast-nick-alist        cast)
                 (fanfic-protagonist-nick-alist protags)
                 (fanfic-antagonist-nick-alist  antags))
         (add-from-alist (nth 0 it) (nth 1 it)))
+
       (--reduce-from  (format "%s\%s%s%s\n" acc fanfic-dramatis-personae-group-prefix
                               (--reduce-from (format "%s\n%s%s%s" acc fanfic-dramatis-personae-item-prefix it fanfic-dramatis-personae-item-suffix)
                                              (if fanfic-dramatis-personae-annotate-group
@@ -461,7 +498,6 @@ DO NOT MODIFY THIS VARIABLE! It is needed to properly undo any changes made.")
 ;;;###autoload
 (put 'fanfic-antagonist-nick-alist 'safe-local-variable 'fanfic--safe-alist-p)
 
-
 ;;;###autoload
 (put 'fanfic-dramatis-personae-annotate-group 'safe-local-variable 'booleanp)
 ;;;###autoload
@@ -474,6 +510,10 @@ DO NOT MODIFY THIS VARIABLE! It is needed to properly undo any changes made.")
 (put 'fanfic-dramatis-personae-group-prefix 'safe-local-variable 'stringp)
 ;;;###autoload
 (put 'fanfic-dramatis-personae-group-suffix 'safe-local-variable 'stringp)
+;;;###autoload
+(put 'fanfic-dramatis-personae-nick-prefix 'safe-local-variable 'stringp)
+;;;###autoload
+(put 'fanfic-dramatis-personae-nick-suffix 'safe-local-variable 'stringp)
 
 (provide 'fanfic)
 
