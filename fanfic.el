@@ -7,9 +7,9 @@
 ;; Created: Tue Sep 15 11:52:17 2015 (+0200)
 ;; Version: 1.3
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Sat Jan  2 23:34:58 2016 (+0100)
+;; Last-Updated: Sat Jan  2 23:50:41 2016 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 190
+;;     Update #: 191
 ;; URL:
 ;; Doc URL:
 ;; Keywords: convenience
@@ -253,6 +253,7 @@ to some degree. (This is mostly used as a hack for `markdown-mode'.)"
                              ("orb" "orbs" "crystal" "crystals" "whatever"))
   "Important objects/places/whatever your plot needs."
   :type '(repeat (choice (string :tag "Keyword") (repeat :tag "Keywords" string)))
+  :safe 'fanfic--safe-when-flattened
   :group 'fanfic)
 
 ;;;###autoload
@@ -491,6 +492,11 @@ DO NOT MODIFY THIS VARIABLE! It is needed to properly undo any changes made.")
   "Used by `fanfic.el' to define safety parameters for customization options. NOT for external use.'"
   (and (listp xs) (-all-p 'stringp xs)))
 
+;;;###autoload
+(defun fanfic--safe-when-flattened (xs)
+  "Used by `fanfic.el' to define safety parameters for customization options. NOT for external use.'"
+  (and (listp xs) (-all-p 'stringp (-flatten xs))))
+
 ;;; Hack Area
 
 ;; `update-fileautoloads' does not take `:safe' in `defcustom' well
@@ -511,6 +517,8 @@ DO NOT MODIFY THIS VARIABLE! It is needed to properly undo any changes made.")
 (put 'fanfic-protagonist-nick-alist 'safe-local-variable 'fanfic--safe-alist-p)
 ;;;###autoload
 (put 'fanfic-antagonist-nick-alist 'safe-local-variable 'fanfic--safe-alist-p)
+;;;###autoload
+(put 'fanfic-keywords 'safe-local-variable 'fanfic--safe-when-flattened)
 
 ;;;###autoload
 (put 'fanfic-dramatis-personae-annotate-group 'safe-local-variable 'booleanp)
