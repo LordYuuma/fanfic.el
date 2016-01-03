@@ -5,11 +5,11 @@
 ;; Author: Lord Yuuma
 ;; Maintainer: Lord Yuuma
 ;; Created: Tue Sep 15 11:52:17 2015 (+0200)
-;; Version: 1.3
+;; Version: 1.4
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Sun Jan  3 00:41:59 2016 (+0100)
+;; Last-Updated: Sun Jan  3 17:21:08 2016 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 193
+;;     Update #: 194
 ;; URL:
 ;; Doc URL:
 ;; Keywords: convenience
@@ -68,6 +68,7 @@
 ;;
 ;;; Change Log:
 ;;
+;;  1.4:   Add `fanfic-keywords'.
 ;;  1.3:   Implement `fanfic-dramatis-personae'.
 ;;  1.2:   Reimplement `fanfic-mode-recast', `fanfic--safe-list-p'
 ;;         and `fanfic--safe-alist-p' using `dash'.
