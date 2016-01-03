@@ -21,6 +21,7 @@ Usage
 -----
 ### Variables
 
+* `fanfic-keywords`
 * `fanfic-antagonists`
 * `fanfic-antagonist-nick-alist`
 * `fanfic-cast`
@@ -29,6 +30,7 @@ Usage
 * `fanfic-protagonist-nick-alist`
 
 ### Faces
+* `fanfic-keyword-face`
 * `fanfic-antagonist-face`
 * `fanfic-antagonist-nick-face`
 * `fanfic-cast-face`
