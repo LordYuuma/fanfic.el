@@ -7,9 +7,9 @@
 ;; Created: Tue Sep 15 11:52:17 2015 (+0200)
 ;; Version: 1.4
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Sun Jan  3 17:21:08 2016 (+0100)
+;; Last-Updated: Sun Jan  3 18:18:20 2016 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 194
+;;     Update #: 195
 ;; URL:
 ;; Doc URL:
 ;; Keywords: convenience
@@ -210,9 +210,15 @@ You may feel the need to run it yourself after editing cast-related variables."
 If PREFIX is given, insert at the start of the file."
   (interactive "P")
   (save-excursion
-    (when prefix
-      (goto-char (point-min)))
+    (if prefix
+        (goto-char (point-min))
+      ;; I have no idea, why `delete-selection-mode' does not do anything
+      ;; without the following, but having it is better than nothing
+      (when (and (boundp 'delete-selection-mode) delete-selection-mode
+                 (region-active-p))
+        (delete-selection-helper (get this-command 'delete-selection))))
     (insert (fanfic--dramatis-personae))))
+(put 'fanfic-dramatis-personae 'delete-selection t)
 
 ;;;###autoload
 (defgroup fanfic nil "Utilities for typesetting fanfiction."
