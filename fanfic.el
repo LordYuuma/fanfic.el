@@ -7,9 +7,9 @@
 ;; Created: Tue Sep 15 11:52:17 2015 (+0200)
 ;; Version: 1.5
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Mon Jan  4 11:00:39 2016 (+0100)
+;; Last-Updated: Mon Jan  4 11:24:26 2016 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 204
+;;     Update #: 205
 ;; URL:
 ;; Doc URL:
 ;; Keywords: convenience
@@ -252,21 +252,21 @@ to some degree. (This is mostly used as a hack for `markdown-mode'.)"
 ;;;###autoload
 (defcustom fanfic-cast '("Carol" "Dave")
   "The cast of the fic. Not necessarily important people, but they still are a part."
-  :type '(repeat (choice (string :tag "Name") (alist :tag "Name and Nicknames" :key-type string :value-type (repeat string))))
+  :type '(repeat (choice (string :tag "Name") (list :tag "Name and Nicknames" (string :tag "Name") (repeat :tag "Nicknames" :inline t (string :tag "Nick")))))
   :safe 'fanfic--safe-cast-p
   :group 'fanfic)
 
 ;;;###autoload
 (defcustom fanfic-protagonists '("Alice" "Bob")
   "Names of characters, which are always considered to be very important."
-  :type '(repeat (choice (string :tag "Name") (alist :tag "Name and Nicknames" :key-type string :value-type (repeat string))))
+  :type '(repeat (choice (string :tag "Name") (list :tag "Name and Nicknames" (string :tag "Name") (repeat :tag "Nicknames" :inline t (string :tag "Nick")))))
   :safe 'fanfic--safe-cast-p
   :group 'fanfic)
 
 ;;;###autoload
 (defcustom fanfic-antagonists '("Eve")
   "Who you're up against. The villains in most cases."
-  :type '(repeat (choice (string :tag "Name") (alist :tag "Name and Nicknames" :key-type string :value-type (repeat string))))
+  :type '(repeat (choice (string :tag "Name") (list :tag "Name and Nicknames" (string :tag "Name") (repeat :tag "Nicknames" :inline t (string :tag "Nick")))))
   :safe 'fanfic--safe-cast-p
   :group 'fanfic)
 
