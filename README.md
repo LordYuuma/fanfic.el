@@ -22,12 +22,9 @@ Usage
 ### Variables
 
 * `fanfic-keywords`
-* `fanfic-antagonists`
-* `fanfic-antagonist-nick-alist`
-* `fanfic-cast`
-* `fanfic-cast-nick-alist`
 * `fanfic-protagonists`
-* `fanfic-protagonist-nick-alist`
+* `fanfic-antagonists`
+* `fanfic-cast`
 
 ### Faces
 * `fanfic-keyword-face`
