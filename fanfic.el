@@ -7,9 +7,9 @@
 ;; Created: Tue Sep 15 11:52:17 2015 (+0200)
 ;; Version: 1.4
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Mon Jan  4 10:44:55 2016 (+0100)
+;; Last-Updated: Mon Jan  4 10:47:06 2016 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 201
+;;     Update #: 202
 ;; URL:
 ;; Doc URL:
 ;; Keywords: convenience
@@ -281,21 +281,21 @@ to some degree. (This is mostly used as a hack for `markdown-mode'.)"
 
 ;;;###autoload
 (defcustom fanfic-antagonist-nick-alist ()
-  "Like `fanfic-antagonists', but maps names to nicknames."
+  "DEPRECATED: Use `fanfic-antagonists' instead."
   :type '(alist :key-type string :value-type (repeat string))
   :safe 'fanfic--safe-cast-p
   :group 'fanfic)
 
 ;;;###autoload
 (defcustom fanfic-protagonist-nick-alist ()
-  "Like `fanfic-protagonists', but maps names to nicknames."
+  "DEPRECATED: Use `fanfic-protagonists' instead."
   :type '(alist :key-type string :value-type (repeat string))
   :safe 'fanfic--safe-cast-p
   :group 'fanfic)
 
 ;;;###autoload
 (defcustom fanfic-cast-nick-alist ()
-  "Like `fanfic-cast', but maps names to nicknames."
+  "DEPRECATED: Use `fanfic-cast' instead."
   :type '(alist :key-type string :value-type (repeat string))
   :safe 'fanfic--safe-cast-p
   :group 'fanfic)
