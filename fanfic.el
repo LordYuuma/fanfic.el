@@ -7,9 +7,9 @@
 ;; Created: Tue Sep 15 11:52:17 2015 (+0200)
 ;; Version: 1.4
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Mon Jan  4 10:07:29 2016 (+0100)
+;; Last-Updated: Mon Jan  4 10:20:05 2016 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 196
+;;     Update #: 199
 ;; URL:
 ;; Doc URL:
 ;; Keywords: convenience
@@ -263,43 +263,43 @@ to some degree. (This is mostly used as a hack for `markdown-mode'.)"
 ;;;###autoload
 (defcustom fanfic-cast '("Carol" "Dave")
   "The cast of the fic. Not necessarily important people, but they still are a part."
-  :type '(repeat string)
-  :safe 'fanfic--safe-list-p
+  :type '(repeat (choice (string :tag "Name") (alist :tag "Name and Nicknames" :key-type string :value-type (repeat string))))
+  :safe 'fanfic--safe-cast-p
   :group 'fanfic)
 
 ;;;###autoload
 (defcustom fanfic-protagonists '("Alice" "Bob")
   "Names of characters, which are always considered to be very important."
-  :type '(repeat string)
-  :safe 'fanfic--safe-list-p
+  :type '(repeat (choice (string :tag "Name") (alist :tag "Name and Nicknames" :key-type string :value-type (repeat string))))
+  :safe 'fanfic--safe-cast-p
   :group 'fanfic)
 
 ;;;###autoload
 (defcustom fanfic-antagonists '("Eve")
   "Who you're up against. The villains in most cases."
-  :type '(repeat string)
-  :safe 'fanfic--safe-list-p
+  :type '(repeat (choice (string :tag "Name") (alist :tag "Name and Nicknames" :key-type string :value-type (repeat string))))
+  :safe 'fanfic--safe-cast-p
   :group 'fanfic)
 
 ;;;###autoload
 (defcustom fanfic-antagonist-nick-alist ()
   "Like `fanfic-antagonists', but maps names to nicknames."
   :type '(alist :key-type string :value-type (repeat string))
-  :safe 'fanfic--safe-alist-p
+  :safe 'fanfic--safe-cast-p
   :group 'fanfic)
 
 ;;;###autoload
 (defcustom fanfic-protagonist-nick-alist ()
   "Like `fanfic-protagonists', but maps names to nicknames."
   :type '(alist :key-type string :value-type (repeat string))
-  :safe 'fanfic--safe-alist-p
+  :safe 'fanfic--safe-cast-p
   :group 'fanfic)
 
 ;;;###autoload
 (defcustom fanfic-cast-nick-alist ()
   "Like `fanfic-cast', but maps names to nicknames."
   :type '(alist :key-type string :value-type (repeat string))
-  :safe 'fanfic--safe-alist-p
+  :safe 'fanfic--safe-cast-p
   :group 'fanfic)
 
 ;;;###autoload
@@ -487,14 +487,9 @@ DO NOT MODIFY THIS VARIABLE! It is needed to properly undo any changes made.")
     (and (< a 2) (eq a b))))
 
 ;;;###autoload
-(defun fanfic--safe-alist-p (xs)
+(defun fanfic--safe-cast-p (xs)
   "Used by `fanfic.el' to define safety parameters for customization options. NOT for external use.'"
-  (and (listp xs) (-all-p 'fanfic--safe-list-p xs)))
-
-;;;###autoload
-(defun fanfic--safe-list-p (xs)
-  "Used by `fanfic.el' to define safety parameters for customization options. NOT for external use.'"
-  (and (listp xs) (-all-p 'stringp xs)))
+  (and (listp xs) (--all-p (or (stringp it) (--all-p 'stringp it)) xs)))
 
 ;;;###autoload
 (defun fanfic--safe-when-flattened (xs)
@@ -510,17 +505,17 @@ DO NOT MODIFY THIS VARIABLE! It is needed to properly undo any changes made.")
 ;; by generating a cookie for them.
 
 ;;;###autoload
-(put 'fanfic-cast 'safe-local-variable 'fanfic--safe-list-p)
+(put 'fanfic-cast 'safe-local-variable 'fanfic--safe-cast-p)
 ;;;###autoload
-(put 'fanfic-protagonists 'safe-local-variable 'fanfic--safe-list-p)
+(put 'fanfic-protagonists 'safe-local-variable 'fanfic--safe-cast-p)
 ;;;###autoload
-(put 'fanfic-antagonists 'safe-local-variable 'fanfic--safe-list-p)
+(put 'fanfic-antagonists 'safe-local-variable 'fanfic--safe-cast-p)
 ;;;###autoload
-(put 'fanfic-cast-nick-alist 'safe-local-variable 'fanfic--safe-alist-p)
+(put 'fanfic-cast-nick-alist 'safe-local-variable 'fanfic--safe-cast-p)
 ;;;###autoload
-(put 'fanfic-protagonist-nick-alist 'safe-local-variable 'fanfic--safe-alist-p)
+(put 'fanfic-protagonist-nick-alist 'safe-local-variable 'fanfic--safe-cast-p)
 ;;;###autoload
-(put 'fanfic-antagonist-nick-alist 'safe-local-variable 'fanfic--safe-alist-p)
+(put 'fanfic-antagonist-nick-alist 'safe-local-variable 'fanfic--safe-cast-p)
 ;;;###autoload
 (put 'fanfic-keywords 'safe-local-variable 'fanfic--safe-when-flattened)
 
