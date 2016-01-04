@@ -7,9 +7,9 @@
 ;; Created: Tue Sep 15 11:52:17 2015 (+0200)
 ;; Version: 1.5
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Mon Jan  4 12:15:33 2016 (+0100)
+;; Last-Updated: Mon Jan  4 16:28:03 2016 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 209
+;;     Update #: 210
 ;; URL:
 ;; Doc URL:
 ;; Keywords: convenience
@@ -420,12 +420,12 @@ DO NOT MODIFY THIS VARIABLE! It is needed to properly undo any changes made.")
                                                  fanfic-dramatis-personae-item-suffix)
                                          (if fanfic-dramatis-personae-annotate-group
                                              (nth 1 (assoc it
-                                                           '((protags "Protagonists:")
-                                                             (antags "Antagonists:")
-                                                             (cast "Minor Characters:"))))
+                                                           '((fanfic-protagonists "Protagonists:")
+                                                             (fanfic-antagonists "Antagonists:")
+                                                             (fanfic-cast "Minor Characters:"))))
                                            "")
                                          (symbol-value it))
-                          fanfic-dramatis-personae-group-suffix) fanfic-dramatis-personae-header '(protags antags cast)))
+                          fanfic-dramatis-personae-group-suffix) fanfic-dramatis-personae-header '(fanfic-protagonists fanfic-antagonists fanfic-cast)))
 
 (defun fanfic--font-lock ()
   "Adds all highlights in `fanfic--highlights' to `font-lock-keywords'. Not very meaningful when used externally."
