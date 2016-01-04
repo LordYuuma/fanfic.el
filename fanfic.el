@@ -7,9 +7,9 @@
 ;; Created: Tue Sep 15 11:52:17 2015 (+0200)
 ;; Version: 1.5
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Mon Jan  4 11:24:26 2016 (+0100)
+;; Last-Updated: Mon Jan  4 11:40:16 2016 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 205
+;;     Update #: 207
 ;; URL:
 ;; Doc URL:
 ;; Keywords: convenience
@@ -155,21 +155,17 @@ You may feel the need to run it yourself after editing cast-related variables."
     (cl-flet ((add-highlights (list face)
                               (add-to-list 'fanfic--highlights `((,(regexp-opt list 'words) 0 ,face t))))
               (decline (personae) (-flatten (--map (-map (lambda (fmt) (format fmt it)) fanfic-declinations) personae))))
-      (let ((fanfic-protagonists (append fanfic-protagonists fanfic-protagonist-nick-alist))
-            (fanfic-antagonists (append fanfic-antagonists fanfic-antagonist-nick-alist))
-            (fanfic-cast (append fanfic-cast fanfic-cast-nick-alist)))
-
-        (--each '(fanfic-protagonists fanfic-antagonists fanfic-cast)
-          (let ((personae (decline (--map (if (listp it) (car it) it) (symbol-value it))))
-                (nicks (decline (--mapcat (if (listp it) (cdr it) nil) (symbol-value it))))
-                (personae-face (nth 1 (assoc it '((fanfic-protagonists 'fanfic-protagonist-face)
-                                                  (fanfic-antagonists 'fanfic-antagonists-face)
-                                                  (fanfic-cast 'fanfic-cast-face)))))
-                (nick-face (nth 1 (assoc it '((fanfic-protagonists 'fanfic-protagonist-nick-face)
-                                              (fanfic-antagonists 'fanfic-antagonist-nick-face)
-                                              (fanfic-cast 'fanfic-nick-face))))))
-            (add-highlights personae personae-face)
-            (add-highlights nicks nick-face))))
+      (--each '(fanfic-protagonists fanfic-antagonists fanfic-cast)
+        (let ((personae (decline (--map (if (listp it) (car it) it) (symbol-value it))))
+              (nicks (decline (--mapcat (if (listp it) (cdr it) nil) (symbol-value it))))
+              (personae-face (nth 1 (assoc it '((fanfic-protagonists 'fanfic-protagonist-face)
+                                                (fanfic-antagonists 'fanfic-antagonists-face)
+                                                (fanfic-cast 'fanfic-cast-face)))))
+              (nick-face (nth 1 (assoc it '((fanfic-protagonists 'fanfic-protagonist-nick-face)
+                                            (fanfic-antagonists 'fanfic-antagonist-nick-face)
+                                            (fanfic-cast 'fanfic-nick-face))))))
+          (add-highlights personae personae-face)
+          (add-highlights nicks nick-face)))
 
       (add-highlights (-flatten fanfic-keywords) ''fanfic-keyword-face)
       (fanfic--font-lock)))
@@ -405,25 +401,21 @@ DO NOT MODIFY THIS VARIABLE! It is needed to properly undo any changes made.")
 (make-variable-buffer-local 'fanfic--highlights)
 
 (defun fanfic--dramatis-personae ()
-  (let ((cast (append fanfic-cast fanfic-cast-nick-alist))
-        (protags (append fanfic-protagonists fanfic-protagonist-nick-alist))
-        (antags (append fanfic-antagonists fanfic-antagonist-nick-alist)))
-
-    (--reduce-from  (format "%s%s%s%s\n" acc fanfic-dramatis-personae-group-prefix
-                            (--reduce-from (format "%s\n%s%s%s" acc fanfic-dramatis-personae-item-prefix
-                                                   (if (stringp it) it (format "%s %s%s%s" (car it)
-                                                                               fanfic-dramatis-personae-nick-prefix
-                                                                               (car (cdr it))
-                                                                               fanfic-dramatis-personae-nick-suffix))
-                                                   fanfic-dramatis-personae-item-suffix)
-                                           (if fanfic-dramatis-personae-annotate-group
-                                               (nth 1 (assoc it
-                                                             '((protags "Protagonists:")
-                                                               (antags "Antagonists:")
-                                                               (cast "Minor Characters:"))))
-                                             "")
-                                           (symbol-value it))
-                            fanfic-dramatis-personae-group-suffix) fanfic-dramatis-personae-header '(protags antags cast))))
+  (--reduce-from  (format "%s%s%s%s\n" acc fanfic-dramatis-personae-group-prefix
+                          (--reduce-from (format "%s\n%s%s%s" acc fanfic-dramatis-personae-item-prefix
+                                                 (if (stringp it) it (format "%s %s%s%s" (car it)
+                                                                             fanfic-dramatis-personae-nick-prefix
+                                                                             (car (cdr it))
+                                                                             fanfic-dramatis-personae-nick-suffix))
+                                                 fanfic-dramatis-personae-item-suffix)
+                                         (if fanfic-dramatis-personae-annotate-group
+                                             (nth 1 (assoc it
+                                                           '((protags "Protagonists:")
+                                                             (antags "Antagonists:")
+                                                             (cast "Minor Characters:"))))
+                                           "")
+                                         (symbol-value it))
+                          fanfic-dramatis-personae-group-suffix) fanfic-dramatis-personae-header '(protags antags cast)))
 
 (defun fanfic--font-lock ()
   "Adds all highlights in `fanfic--highlights' to `font-lock-keywords'. Not very meaningful when used externally."
