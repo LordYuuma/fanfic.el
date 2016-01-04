@@ -7,9 +7,9 @@
 ;; Created: Tue Sep 15 11:52:17 2015 (+0200)
 ;; Version: 1.4
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Sun Jan  3 18:18:20 2016 (+0100)
+;; Last-Updated: Mon Jan  4 10:07:29 2016 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 195
+;;     Update #: 196
 ;; URL:
 ;; Doc URL:
 ;; Keywords: convenience
@@ -154,38 +154,29 @@ You may feel the need to run it yourself after editing cast-related variables."
   (setq fanfic--highlights nil)
 
   (when fanfic-mode
-    (let ((cast fanfic-cast)
-          (protags fanfic-protagonists)
-          (antags fanfic-antagonists)
-          (cast-nicks nil)
-          (protag-nicks nil)
-          (antag-nicks nil))
-      (cl-flet ((add-highlights (list face)
-                                (add-to-list 'fanfic--highlights `((,(regexp-opt list 'words) 0 ,face t))))
-                (decline (personae)
-                         (set personae (-flatten (--map (-map (lambda (fmt) (format fmt it)) fanfic-declinations) (symbol-value personae)))))
-                (split-nick-list (list personae nicks)
-                                 (set personae (append (symbol-value personae) (-map 'car (symbol-value list))))
-                                 (set nicks (-mapcat 'cdr (symbol-value list)))))
-        (--each '((fanfic-cast-nick-alist        cast    cast-nicks)
-                  (fanfic-protagonist-nick-alist protags protag-nicks)
-                  (fanfic-antagonist-nick-alist  antags  antag-nicks))
-          (split-nick-list (nth 0 it) (nth 1 it) (nth 2 it)))
+    (cl-flet ((add-highlights (list face)
+                              (add-to-list 'fanfic--highlights `((,(regexp-opt list 'words) 0 ,face t))))
+              (decline (personae) (-flatten (--map (-map (lambda (fmt) (format fmt it)) fanfic-declinations) personae))))
+      (let ((fanfic-protagonists fanfic-protagonists)
+            (fanfic-antagonists fanfic-antagonists)
+            (fanfic-cast fanfic-cast))
+        (setq fanfic-protagonists (append fanfic-protagonists fanfic-protagonist-nick-alist))
+        (setq fanfic-antagonists (append fanfic-antagonists fanfic-antagonist-nick-alist))
+        (setq fanfic-cast (append fanfic-cast fanfic-cast-nick-alist))
 
-        (--each '(cast protags antags cast-nicks protag-nicks antag-nicks) (decline it))
-
-        (--each '((protags      'fanfic-protagonist-face)
-                  (antags       'fanfic-antagonist-face)
-                  (cast         'fanfic-cast-face)
-                  (protag-nicks 'fanfic-protagonist-nick-face)
-                  (antag-nicks  'fanfic-antagonist-nick-face)
-                  (cast-nicks   'fanfic-nick-face))
-          (add-highlights (symbol-value (nth 0 it)) (nth 1 it)))
-
-        (add-highlights (-flatten fanfic-keywords) ''fanfic-keyword-face)
-
-        (fanfic--font-lock))))
-  ;; run fontify so that changes are immediately visible
+        (--each '(fanfic-protagonists fanfic-antagonists fanfic-cast)
+          (let ((personae (decline (--map (if (listp it) (car it) it) (symbol-value it))))
+                (nicks (decline (--mapcat (if (listp it) (cdr it) nil) (symbol-value it))))
+                (personae-face (nth 1 (assoc it '((fanfic-protagonists 'fanfic-protagonist-face)
+                                                  (fanfic-antagonists 'fanfic-antagonists-face)
+                                                  (fanfic-cast 'fanfic-cast-face)))))
+                (nick-face (nth 1 (assoc it '((fanfic-protagonists 'fanfic-protagonist-nick-face)
+                                              (fanfic-antagonists 'fanfic-antagonist-nick-face)
+                                              (fanfic-cast 'fanfic-nick-face))))))
+            (add-highlights personae personae-face)
+            (add-highlights nicks nick-face))))
+      (add-to-list 'fanfic--highlights (-flatten fanfic-keywords) ''fanfic-keyword-face)
+      (fanfic--font-lock)))
   (font-lock-fontify-buffer))
 
 ;;;###autoload
