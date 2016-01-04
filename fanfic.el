@@ -7,9 +7,9 @@
 ;; Created: Tue Sep 15 11:52:17 2015 (+0200)
 ;; Version: 1.4
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Mon Jan  4 10:20:05 2016 (+0100)
+;; Last-Updated: Mon Jan  4 10:41:29 2016 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 199
+;;     Update #: 200
 ;; URL:
 ;; Doc URL:
 ;; Keywords: convenience
@@ -416,48 +416,25 @@ DO NOT MODIFY THIS VARIABLE! It is needed to properly undo any changes made.")
 (make-variable-buffer-local 'fanfic--highlights)
 
 (defun fanfic--dramatis-personae ()
-  (let ((cast fanfic-cast)
-        (protags fanfic-protagonists)
-        (antags fanfic-antagonists))
-    (cl-flet ((add-from-alist (list personae)
-                              (set personae (--remove (-contains-p (-map 'car (symbol-value list)) it) (symbol-value personae)))
-                              (set personae (append (--map (format "%s %s%s%s"
-                                                                   (car it)
-                                                                   fanfic-dramatis-personae-nick-prefix
-                                                                   (car (cdr it))
-                                                                   fanfic-dramatis-personae-nick-suffix)
-                                                           (symbol-value list)) (symbol-value personae))))
-              (remove-ambiguous (strong weak) (set weak (--remove (-contains-p (symbol-value strong) it) (symbol-value weak))))
-              (remove-ambiguous-alist (strong weak) (set weak (--remove (-contains-p (-map 'car (symbol-value strong)) it) (symbol-value weak)))))
+  (let ((cast (append fanfic-cast fanfic-cast-nick-alist))
+        (protags (append fanfic-protagonists fanfic-protagonist-nick-alist))
+        (antags (append fanfic-antagonists fanfic-antagonist-nick-alist)))
 
-      ;; we usually ignore duplicate values, but here it's important to rule them out, as simple "overwriting" will not do the trick
-      ;; first, we make sure, that alists have predecence
-      ;; after all, when your character is important enough to have a nick, he is more important than someone else sharing his name
-      (-each '(fanfic-cast-nick-alist fanfic-protagonist-nick-alist fanfic-antagonist-nick-alist)
-        (lambda (strong) (-each '(protags antags cast) (lambda (personae) (remove-ambiguous-alist strong personae)))))
-
-      ;; in the second step we rank after group
-      ;; protagonists > antagonists > cast
-      (--each '((antags  cast)
-                (protags cast)
-                (protags antags))
-        (remove-ambiguous (nth 0 it) (nth 1 it)))
-
-      (--each '((fanfic-cast-nick-alist        cast)
-                (fanfic-protagonist-nick-alist protags)
-                (fanfic-antagonist-nick-alist  antags))
-        (add-from-alist (nth 0 it) (nth 1 it)))
-
-      (--reduce-from  (format "%s%s%s%s\n" acc fanfic-dramatis-personae-group-prefix
-                              (--reduce-from (format "%s\n%s%s%s" acc fanfic-dramatis-personae-item-prefix it fanfic-dramatis-personae-item-suffix)
-                                             (if fanfic-dramatis-personae-annotate-group
-                                                 (nth 1 (assoc it
-                                                               '((protags "Protagonists:")
-                                                                 (antags "Antagonists:")
-                                                                 (cast "Minor Characters:"))))
-                                               "")
-                                             (symbol-value it))
-                              fanfic-dramatis-personae-group-suffix) fanfic-dramatis-personae-header '(protags antags cast)))))
+    (--reduce-from  (format "%s%s%s%s\n" acc fanfic-dramatis-personae-group-prefix
+                            (--reduce-from (format "%s\n%s%s%s" acc fanfic-dramatis-personae-item-prefix
+                                                   (if (stringp it) it (format "%s %s%s%s" (car it)
+                                                                               fanfic-dramatis-personae-nick-prefix
+                                                                               (car (cdr it))
+                                                                               fanfic-dramatis-personae-nick-suffix))
+                                                   fanfic-dramatis-personae-item-suffix)
+                                           (if fanfic-dramatis-personae-annotate-group
+                                               (nth 1 (assoc it
+                                                             '((protags "Protagonists:")
+                                                               (antags "Antagonists:")
+                                                               (cast "Minor Characters:"))))
+                                             "")
+                                           (symbol-value it))
+                            fanfic-dramatis-personae-group-suffix) fanfic-dramatis-personae-header '(protags antags cast))))
 
 (defun fanfic--font-lock ()
   "Adds all highlights in `fanfic--highlights' to `font-lock-keywords'. Not very meaningful when used externally."
