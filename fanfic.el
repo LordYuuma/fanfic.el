@@ -7,9 +7,9 @@
 ;; Created: Tue Sep 15 11:52:17 2015 (+0200)
 ;; Version: 1.5
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Mon Jan  4 11:40:16 2016 (+0100)
+;; Last-Updated: Mon Jan  4 11:42:17 2016 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 207
+;;     Update #: 208
 ;; URL:
 ;; Doc URL:
 ;; Keywords: convenience
@@ -133,7 +133,7 @@
 (require 'dash)
 
 ;;;###autoload
-(defadvice font-lock-refresh-defaults (after fanfic-font-lock-defaults) (if fanfic-mode (fanfic-mode-recast)))
+(defadvice font-lock-refresh-defaults (after fanfic-font-lock-defaults) (if fanfic-mode (fanfic--font-lock)))
 
 (defun fanfic-mode-recast ()
   "Refreshes `font-lock-keywords' according to the `fanfic-' variables.
