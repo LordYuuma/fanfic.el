@@ -7,9 +7,9 @@
 ;; Created: Tue Sep 15 11:52:17 2015 (+0200)
 ;; Version: 1.4
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Mon Jan  4 10:41:29 2016 (+0100)
+;; Last-Updated: Mon Jan  4 10:44:55 2016 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 200
+;;     Update #: 201
 ;; URL:
 ;; Doc URL:
 ;; Keywords: convenience
@@ -157,12 +157,9 @@ You may feel the need to run it yourself after editing cast-related variables."
     (cl-flet ((add-highlights (list face)
                               (add-to-list 'fanfic--highlights `((,(regexp-opt list 'words) 0 ,face t))))
               (decline (personae) (-flatten (--map (-map (lambda (fmt) (format fmt it)) fanfic-declinations) personae))))
-      (let ((fanfic-protagonists fanfic-protagonists)
-            (fanfic-antagonists fanfic-antagonists)
-            (fanfic-cast fanfic-cast))
-        (setq fanfic-protagonists (append fanfic-protagonists fanfic-protagonist-nick-alist))
-        (setq fanfic-antagonists (append fanfic-antagonists fanfic-antagonist-nick-alist))
-        (setq fanfic-cast (append fanfic-cast fanfic-cast-nick-alist))
+      (let ((fanfic-protagonists (append fanfic-protagonists fanfic-protagonist-nick-alist))
+            (fanfic-antagonists (append fanfic-antagonists fanfic-antagonist-nick-alist))
+            (fanfic-cast (append fanfic-cast fanfic-cast-nick-alist)))
 
         (--each '(fanfic-protagonists fanfic-antagonists fanfic-cast)
           (let ((personae (decline (--map (if (listp it) (car it) it) (symbol-value it))))
@@ -175,7 +172,8 @@ You may feel the need to run it yourself after editing cast-related variables."
                                               (fanfic-cast 'fanfic-nick-face))))))
             (add-highlights personae personae-face)
             (add-highlights nicks nick-face))))
-      (add-to-list 'fanfic--highlights (-flatten fanfic-keywords) ''fanfic-keyword-face)
+
+      (add-highlights (-flatten fanfic-keywords) ''fanfic-keyword-face)
       (fanfic--font-lock)))
   (font-lock-fontify-buffer))
 
