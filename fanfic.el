@@ -7,9 +7,9 @@
 ;; Created: Tue Sep 15 11:52:17 2015 (+0200)
 ;; Version: 1.5
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Mon Jan  4 11:42:17 2016 (+0100)
+;; Last-Updated: Mon Jan  4 12:15:33 2016 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 208
+;;     Update #: 209
 ;; URL:
 ;; Doc URL:
 ;; Keywords: convenience
@@ -213,6 +213,16 @@ If PREFIX is given, insert at the start of the file."
   :prefix "fanfic-dramatis-personae"
   :group 'fanfic)
 
+(define-widget 'fanfic-cast-type 'lazy
+  "A cast of persons with names (and possibly nicknames)."
+  :tag ""
+  :type '(repeat :tag "Cast"
+                 (choice :tag "Person"
+                         (string :tag "Name")
+                         (list :tag "Name and Nicknames"
+                               (string :tag "Name")
+                               (repeat :tag "Nicknames" :inline t (string :tag "Nick"))))))
+
 ;;;###autoload
 (define-minor-mode fanfic-mode
   "A minor mode for highlighting the name of a fanfic's cast.
@@ -248,21 +258,21 @@ to some degree. (This is mostly used as a hack for `markdown-mode'.)"
 ;;;###autoload
 (defcustom fanfic-cast '("Carol" "Dave")
   "The cast of the fic. Not necessarily important people, but they still are a part."
-  :type '(repeat (choice (string :tag "Name") (list :tag "Name and Nicknames" (string :tag "Name") (repeat :tag "Nicknames" :inline t (string :tag "Nick")))))
+  :type 'fanfic-cast-type
   :safe 'fanfic--safe-cast-p
   :group 'fanfic)
 
 ;;;###autoload
 (defcustom fanfic-protagonists '("Alice" "Bob")
   "Names of characters, which are always considered to be very important."
-  :type '(repeat (choice (string :tag "Name") (list :tag "Name and Nicknames" (string :tag "Name") (repeat :tag "Nicknames" :inline t (string :tag "Nick")))))
+  :type 'fanfic-cast-type
   :safe 'fanfic--safe-cast-p
   :group 'fanfic)
 
 ;;;###autoload
 (defcustom fanfic-antagonists '("Eve")
   "Who you're up against. The villains in most cases."
-  :type '(repeat (choice (string :tag "Name") (list :tag "Name and Nicknames" (string :tag "Name") (repeat :tag "Nicknames" :inline t (string :tag "Nick")))))
+  :type 'fanfic-cast-type
   :safe 'fanfic--safe-cast-p
   :group 'fanfic)
 
