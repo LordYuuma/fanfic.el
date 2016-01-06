@@ -7,9 +7,9 @@
 ;; Created: Tue Sep 15 11:52:17 2015 (+0200)
 ;; Version: 1.5
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Mon Jan  4 16:28:03 2016 (+0100)
+;; Last-Updated: Wed Jan  6 17:23:23 2016 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 210
+;;     Update #: 211
 ;; URL:
 ;; Doc URL:
 ;; Keywords: convenience
@@ -159,7 +159,7 @@ You may feel the need to run it yourself after editing cast-related variables."
         (let ((personae (decline (--map (if (listp it) (car it) it) (symbol-value it))))
               (nicks (decline (--mapcat (if (listp it) (cdr it) nil) (symbol-value it))))
               (personae-face (nth 1 (assoc it '((fanfic-protagonists 'fanfic-protagonist-face)
-                                                (fanfic-antagonists 'fanfic-antagonists-face)
+                                                (fanfic-antagonists 'fanfic-antagonist-face)
                                                 (fanfic-cast 'fanfic-cast-face)))))
               (nick-face (nth 1 (assoc it '((fanfic-protagonists 'fanfic-protagonist-nick-face)
                                             (fanfic-antagonists 'fanfic-antagonist-nick-face)
