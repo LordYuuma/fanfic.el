@@ -7,9 +7,9 @@
 ;; Created: Tue Sep 15 11:52:17 2015 (+0200)
 ;; Version: 1.5
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Wed Jan  6 17:23:23 2016 (+0100)
+;; Last-Updated: Sat Jan  9 14:30:22 2016 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 211
+;;     Update #: 212
 ;; URL:
 ;; Doc URL:
 ;; Keywords: convenience
@@ -441,7 +441,7 @@ DO NOT MODIFY THIS VARIABLE! It is needed to properly undo any changes made.")
 
 ;;;###autoload
 (defun fanfic--safe-declination-p (str)
-  "Used by `fanfic.el' to set safety parameters for `fanfic-declarations'. NOT for external use."
+  "Used by `fanfic.el' to set safety parameters for `fanfic-declinations'. NOT for external use."
   (let ((a 0)
         (b 0)
         (last 0))
