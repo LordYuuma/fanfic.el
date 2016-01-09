@@ -7,9 +7,9 @@
 ;; Created: Tue Sep 15 11:52:17 2015 (+0200)
 ;; Version: 1.5
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Sat Jan  9 14:30:22 2016 (+0100)
+;; Last-Updated: Sat Jan  9 23:22:42 2016 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 212
+;;     Update #: 217
 ;; URL:
 ;; Doc URL:
 ;; Keywords: convenience
@@ -154,7 +154,7 @@ You may feel the need to run it yourself after editing cast-related variables."
   (when fanfic-mode
     (cl-flet ((add-highlights (list face)
                               (add-to-list 'fanfic--highlights `((,(regexp-opt list 'words) 0 ,face t))))
-              (decline (personae) (-flatten (--map (-map (lambda (fmt) (format fmt it)) fanfic-declinations) personae))))
+              (decline (personae) (-flatten (fanfic-decline personae))))
       (--each '(fanfic-protagonists fanfic-antagonists fanfic-cast)
         (let ((personae (decline (--map (if (listp it) (car it) it) (symbol-value it))))
               (nicks (decline (--mapcat (if (listp it) (cdr it) nil) (symbol-value it))))
@@ -170,6 +170,15 @@ You may feel the need to run it yourself after editing cast-related variables."
       (add-highlights (-flatten fanfic-keywords) ''fanfic-keyword-face)
       (fanfic--font-lock)))
   (font-lock-fontify-buffer))
+
+(defun fanfic-decline (name-or-names)
+  "Decline NAME-OR-NAMES according to `fanfic-declinations'.
+If NAME-OR-NAMES is a string, a list is returned, in which each element is the corresponding element of
+`fanfic-declination' with {name} replaced by NAME-OR-NAMES.
+If NAME-OR-NAMES is a list, `fanfic-decline' is called recursively for each element in that list."
+  (if (stringp name-or-names)
+      (--map (replace-regexp-in-string "{name}" name-or-names it t t) fanfic-declinations)
+    (-map 'fanfic-decline name-or-names)))
 
 ;;;###autoload
 (defun fanfic-strip-scenes (content &optional exclude)
@@ -298,10 +307,10 @@ to some degree. (This is mostly used as a hack for `markdown-mode'.)"
   :group 'fanfic)
 
 ;;;###autoload
-(defcustom fanfic-declinations '("%s" "%s's")
+(defcustom fanfic-declinations '("{name}" "{name}'s")
   "Ways in which a name may appear in the language the fic is written in.
 
-Each value is a string in which `%s' will get replaced by the name of your character
+Each value is a string in which `{name}' will get replaced by the name of your character
 when constructing a list of highlights."
   :type '(repeat string)
   :safe 'fanfic--safe-declination-p)
