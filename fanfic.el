@@ -7,9 +7,9 @@
 ;; Created: Tue Sep 15 11:52:17 2015 (+0200)
 ;; Version: 1.5
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Sat Jan  9 23:22:42 2016 (+0100)
+;; Last-Updated: Sat Jan  9 23:26:44 2016 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 217
+;;     Update #: 219
 ;; URL:
 ;; Doc URL:
 ;; Keywords: convenience
@@ -313,7 +313,7 @@ to some degree. (This is mostly used as a hack for `markdown-mode'.)"
 Each value is a string in which `{name}' will get replaced by the name of your character
 when constructing a list of highlights."
   :type '(repeat string)
-  :safe 'fanfic--safe-declination-p)
+  :safe (lambda (xs) (-all-p 'stringp xs)))
 
 ;;;###autoload
 (defface fanfic-keyword-face
@@ -447,21 +447,6 @@ DO NOT MODIFY THIS VARIABLE! It is needed to properly undo any changes made.")
   "Removes all changes to `font-lock-keywords' done by `fanfic-mode'. Not intended for external use."
   (dolist (highlight fanfic--highlights)
     (font-lock-remove-keywords nil highlight)))
-
-;;;###autoload
-(defun fanfic--safe-declination-p (str)
-  "Used by `fanfic.el' to set safety parameters for `fanfic-declinations'. NOT for external use."
-  (let ((a 0)
-        (b 0)
-        (last 0))
-    (while (string-match "%" str last)
-      (setq last (match-end 0))
-      (setq a (+ a 1)))
-    (setq last 0)
-    (while (string-match "%s" str last)
-      (setq last (match-end 0))
-      (setq b (+ b 1)))
-    (and (< a 2) (eq a b))))
 
 ;;;###autoload
 (defun fanfic--safe-cast-p (xs)
