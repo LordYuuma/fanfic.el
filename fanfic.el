@@ -7,9 +7,9 @@
 ;; Created: Tue Sep 15 11:52:17 2015 (+0200)
 ;; Version: 2.0
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Sun Jan 10 02:15:13 2016 (+0100)
+;; Last-Updated: Sun Jan 10 14:52:09 2016 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 224
+;;     Update #: 228
 ;; URL:
 ;; Doc URL:
 ;; Keywords: convenience
@@ -161,18 +161,19 @@ You may feel the need to run it yourself after editing cast-related variables."
 
   (when fanfic-mode
     (fanfic-add-highlights (-flatten fanfic-keywords) 'fanfic-keyword-face t)
-    (cl-flet ((decline (personae) (-flatten (fanfic-decline personae))))
-      (--each '(fanfic-cast fanfic-antagonists fanfic-protagonists)
-        (let ((personae (decline (--map (if (listp it) (car it) it) (symbol-value it))))
-              (nicks (decline (--mapcat (if (listp it) (cdr it) nil) (symbol-value it))))
-              (personae-face (nth 1 (assoc it '((fanfic-protagonists fanfic-protagonist-face)
-                                                (fanfic-antagonists fanfic-antagonist-face)
-                                                (fanfic-cast fanfic-cast-face)))))
-              (nick-face (nth 1 (assoc it '((fanfic-protagonists fanfic-protagonist-nick-face)
-                                            (fanfic-antagonists fanfic-antagonist-nick-face)
-                                            (fanfic-cast fanfic-nick-face))))))
-          (fanfic-add-highlights nicks nick-face)
-          (fanfic-add-highlights personae personae-face))))
+    (run-hooks 'fanfic-special-keyword-hook)
+    (--each '(fanfic-cast fanfic-antagonists fanfic-protagonists)
+      (let ((personae (-flatten (fanfic-decline (--map (if (listp it) (car it) it) (symbol-value it)))))
+            (nicks (-flatten (fanfic-decline (--mapcat (if (listp it) (cdr it) nil) (symbol-value it)))))
+            (personae-face (nth 1 (assoc it '((fanfic-protagonists fanfic-protagonist-face)
+                                              (fanfic-antagonists fanfic-antagonist-face)
+                                              (fanfic-cast fanfic-cast-face)))))
+            (nick-face (nth 1 (assoc it '((fanfic-protagonists fanfic-protagonist-nick-face)
+                                          (fanfic-antagonists fanfic-antagonist-nick-face)
+                                          (fanfic-cast fanfic-nick-face))))))
+        (fanfic-add-highlights nicks nick-face t)
+        (fanfic-add-highlights personae personae-face t)))
+    (run-hooks 'fanfic-special-cast-hook)
     (fanfic--font-lock))
   (font-lock-fontify-buffer))
 
@@ -324,6 +325,23 @@ Each value is a string in which `{name}' will get replaced by the name of your c
 when constructing a list of highlights."
   :type '(repeat string)
   :safe (lambda (xs) (-all-p 'stringp xs)))
+
+;;;###autoload
+(defcustom fanfic-special-keyword-hook nil
+  "Hook to run after adding `fanfic-keywords' to the list of fanfic highlights.
+This hook is run before any cast related keywords are added and should be used to define
+special keywords, which are to be highlighted differently than `fanfic-keywords'."
+  :type 'hook
+  :group 'fanfic)
+
+;;;###autoload
+(defcustom fanfic-special-cast-hook nil
+  "Hook to run after adding cast related keywords to the list of fanfic highlights.
+This hook should be used to add names of characters, who don't fit any of the
+categories provided by fanfic.el or need to be colored differently because of an
+already color coded cast."
+  :type 'hook
+  :group 'fanfic)
 
 ;;;###autoload
 (defface fanfic-keyword-face
