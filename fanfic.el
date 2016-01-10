@@ -7,9 +7,9 @@
 ;; Created: Tue Sep 15 11:52:17 2015 (+0200)
 ;; Version: 1.5
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Sat Jan  9 23:26:44 2016 (+0100)
+;; Last-Updated: Sun Jan 10 01:10:18 2016 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 219
+;;     Update #: 221
 ;; URL:
 ;; Doc URL:
 ;; Keywords: convenience
@@ -152,23 +152,20 @@ You may feel the need to run it yourself after editing cast-related variables."
   (setq fanfic--highlights nil)
 
   (when fanfic-mode
-    (cl-flet ((add-highlights (list face)
-                              (add-to-list 'fanfic--highlights `((,(regexp-opt list 'words) 0 ,face t))))
-              (decline (personae) (-flatten (fanfic-decline personae))))
-      (--each '(fanfic-protagonists fanfic-antagonists fanfic-cast)
+    (fanfic-add-highlights (-flatten fanfic-keywords) 'fanfic-keyword-face t)
+    (cl-flet ((decline (personae) (-flatten (fanfic-decline personae))))
+      (--each '(fanfic-cast fanfic-antagonists fanfic-protagonists)
         (let ((personae (decline (--map (if (listp it) (car it) it) (symbol-value it))))
               (nicks (decline (--mapcat (if (listp it) (cdr it) nil) (symbol-value it))))
-              (personae-face (nth 1 (assoc it '((fanfic-protagonists 'fanfic-protagonist-face)
-                                                (fanfic-antagonists 'fanfic-antagonist-face)
-                                                (fanfic-cast 'fanfic-cast-face)))))
-              (nick-face (nth 1 (assoc it '((fanfic-protagonists 'fanfic-protagonist-nick-face)
-                                            (fanfic-antagonists 'fanfic-antagonist-nick-face)
-                                            (fanfic-cast 'fanfic-nick-face))))))
-          (add-highlights personae personae-face)
-          (add-highlights nicks nick-face)))
-
-      (add-highlights (-flatten fanfic-keywords) ''fanfic-keyword-face)
-      (fanfic--font-lock)))
+              (personae-face (nth 1 (assoc it '((fanfic-protagonists fanfic-protagonist-face)
+                                                (fanfic-antagonists fanfic-antagonist-face)
+                                                (fanfic-cast fanfic-cast-face)))))
+              (nick-face (nth 1 (assoc it '((fanfic-protagonists fanfic-protagonist-nick-face)
+                                            (fanfic-antagonists fanfic-antagonist-nick-face)
+                                            (fanfic-cast fanfic-nick-face))))))
+          (fanfic-add-highlights nicks nick-face)
+          (fanfic-add-highlights personae personae-face))))
+    (fanfic--font-lock))
   (font-lock-fontify-buffer))
 
 (defun fanfic-decline (name-or-names)
@@ -179,6 +176,32 @@ If NAME-OR-NAMES is a list, `fanfic-decline' is called recursively for each elem
   (if (stringp name-or-names)
       (--map (replace-regexp-in-string "{name}" name-or-names it t t) fanfic-declinations)
     (-map 'fanfic-decline name-or-names)))
+
+(defun fanfic-add-highlights (names face &optional skip-font-lock)
+  "Adds NAMES highlighted under FACE to the list of fanfic generated highlights.
+If optional argument SKIP-FONT-LOCK is non-nil, keywords generated this way are
+not yet added to font-lock and fontification is not run afterwards."
+  (unless fanfic-mode
+    (error "Attempt to modify fanfic highlights outside of fanfic-mode."))
+  (let ((highlight `((,(regexp-opt names 'words) 0 ',face t))))
+    (add-to-list 'fanfic--highlights highlight t)
+    (unless skip-font-lock
+      (font-lock-add-keywords nil highlight 'append)
+      (font-lock-fontify-buffer))))
+
+(defun fanfic-remove-highlights (names face &optional skip-font-lock)
+  "Removes NAMES highlighted under FACE from the list of fanfic generated highlights.
+If optional argument SKIP-FONT-LOCK is non-nil, keywords keywords generated this way
+are not yet removed from font-lock and fontification is not run afterwards."
+  (unless fanfic-mode
+    (error "Attempt to modify fanfic highlights outside of fanfic-mode."))
+  (let ((highlight `((,(regexp-opt names 'words) 0 ',face t))))
+    (unless (-contains-p fanfic--highlights highlight t)
+      (error "Attempt to remove non-present fanfic highlights."))
+    (set 'fanfic--highlights (delq highlight fanfic--highlights))
+    (unless skip-font-lock
+      (font-lock-remove-keywords nil highlight)
+      (font-lock-fontify-buffer))))
 
 ;;;###autoload
 (defun fanfic-strip-scenes (content &optional exclude)
