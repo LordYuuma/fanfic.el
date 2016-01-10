@@ -7,9 +7,9 @@
 ;; Created: Tue Sep 15 11:52:17 2015 (+0200)
 ;; Version: 2.0
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Sun Jan 10 14:52:09 2016 (+0100)
+;; Last-Updated: Sun Jan 10 15:20:31 2016 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 228
+;;     Update #: 229
 ;; URL:
 ;; Doc URL:
 ;; Keywords: convenience
@@ -248,6 +248,10 @@ If PREFIX is given, insert at the start of the file."
 (defgroup fanfic nil "Utilities for typesetting fanfiction."
   :prefix "fanfic-"
   :group 'convenience)
+
+;;;###autoload
+(defgroup fanfic-universes nil "(Third Party) settings for fanfics set in specific universes."
+  :group 'fanfic)
 
 ;;;###autoload
 (defgroup fanfic-dramatis-personae nil "Dramatis Personae"
