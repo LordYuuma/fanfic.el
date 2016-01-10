@@ -7,9 +7,9 @@
 ;; Created: Tue Sep 15 11:52:17 2015 (+0200)
 ;; Version: 1.5
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Sun Jan 10 01:10:18 2016 (+0100)
+;; Last-Updated: Sun Jan 10 01:41:47 2016 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 221
+;;     Update #: 222
 ;; URL:
 ;; Doc URL:
 ;; Keywords: convenience
@@ -309,27 +309,6 @@ to some degree. (This is mostly used as a hack for `markdown-mode'.)"
   :group 'fanfic)
 
 ;;;###autoload
-(defcustom fanfic-antagonist-nick-alist ()
-  "DEPRECATED: Use `fanfic-antagonists' instead."
-  :type '(alist :key-type string :value-type (repeat string))
-  :safe 'fanfic--safe-cast-p
-  :group 'fanfic)
-
-;;;###autoload
-(defcustom fanfic-protagonist-nick-alist ()
-  "DEPRECATED: Use `fanfic-protagonists' instead."
-  :type '(alist :key-type string :value-type (repeat string))
-  :safe 'fanfic--safe-cast-p
-  :group 'fanfic)
-
-;;;###autoload
-(defcustom fanfic-cast-nick-alist ()
-  "DEPRECATED: Use `fanfic-cast' instead."
-  :type '(alist :key-type string :value-type (repeat string))
-  :safe 'fanfic--safe-cast-p
-  :group 'fanfic)
-
-;;;###autoload
 (defcustom fanfic-declinations '("{name}" "{name}'s")
   "Ways in which a name may appear in the language the fic is written in.
 
@@ -495,12 +474,6 @@ DO NOT MODIFY THIS VARIABLE! It is needed to properly undo any changes made.")
 (put 'fanfic-protagonists 'safe-local-variable 'fanfic--safe-cast-p)
 ;;;###autoload
 (put 'fanfic-antagonists 'safe-local-variable 'fanfic--safe-cast-p)
-;;;###autoload
-(put 'fanfic-cast-nick-alist 'safe-local-variable 'fanfic--safe-cast-p)
-;;;###autoload
-(put 'fanfic-protagonist-nick-alist 'safe-local-variable 'fanfic--safe-cast-p)
-;;;###autoload
-(put 'fanfic-antagonist-nick-alist 'safe-local-variable 'fanfic--safe-cast-p)
 ;;;###autoload
 (put 'fanfic-keywords 'safe-local-variable 'fanfic--safe-when-flattened)
 
