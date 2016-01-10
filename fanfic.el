@@ -5,11 +5,11 @@
 ;; Author: Lord Yuuma
 ;; Maintainer: Lord Yuuma
 ;; Created: Tue Sep 15 11:52:17 2015 (+0200)
-;; Version: 1.5
+;; Version: 2.0
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Sun Jan 10 01:41:47 2016 (+0100)
+;; Last-Updated: Sun Jan 10 02:15:13 2016 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 222
+;;     Update #: 224
 ;; URL:
 ;; Doc URL:
 ;; Keywords: convenience
@@ -56,6 +56,9 @@
 ;;           above.
 ;;        `fanfic-mode-recast'
 ;;           re-evaluates the variables above to adjust highlights.
+;;        `fanfic-add-highlights'
+;;        `fanfic-remove-highlights'
+;;           add or remove highlights
 ;;        `fanfic-strip-scenes'
 ;;           filter scenes depending on content.
 ;;        `fanfic-dramatis-personae'
@@ -65,6 +68,11 @@
 ;;
 ;;; Change Log:
 ;;
+;;  2.0:   Removed alists.
+;;         Added `fanfic-add-highlights', `fanfic-remove-highlights'
+;;         and `fanfic-decline'.
+;;         Changed `fanfic-declination' to use "{name}" instead
+;;         of "%s"
 ;;  1.5:   Refactor name and nickname handling.
 ;;  1.4:   Add `fanfic-keywords'.
 ;;  1.3:   Implement `fanfic-dramatis-personae'.
