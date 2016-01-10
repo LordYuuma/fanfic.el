@@ -46,4 +46,8 @@ Set these variables and faces to your liking before activating `fanfic-mode`.
 
 * `fanfic-strip-scenes` filter scenes depending on content.
 
+* `fanfic-add-highlights` can be used while `fanfic-mode` is active to add highlights.
+
+* `fanfic-remove-highlights` can be used while `fanfic-mode` is active to remove highlights.
+
 * `fanfic-dramatis-personae` inserts a dramatis personae into the current buffer.
