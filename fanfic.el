@@ -7,9 +7,9 @@
 ;; Created: Tue Sep 15 11:52:17 2015 (+0200)
 ;; Version: 2.0
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Sun Jan 10 15:20:31 2016 (+0100)
+;; Last-Updated: Thu Jan 14 20:42:15 2016 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 229
+;;     Update #: 230
 ;; URL:
 ;; Doc URL:
 ;; Keywords: convenience
@@ -137,8 +137,13 @@
 ;;
 ;;; Code:
 
+(require 'cl-lib)
+
 ;;;###autoload
 (require 'dash)
+
+(cl-defstruct (fanfic-universe (:constructor fanfic-make-universe))
+  name cast keywords)
 
 ;;;###autoload
 (defadvice font-lock-refresh-defaults (after fanfic-font-lock-defaults) (if fanfic-mode (fanfic--font-lock)))
