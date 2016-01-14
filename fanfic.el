@@ -7,9 +7,9 @@
 ;; Created: Tue Sep 15 11:52:17 2015 (+0200)
 ;; Version: 2.0
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Thu Jan 14 20:42:15 2016 (+0100)
+;; Last-Updated: Fri Jan 15 00:06:23 2016 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 230
+;;     Update #: 244
 ;; URL:
 ;; Doc URL:
 ;; Keywords: convenience
@@ -203,6 +203,32 @@ not yet added to font-lock and fontification is not run afterwards."
       (font-lock-add-keywords nil highlight 'append)
       (font-lock-fontify-buffer))))
 
+(defun fanfic-add-keywords-from-universes (&optional skip-font-lock)
+  (--each fanfic-universes
+    (let ((universe (symbol-value it)))
+      (when (fanfic-universe-p universe)
+        (--each (fanfic-universe-keywords universe)
+          (fanfic-add-highlights (-flatten (car it)) (cdr it) skip-font-lock))))))
+
+(defun fanfic-add-cast-from-universes (&optional skip-font-lock)
+  (--each fanfic-universes
+    (let ((universe (symbol-value it)))
+      (when (fanfic-universe-p universe)
+        (--each (fanfic-universe-cast universe)
+          (fanfic-add-highlights (-flatten (fanfic-decline (car it))) (cdr it) skip-font-lock))))))
+
+(defun fanfic-active-universe-p (universe)
+  (and (fanfic-universe-p universe)
+       (--any-p (eq universe (symbol-value it)) fanfic-universes)))
+
+(defun fanfic-universes-special-keywords ()
+  "A version of `fanfic-add-keywords-from-universes', that can be used as hook for `fanfic-special-keyword-hook'."
+  (fanfic-add-keywords-from-universes t))
+
+(defun fanfic-universes-special-cast ()
+  "A version of `fanfic-add-cast-from-universes', that can be used as hook for `fanfic-special-cast-hook'."
+  (fanfic-add-cast-from-universes t))
+
 (defun fanfic-remove-highlights (names face &optional skip-font-lock)
   "Removes NAMES highlighted under FACE from the list of fanfic generated highlights.
 If optional argument SKIP-FONT-LOCK is non-nil, keywords keywords generated this way
@@ -336,7 +362,7 @@ when constructing a list of highlights."
   :safe (lambda (xs) (-all-p 'stringp xs)))
 
 ;;;###autoload
-(defcustom fanfic-special-keyword-hook nil
+(defcustom fanfic-special-keyword-hook '(fanfic-universes-special-keywords)
   "Hook to run after adding `fanfic-keywords' to the list of fanfic highlights.
 This hook is run before any cast related keywords are added and should be used to define
 special keywords, which are to be highlighted differently than `fanfic-keywords'."
@@ -344,12 +370,19 @@ special keywords, which are to be highlighted differently than `fanfic-keywords'
   :group 'fanfic)
 
 ;;;###autoload
-(defcustom fanfic-special-cast-hook nil
+(defcustom fanfic-special-cast-hook '(fanfic-universes-special-cast)
   "Hook to run after adding cast related keywords to the list of fanfic highlights.
 This hook should be used to add names of characters, who don't fit any of the
 categories provided by fanfic.el or need to be colored differently because of an
 already color coded cast."
   :type 'hook
+  :group 'fanfic)
+
+;;;###autoload
+(defcustom fanfic-universes nil
+  ""
+  :type '(repeat symbol)
+  :safe (lambda (xs) (-all-p 'symbol-p xs))
   :group 'fanfic)
 
 ;;;###autoload
@@ -511,6 +544,8 @@ DO NOT MODIFY THIS VARIABLE! It is needed to properly undo any changes made.")
 (put 'fanfic-antagonists 'safe-local-variable 'fanfic--safe-cast-p)
 ;;;###autoload
 (put 'fanfic-keywords 'safe-local-variable 'fanfic--safe-when-flattened)
+;;;###autoload
+(put 'fanfic-universes 'safe-local-variable (lambda (xs) (-all-p 'symbolp xs)))
 
 ;;;###autoload
 (put 'fanfic-dramatis-personae-annotate-group 'safe-local-variable 'booleanp)
