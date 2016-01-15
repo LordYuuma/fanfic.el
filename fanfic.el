@@ -7,9 +7,9 @@
 ;; Created: Tue Sep 15 11:52:17 2015 (+0200)
 ;; Version: 2.0
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Fri Jan 15 01:05:32 2016 (+0100)
+;; Last-Updated: Fri Jan 15 19:23:00 2016 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 260
+;;     Update #: 262
 ;; URL:
 ;; Doc URL:
 ;; Keywords: convenience
@@ -223,13 +223,14 @@ not yet added to font-lock and fontification is not run afterwards."
         (--each (fanfic-universe-cast universe)
           (fanfic-add-highlights (-flatten (fanfic-decline (car it))) (cdr it) skip-font-lock))))))
 
-(defun fanfic-add-universe (universe)
+(defun fanfic-add-universe (universe &optional overwrite)
   "Makes UNIVERSE available for use within `fanfic-mode', most notably for the use in `fanfic-universes'.
 This function performs type checks on UNIVERSE which may be stronger than `fanfic-universe-p'. An error
-is signaled when either a check fails or UNIVERSE appears to already have been made available."
+is signaled when either a check fails.
+An error is also signaled, when UNIVERSE appears to have already been added and OVERWRITE is nil."
   (let ((name (fanfic-universe-name universe)))
     (cond ((not name) (error "Name of universe must not be empty"))
-          ((gethash name fanfic--universes nil) (error "%s already exists" universe))
+          ((and (not overwrite) (gethash name fanfic--universes nil)) (error "%s already exists" universe))
           (t (puthash name universe fanfic--universes)))))
 
 (defun fanfic-available-universes ()
