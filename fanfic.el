@@ -7,9 +7,9 @@
 ;; Created: Tue Sep 15 11:52:17 2015 (+0200)
 ;; Version: 2.0
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Fri Jan 15 00:06:23 2016 (+0100)
+;; Last-Updated: Fri Jan 15 00:59:12 2016 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 244
+;;     Update #: 259
 ;; URL:
 ;; Doc URL:
 ;; Keywords: convenience
@@ -204,22 +204,40 @@ not yet added to font-lock and fontification is not run afterwards."
       (font-lock-fontify-buffer))))
 
 (defun fanfic-add-keywords-from-universes (&optional skip-font-lock)
+  "Adds the keywords of all universes in `fanfic-universes' to the lists of fanfic generated highlights.
+If optional argument SKIP-FONT-LOCK is non-nil, keywords generated this way are
+not yet added to font-lock and fontification is not run afterwards."
   (--each fanfic-universes
-    (let ((universe (symbol-value it)))
+    (let ((universe (gethash it fanfic--universes)))
       (when (fanfic-universe-p universe)
         (--each (fanfic-universe-keywords universe)
           (fanfic-add-highlights (-flatten (car it)) (cdr it) skip-font-lock))))))
 
 (defun fanfic-add-cast-from-universes (&optional skip-font-lock)
+  "Adds the casts of all universes in `fanfic-universes' to the lists of fanfic generated highlights.
+If optional argument SKIP-FONT-LOCK is non-nil, keywords generated this way are
+not yet added to font-lock and fontification is not run afterwards."
   (--each fanfic-universes
-    (let ((universe (symbol-value it)))
+    (let ((universe (gethash it fanfic--universes)))
       (when (fanfic-universe-p universe)
         (--each (fanfic-universe-cast universe)
           (fanfic-add-highlights (-flatten (fanfic-decline (car it))) (cdr it) skip-font-lock))))))
 
-(defun fanfic-active-universe-p (universe)
-  (and (fanfic-universe-p universe)
-       (--any-p (eq universe (symbol-value it)) fanfic-universes)))
+(defun fanfic-add-universe (universe)
+  "Makes UNIVERSE available for use within `fanfic-mode', most notably for the use in `fanfic-universes'.
+This function performs type checks on UNIVERSE which may be stronger than `fanfic-universe-p'. An error
+is signaled when either a check fails or UNIVERSE appears to already have been made available."
+  (let ((name (fanfic-universe-name universe)))
+    (cond ((not name) (error "Name of universe must not be empty"))
+          ((gethash name fanfic--universes nil) (error "%s already exists" universe))
+          (t (puthash name universe fanfic--universes)))))
+
+(defun fanfic-available-universes ()
+  "Returns names of all available fanfic universes."
+  (interactive)
+  (-sort 'string< (let ((acc nil))
+                    (maphash (lambda (k v) (add-to-list 'acc k))
+                             fanfic--universes) acc)))
 
 (defun fanfic-universes-special-keywords ()
   "A version of `fanfic-add-keywords-from-universes', that can be used as hook for `fanfic-special-keyword-hook'."
@@ -380,9 +398,14 @@ already color coded cast."
 
 ;;;###autoload
 (defcustom fanfic-universes nil
-  ""
-  :type '(repeat symbol)
-  :safe (lambda (xs) (-all-p 'symbol-p xs))
+  "Each entry is a name of a universe the current fic is set in.
+This is mostly useful for `fanfic-add-keywords-from-universes', `fanfic-add-cast-from-universes'
+and their hook versions `fanfic-universes-special-keywords' and `fanfic-universes-special-cast'.
+
+Use M-x `fanfic-available-universes' to get a list of meaningful values.
+Use `fanfic-add-universe' to make a universe \"available\"."
+  :type '(repeat string)
+  :safe (lambda (xs) (-all-p 'stringp xs))
   :group 'fanfic)
 
 ;;;###autoload
@@ -488,6 +511,7 @@ already color coded cast."
 (defvar fanfic--highlights nil "All `font-lock-keywords' for the current buffer which come from `fanfic-mode'.
 DO NOT MODIFY THIS VARIABLE! It is needed to properly undo any changes made.")
 (make-variable-buffer-local 'fanfic--highlights)
+(defvar fanfic--universes (make-hash-table))
 
 (defun fanfic--dramatis-personae ()
   (--reduce-from  (format "%s%s%s%s\n" acc fanfic-dramatis-personae-group-prefix
@@ -545,7 +569,7 @@ DO NOT MODIFY THIS VARIABLE! It is needed to properly undo any changes made.")
 ;;;###autoload
 (put 'fanfic-keywords 'safe-local-variable 'fanfic--safe-when-flattened)
 ;;;###autoload
-(put 'fanfic-universes 'safe-local-variable (lambda (xs) (-all-p 'symbolp xs)))
+(put 'fanfic-universes 'safe-local-variable (lambda (xs) (-all-p 'stringp xs)))
 
 ;;;###autoload
 (put 'fanfic-dramatis-personae-annotate-group 'safe-local-variable 'booleanp)
