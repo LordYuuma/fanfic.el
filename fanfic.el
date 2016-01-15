@@ -7,9 +7,9 @@
 ;; Created: Tue Sep 15 11:52:17 2015 (+0200)
 ;; Version: 2.0
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Fri Jan 15 19:23:00 2016 (+0100)
+;; Last-Updated: Fri Jan 15 19:51:33 2016 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 262
+;;     Update #: 267
 ;; URL:
 ;; Doc URL:
 ;; Keywords: convenience
@@ -295,6 +295,32 @@ If PREFIX is given, insert at the start of the file."
 (put 'fanfic-dramatis-personae 'delete-selection t)
 
 ;;;###autoload
+(defun fanfic-safe-universe-p (object)
+  "Returns t if OBJECT is a universe safe for usage within fanfic.
+
+In order to create such an universe it is best to use `fanfic-make-universe'.
+The following have to be satisfied in order to make a universe \"safe\":
+  * The universe name must be a string.
+  * The universe cast must be a list of cons cells, in which each car
+    satisfies `fanfic-safe-cast-p' and each cdr is a face.
+  * The universe keywords must be a list of cons cells, in which each car
+    satisfies `fanfic-safe-keywords-p' and each cdr is a face."
+  (and (fanfic-universe-p object)
+       (stringp (fanfic-universe-name object))
+       (--all-p (and (fanfic-safe-cast-p (car it)) (facep (cdr it))) (fanfic-universe-cast object))
+       (--all-p (and (fanfic-safe-keywords-p (car it) (facep (cdr it)))) (fanfic-universe-keywords object))))
+
+;;;###autoload
+(defun fanfic-safe-cast-p (object)
+  "Returns t if OBJECT is a cast safe for usage within fanfic functions."
+  (and (listp object) (--all-p (or (stringp it) (--all-p 'stringp it)) object)))
+
+;;;###autoload
+(defun fanfic-safe-keywords-p (object)
+  "Returns t if OBJECT is safe to be used as keywords within fanfic."
+  (and (listp object) (-all-p 'stringp (-flatten object))))
+
+;;;###autoload
 (defgroup fanfic nil "Utilities for typesetting fanfiction."
   :prefix "fanfic-"
   :group 'convenience)
@@ -347,28 +373,28 @@ to some degree. (This is mostly used as a hack for `markdown-mode'.)"
                              ("orb" "orbs" "crystal" "crystals" "whatever"))
   "Important objects/places/whatever your plot needs."
   :type '(repeat (choice (string :tag "Keyword") (repeat :tag "Keywords" string)))
-  :safe 'fanfic--safe-when-flattened
+  :safe 'fanfic-safe-keywords-p
   :group 'fanfic)
 
 ;;;###autoload
 (defcustom fanfic-cast '("Carol" "Dave")
   "The cast of the fic. Not necessarily important people, but they still are a part."
   :type 'fanfic-cast-type
-  :safe 'fanfic--safe-cast-p
+  :safe 'fanfic-safe-cast-p
   :group 'fanfic)
 
 ;;;###autoload
 (defcustom fanfic-protagonists '("Alice" "Bob")
   "Names of characters, which are always considered to be very important."
   :type 'fanfic-cast-type
-  :safe 'fanfic--safe-cast-p
+  :safe 'fanfic-safe-cast-p
   :group 'fanfic)
 
 ;;;###autoload
 (defcustom fanfic-antagonists '("Eve")
   "Who you're up against. The villains in most cases."
   :type 'fanfic-cast-type
-  :safe 'fanfic--safe-cast-p
+  :safe 'fanfic-safe-cast-p
   :group 'fanfic)
 
 ;;;###autoload
@@ -543,16 +569,6 @@ DO NOT MODIFY THIS VARIABLE! It is needed to properly undo any changes made.")
   (dolist (highlight fanfic--highlights)
     (font-lock-remove-keywords nil highlight)))
 
-;;;###autoload
-(defun fanfic--safe-cast-p (xs)
-  "Used by `fanfic.el' to define safety parameters for customization options. NOT for external use.'"
-  (and (listp xs) (--all-p (or (stringp it) (--all-p 'stringp it)) xs)))
-
-;;;###autoload
-(defun fanfic--safe-when-flattened (xs)
-  "Used by `fanfic.el' to define safety parameters for customization options. NOT for external use.'"
-  (and (listp xs) (-all-p 'stringp (-flatten xs))))
-
 ;;; Hack Area
 
 ;; `update-fileautoloads' does not take `:safe' in `defcustom' well
@@ -562,13 +578,13 @@ DO NOT MODIFY THIS VARIABLE! It is needed to properly undo any changes made.")
 ;; by generating a cookie for them.
 
 ;;;###autoload
-(put 'fanfic-cast 'safe-local-variable 'fanfic--safe-cast-p)
+(put 'fanfic-cast 'safe-local-variable 'fanfic-safe-cast-p)
 ;;;###autoload
-(put 'fanfic-protagonists 'safe-local-variable 'fanfic--safe-cast-p)
+(put 'fanfic-protagonists 'safe-local-variable 'fanfic-safe-cast-p)
 ;;;###autoload
-(put 'fanfic-antagonists 'safe-local-variable 'fanfic--safe-cast-p)
+(put 'fanfic-antagonists 'safe-local-variable 'fanfic-safe-cast-p)
 ;;;###autoload
-(put 'fanfic-keywords 'safe-local-variable 'fanfic--safe-when-flattened)
+(put 'fanfic-keywords 'safe-local-variable 'fanfic-safe-keywords-p)
 ;;;###autoload
 (put 'fanfic-universes 'safe-local-variable (lambda (xs) (-all-p 'stringp xs)))
 
