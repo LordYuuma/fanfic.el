@@ -7,9 +7,9 @@
 ;; Created: Tue Sep 15 11:52:17 2015 (+0200)
 ;; Version: 2.0
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Fri Jan 15 00:59:12 2016 (+0100)
+;; Last-Updated: Fri Jan 15 01:05:32 2016 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 259
+;;     Update #: 260
 ;; URL:
 ;; Doc URL:
 ;; Keywords: convenience
@@ -196,7 +196,7 @@ If NAME-OR-NAMES is a list, `fanfic-decline' is called recursively for each elem
 If optional argument SKIP-FONT-LOCK is non-nil, keywords generated this way are
 not yet added to font-lock and fontification is not run afterwards."
   (unless fanfic-mode
-    (error "Attempt to modify fanfic highlights outside of fanfic-mode."))
+    (error "Attempt to modify fanfic highlights outside of fanfic-mode"))
   (let ((highlight `((,(regexp-opt names 'words) 0 ',face t))))
     (add-to-list 'fanfic--highlights highlight t)
     (unless skip-font-lock
@@ -252,10 +252,10 @@ is signaled when either a check fails or UNIVERSE appears to already have been m
 If optional argument SKIP-FONT-LOCK is non-nil, keywords keywords generated this way
 are not yet removed from font-lock and fontification is not run afterwards."
   (unless fanfic-mode
-    (error "Attempt to modify fanfic highlights outside of fanfic-mode."))
+    (error "Attempt to modify fanfic highlights outside of fanfic-mode"))
   (let ((highlight `((,(regexp-opt names 'words) 0 ',face t))))
     (unless (-contains-p fanfic--highlights highlight t)
-      (error "Attempt to remove non-present fanfic highlights."))
+      (error "Attempt to remove non-present fanfic highlights"))
     (set 'fanfic--highlights (delq highlight fanfic--highlights))
     (unless skip-font-lock
       (font-lock-remove-keywords nil highlight)
