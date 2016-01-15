@@ -7,9 +7,9 @@
 ;; Created: Tue Sep 15 11:52:17 2015 (+0200)
 ;; Version: 2.0
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Fri Jan 15 20:24:38 2016 (+0100)
+;; Last-Updated: Fri Jan 15 20:46:31 2016 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 270
+;;     Update #: 271
 ;; URL:
 ;; Doc URL:
 ;; Keywords: convenience
@@ -165,6 +165,7 @@ You may feel the need to run it yourself after editing cast-related variables."
   (setq fanfic--highlights nil)
 
   (when fanfic-mode
+    (fanfic-require-active-universes)
     (fanfic-add-highlights (-flatten fanfic-keywords) 'fanfic-keyword-face t)
     (run-hooks 'fanfic-special-keyword-hook)
     (--each '(fanfic-cast fanfic-antagonists fanfic-protagonists)
