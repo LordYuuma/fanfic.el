@@ -7,9 +7,9 @@
 ;; Created: Tue Sep 15 11:52:17 2015 (+0200)
 ;; Version: 2.0
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Fri Jan 15 19:51:33 2016 (+0100)
+;; Last-Updated: Fri Jan 15 20:24:38 2016 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 267
+;;     Update #: 270
 ;; URL:
 ;; Doc URL:
 ;; Keywords: convenience
@@ -143,7 +143,7 @@
 (require 'dash)
 
 (cl-defstruct (fanfic-universe (:constructor fanfic-make-universe))
-  name cast keywords)
+  name cast keywords requires)
 
 ;;;###autoload
 (defadvice font-lock-refresh-defaults (after fanfic-font-lock-defaults) (if fanfic-mode (fanfic--font-lock)))
@@ -222,6 +222,13 @@ not yet added to font-lock and fontification is not run afterwards."
       (when (fanfic-universe-p universe)
         (--each (fanfic-universe-cast universe)
           (fanfic-add-highlights (-flatten (fanfic-decline (car it))) (cdr it) skip-font-lock))))))
+
+(defun fanfic-require-active-universes ()
+  (--each fanfic-universes
+    (let ((universe (gethash it fanfic--universes)))
+      (when (fanfic-safe-universe-p universe)
+        (unless (null (fanfic-universe-requires universe))
+          (require (fanfic-universe-requires universe)))))))
 
 (defun fanfic-add-universe (universe &optional overwrite)
   "Makes UNIVERSE available for use within `fanfic-mode', most notably for the use in `fanfic-universes'.
@@ -308,7 +315,8 @@ The following have to be satisfied in order to make a universe \"safe\":
   (and (fanfic-universe-p object)
        (stringp (fanfic-universe-name object))
        (--all-p (and (fanfic-safe-cast-p (car it)) (facep (cdr it))) (fanfic-universe-cast object))
-       (--all-p (and (fanfic-safe-keywords-p (car it) (facep (cdr it)))) (fanfic-universe-keywords object))))
+       (--all-p (and (fanfic-safe-keywords-p (car it) (facep (cdr it)))) (fanfic-universe-keywords object))
+       (symbolp (fanfic-universe-requires object))))
 
 ;;;###autoload
 (defun fanfic-safe-cast-p (object)
@@ -538,7 +546,7 @@ Use `fanfic-add-universe' to make a universe \"available\"."
 (defvar fanfic--highlights nil "All `font-lock-keywords' for the current buffer which come from `fanfic-mode'.
 DO NOT MODIFY THIS VARIABLE! It is needed to properly undo any changes made.")
 (make-variable-buffer-local 'fanfic--highlights)
-(defvar fanfic--universes (make-hash-table))
+(defvar fanfic--universes (make-hash-table :test 'equal))
 
 (defun fanfic--dramatis-personae ()
   (--reduce-from  (format "%s%s%s%s\n" acc fanfic-dramatis-personae-group-prefix
