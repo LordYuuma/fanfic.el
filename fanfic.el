@@ -5,11 +5,11 @@
 ;; Author: Lord Yuuma
 ;; Maintainer: Lord Yuuma
 ;; Created: Tue Sep 15 11:52:17 2015 (+0200)
-;; Version: 2.0
+;; Version: 2.1
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Sat Jan 16 12:47:00 2016 (+0100)
+;; Last-Updated: Sat Jan 16 12:48:06 2016 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 276
+;;     Update #: 277
 ;; URL:
 ;; Doc URL:
 ;; Keywords: convenience
@@ -68,6 +68,7 @@
 ;;
 ;;; Change Log:
 ;;
+;;  2.1:   Add universe support.
 ;;  2.0:   Removed alists.
 ;;         Added `fanfic-add-highlights', `fanfic-remove-highlights'
 ;;         and `fanfic-decline'.
