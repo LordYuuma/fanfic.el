@@ -7,9 +7,9 @@
 ;; Created: Tue Sep 15 11:52:17 2015 (+0200)
 ;; Version: 2.0
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Sat Jan 16 12:26:39 2016 (+0100)
+;; Last-Updated: Sat Jan 16 12:47:00 2016 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 275
+;;     Update #: 276
 ;; URL:
 ;; Doc URL:
 ;; Keywords: convenience
@@ -184,6 +184,8 @@ You may feel the need to run it yourself after editing cast-related variables."
     (fanfic--font-lock))
   (font-lock-fontify-buffer))
 
+
+
 (defun fanfic-decline (name-or-names)
   "Decline NAME-OR-NAMES according to `fanfic-declinations'.
 If NAME-OR-NAMES is a string, a list is returned, in which each element is the corresponding element of
@@ -192,6 +194,44 @@ If NAME-OR-NAMES is a list, `fanfic-decline' is called recursively for each elem
   (if (stringp name-or-names)
       (--map (replace-regexp-in-string "{name}" name-or-names it t t) fanfic-declinations)
     (-map 'fanfic-decline name-or-names)))
+
+
+
+;;;###autoload
+(defun fanfic-dramatis-personae (&optional prefix)
+  "Inserts a dramatis personae at the current point.
+If PREFIX is given, insert at the start of the file."
+  (interactive "P")
+  (save-excursion
+    (if prefix
+        (goto-char (point-min))
+      ;; I have no idea, why `delete-selection-mode' does not do anything
+      ;; without the following, but having it is better than nothing
+      (when (and (boundp 'delete-selection-mode) delete-selection-mode
+                 (region-active-p))
+        (delete-selection-helper (get this-command 'delete-selection))))
+    (insert (fanfic--dramatis-personae))))
+(put 'fanfic-dramatis-personae 'delete-selection t)
+
+
+
+;;;###autoload
+(defun fanfic-strip-scenes (content &optional exclude)
+  "Strip the fanfic to paragraphs including CONTENT. Outputs to a new buffer."
+  (interactive (list (read-string (format "%s: " this-command)) current-prefix-arg))
+  (save-excursion
+    (goto-char (point-min))
+    (let ((output (generate-new-buffer "*Stripped*")))
+      (while (< (point) (point-max))
+        (let ((scene (thing-at-point 'paragraph)))
+          (when (eq (not (string-match-p (regexp-quote content) scene))
+                    (not (not exclude)))
+            (with-current-buffer output
+              (insert scene))))
+        (forward-paragraph))
+      (display-buffer output))))
+
+
 
 (defun fanfic-add-highlights (names face &optional skip-font-lock)
   "Adds NAMES highlighted under FACE to the list of fanfic generated highlights.
@@ -204,6 +244,22 @@ not yet added to font-lock and fontification is not run afterwards."
     (unless skip-font-lock
       (font-lock-add-keywords nil highlight 'append)
       (font-lock-fontify-buffer))))
+
+(defun fanfic-remove-highlights (names face &optional skip-font-lock)
+  "Removes NAMES highlighted under FACE from the list of fanfic generated highlights.
+If optional argument SKIP-FONT-LOCK is non-nil, keywords keywords generated this way
+are not yet removed from font-lock and fontification is not run afterwards."
+  (unless fanfic-mode
+    (error "Attempt to modify fanfic highlights outside of fanfic-mode"))
+  (let ((highlight `((,(regexp-opt names 'words) 0 ',face t))))
+    (unless (-contains-p fanfic--highlights highlight t)
+      (error "Attempt to remove non-present fanfic highlights"))
+    (set 'fanfic--highlights (delq highlight fanfic--highlights))
+    (unless skip-font-lock
+      (font-lock-remove-keywords nil highlight)
+      (font-lock-fontify-buffer))))
+
+
 
 (defun fanfic-add-keywords-from-universes (&optional skip-font-lock)
   "Adds the keywords of all universes in `fanfic-universes' to the lists of fanfic generated highlights.
@@ -225,12 +281,17 @@ not yet added to font-lock and fontification is not run afterwards."
         (--each (fanfic-universe-cast universe)
           (fanfic-add-highlights (-flatten (fanfic-decline (car it))) (cdr it) skip-font-lock))))))
 
-(defun fanfic-require-active-universes ()
-  (--each fanfic-universes
-    (let ((universe (gethash it fanfic--universes)))
-      (when (fanfic-safe-universe-p universe)
-        (unless (null (fanfic-universe-requires universe))
-          (require (fanfic-universe-requires universe)))))))
+(defun fanfic-universes-special-keywords ()
+  "A version of `fanfic-add-keywords-from-universes', that can be used as hook for `fanfic-special-keyword-hook'."
+  (fanfic-add-keywords-from-universes t))
+
+(defun fanfic-universes-special-cast ()
+  "A version of `fanfic-add-cast-from-universes', that can be used as hook for `fanfic-special-cast-hook'."
+  (fanfic-add-cast-from-universes t))
+
+
+
+;;; active universe related
 
 (defun fanfic-active-universe-p (name)
   "Returns t if NAME is an entry in `fanfic-universes', that points to a safe universe."
@@ -254,59 +315,16 @@ An error is also signaled, when UNIVERSE appears to have already been added and 
                     (maphash (lambda (k v) (add-to-list 'acc k))
                              fanfic--universes) acc)))
 
-(defun fanfic-universes-special-keywords ()
-  "A version of `fanfic-add-keywords-from-universes', that can be used as hook for `fanfic-special-keyword-hook'."
-  (fanfic-add-keywords-from-universes t))
+(defun fanfic-require-active-universes ()
+  (--each fanfic-universes
+    (let ((universe (gethash it fanfic--universes)))
+      (when (fanfic-safe-universe-p universe)
+        (unless (null (fanfic-universe-requires universe))
+          (require (fanfic-universe-requires universe)))))))
 
-(defun fanfic-universes-special-cast ()
-  "A version of `fanfic-add-cast-from-universes', that can be used as hook for `fanfic-special-cast-hook'."
-  (fanfic-add-cast-from-universes t))
+
 
-(defun fanfic-remove-highlights (names face &optional skip-font-lock)
-  "Removes NAMES highlighted under FACE from the list of fanfic generated highlights.
-If optional argument SKIP-FONT-LOCK is non-nil, keywords keywords generated this way
-are not yet removed from font-lock and fontification is not run afterwards."
-  (unless fanfic-mode
-    (error "Attempt to modify fanfic highlights outside of fanfic-mode"))
-  (let ((highlight `((,(regexp-opt names 'words) 0 ',face t))))
-    (unless (-contains-p fanfic--highlights highlight t)
-      (error "Attempt to remove non-present fanfic highlights"))
-    (set 'fanfic--highlights (delq highlight fanfic--highlights))
-    (unless skip-font-lock
-      (font-lock-remove-keywords nil highlight)
-      (font-lock-fontify-buffer))))
-
-;;;###autoload
-(defun fanfic-strip-scenes (content &optional exclude)
-  "Strip the fanfic to paragraphs including CONTENT. Outputs to a new buffer."
-  (interactive (list (read-string (format "%s: " this-command)) current-prefix-arg))
-  (save-excursion
-    (goto-char (point-min))
-    (let ((output (generate-new-buffer "*Stripped*")))
-      (while (< (point) (point-max))
-        (let ((scene (thing-at-point 'paragraph)))
-          (when (eq (not (string-match-p (regexp-quote content) scene))
-                    (not (not exclude)))
-            (with-current-buffer output
-              (insert scene))))
-        (forward-paragraph))
-      (display-buffer output))))
-
-;;;###autoload
-(defun fanfic-dramatis-personae (&optional prefix)
-  "Inserts a dramatis personae at the current point.
-If PREFIX is given, insert at the start of the file."
-  (interactive "P")
-  (save-excursion
-    (if prefix
-        (goto-char (point-min))
-      ;; I have no idea, why `delete-selection-mode' does not do anything
-      ;; without the following, but having it is better than nothing
-      (when (and (boundp 'delete-selection-mode) delete-selection-mode
-                 (region-active-p))
-        (delete-selection-helper (get this-command 'delete-selection))))
-    (insert (fanfic--dramatis-personae))))
-(put 'fanfic-dramatis-personae 'delete-selection t)
+;;; Safety predicates
 
 ;;;###autoload
 (defun fanfic-safe-universe-p (object)
@@ -335,6 +353,8 @@ The following have to be satisfied in order to make a universe \"safe\":
   "Returns t if OBJECT is safe to be used as keywords within fanfic."
   (and (listp object) (-all-p 'stringp (-flatten object))))
 
+
+
 ;;;###autoload
 (defgroup fanfic nil "Utilities for typesetting fanfiction."
   :prefix "fanfic-"
@@ -359,6 +379,8 @@ The following have to be satisfied in order to make a universe \"safe\":
                                (string :tag "Name")
                                (repeat :tag "Nicknames" :inline t (string :tag "Nick"))))))
 
+
+
 ;;;###autoload
 (define-minor-mode fanfic-mode
   "A minor mode for highlighting the name of a fanfic's cast.
@@ -382,6 +404,8 @@ to some degree. (This is mostly used as a hack for `markdown-mode'.)"
   (if fanfic-mode
       (ad-activate-regexp "fanfic-font-lock-default")
     (ad-deactivate-regexp "fanfic-font-lock-default")))
+
+
 
 ;;;###autoload
 (defcustom fanfic-keywords '(("MacGuffin" "Phlebotinum" "Plot Device")
@@ -412,6 +436,8 @@ to some degree. (This is mostly used as a hack for `markdown-mode'.)"
   :safe 'fanfic-safe-cast-p
   :group 'fanfic)
 
+
+
 ;;;###autoload
 (defcustom fanfic-declinations '("{name}" "{name}'s")
   "Ways in which a name may appear in the language the fic is written in.
@@ -420,6 +446,8 @@ Each value is a string in which `{name}' will get replaced by the name of your c
 when constructing a list of highlights."
   :type '(repeat string)
   :safe (lambda (xs) (-all-p 'stringp xs)))
+
+
 
 ;;;###autoload
 (defcustom fanfic-special-keyword-hook '(fanfic-universes-special-keywords)
@@ -438,6 +466,8 @@ already color coded cast."
   :type 'hook
   :group 'fanfic)
 
+
+
 ;;;###autoload
 (defcustom fanfic-universes nil
   "Each entry is a name of a universe the current fic is set in.
@@ -449,6 +479,8 @@ Use `fanfic-add-universe' to make a universe \"available\"."
   :type '(repeat string)
   :safe (lambda (xs) (-all-p 'stringp xs))
   :group 'fanfic)
+
+
 
 ;;;###autoload
 (defface fanfic-keyword-face
@@ -491,6 +523,8 @@ Use `fanfic-add-universe' to make a universe \"available\"."
   '((t (:inherit fanfic-nick-face :foreground "dark orange")))
   "Face to highlight nicknames of antagonists in."
   :group 'fanfic)
+
+
 
 ;;;###autoload
 (defcustom fanfic-dramatis-personae-annotate-group nil
@@ -548,12 +582,16 @@ Use `fanfic-add-universe' to make a universe \"available\"."
   :safe 'stringp
   :group 'fanfic-dramatis-personae)
 
+
+
 ;;; Private area.
 
 (defvar fanfic--highlights nil "All `font-lock-keywords' for the current buffer which come from `fanfic-mode'.
 DO NOT MODIFY THIS VARIABLE! It is needed to properly undo any changes made.")
 (make-variable-buffer-local 'fanfic--highlights)
 (defvar fanfic--universes (make-hash-table :test 'equal))
+
+
 
 (defun fanfic--dramatis-personae ()
   (--reduce-from  (format "%s%s%s%s\n" acc fanfic-dramatis-personae-group-prefix
@@ -572,6 +610,8 @@ DO NOT MODIFY THIS VARIABLE! It is needed to properly undo any changes made.")
                                          (symbol-value it))
                           fanfic-dramatis-personae-group-suffix) fanfic-dramatis-personae-header '(fanfic-protagonists fanfic-antagonists fanfic-cast)))
 
+
+
 (defun fanfic--font-lock ()
   "Adds all highlights in `fanfic--highlights' to `font-lock-keywords'. Not very meaningful when used externally."
   (dolist (highlight fanfic--highlights)
@@ -583,6 +623,8 @@ DO NOT MODIFY THIS VARIABLE! It is needed to properly undo any changes made.")
   "Removes all changes to `font-lock-keywords' done by `fanfic-mode'. Not intended for external use."
   (dolist (highlight fanfic--highlights)
     (font-lock-remove-keywords nil highlight)))
+
+
 
 ;;; Hack Area
 
