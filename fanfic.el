@@ -7,9 +7,9 @@
 ;; Created: Tue Sep 15 11:52:17 2015 (+0200)
 ;; Version: 2.0
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Fri Jan 15 20:46:31 2016 (+0100)
+;; Last-Updated: Sat Jan 16 11:55:48 2016 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 271
+;;     Update #: 272
 ;; URL:
 ;; Doc URL:
 ;; Keywords: convenience
@@ -316,7 +316,7 @@ The following have to be satisfied in order to make a universe \"safe\":
   (and (fanfic-universe-p object)
        (stringp (fanfic-universe-name object))
        (--all-p (and (fanfic-safe-cast-p (car it)) (facep (cdr it))) (fanfic-universe-cast object))
-       (--all-p (and (fanfic-safe-keywords-p (car it) (facep (cdr it)))) (fanfic-universe-keywords object))
+       (--all-p (and (fanfic-safe-keywords-p (car it)) (facep (cdr it))) (fanfic-universe-keywords object))
        (symbolp (fanfic-universe-requires object))))
 
 ;;;###autoload
