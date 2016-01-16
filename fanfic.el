@@ -7,9 +7,9 @@
 ;; Created: Tue Sep 15 11:52:17 2015 (+0200)
 ;; Version: 2.0
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Sat Jan 16 12:22:10 2016 (+0100)
+;; Last-Updated: Sat Jan 16 12:26:39 2016 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 274
+;;     Update #: 275
 ;; URL:
 ;; Doc URL:
 ;; Keywords: convenience
@@ -142,7 +142,8 @@
 ;;;###autoload
 (require 'dash)
 
-(cl-defstruct (fanfic-universe (:constructor fanfic-make-universe))
+(cl-defstruct (fanfic-universe (:constructor fanfic-make-universe)
+                               (:copier fanfic-copy-universe))
   name cast keywords requires)
 
 ;;;###autoload
