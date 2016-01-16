@@ -7,9 +7,9 @@
 ;; Created: Tue Sep 15 11:52:17 2015 (+0200)
 ;; Version: 2.0
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Sat Jan 16 11:55:48 2016 (+0100)
+;; Last-Updated: Sat Jan 16 12:22:10 2016 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 272
+;;     Update #: 274
 ;; URL:
 ;; Doc URL:
 ;; Keywords: convenience
@@ -230,6 +230,11 @@ not yet added to font-lock and fontification is not run afterwards."
       (when (fanfic-safe-universe-p universe)
         (unless (null (fanfic-universe-requires universe))
           (require (fanfic-universe-requires universe)))))))
+
+(defun fanfic-active-universe-p (name)
+  "Returns t if NAME is an entry in `fanfic-universes', that points to a safe universe."
+  (and (-contains-p fanfic-universes name)
+       (fanfic-safe-universe-p (gethash name fanfic--universes))))
 
 (defun fanfic-add-universe (universe &optional overwrite)
   "Makes UNIVERSE available for use within `fanfic-mode', most notably for the use in `fanfic-universes'.
