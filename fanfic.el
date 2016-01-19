@@ -7,9 +7,9 @@
 ;; Created: Tue Sep 15 11:52:17 2015 (+0200)
 ;; Version: 2.1
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Tue Jan 19 21:00:09 2016 (+0100)
+;; Last-Updated: Tue Jan 19 21:07:22 2016 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 282
+;;     Update #: 283
 ;; URL:
 ;; Doc URL:
 ;; Keywords: convenience
@@ -317,6 +317,7 @@ An error is also signaled, when UNIVERSE appears to have already been added and 
                              fanfic--universes) acc)))
 
 (defun fanfic-require-active-universes ()
+  "Ensures, that all active universes, which have already been defined, are loaded."
   (--each fanfic-universes
     (let ((universe (gethash it fanfic--universes)))
       (when (fanfic-safe-universe-p universe)
