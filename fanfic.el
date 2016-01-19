@@ -7,9 +7,9 @@
 ;; Created: Tue Sep 15 11:52:17 2015 (+0200)
 ;; Version: 2.1
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Tue Jan 19 20:14:55 2016 (+0100)
+;; Last-Updated: Tue Jan 19 20:43:03 2016 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 279
+;;     Update #: 280
 ;; URL:
 ;; Doc URL:
 ;; Keywords: convenience
@@ -585,8 +585,15 @@ DO NOT MODIFY THIS VARIABLE! It is needed to properly undo any changes made.")
             (--map (concat fanfic-dramatis-personae-group-prefix
                            it
                            fanfic-dramatis-personae-group-suffix)
-                   (--map (--reduce (concat acc "\n" it) (fanfic--dramatis-personae-function (symbol-value it)))
-                          '(fanfic-protagonists fanfic-antagonists fanfic-cast)))))
+                   (-non-nil
+                    (-flatten
+                     (list
+                      (--map (--reduce (concat acc "\n" it) (fanfic--dramatis-personae-function (symbol-value it)))
+                             '(fanfic-protagonists fanfic-antagonists fanfic-cast))
+                      (--map (let ((universe (gethash it fanfic--universes)))
+                               (when (fanfic-safe-universe-p universe)
+                                 (--reduce (concat acc "\n" it) (fanfic--dramatis-personae-function (-mapcat 'car (fanfic-universe-cast universe))))))
+                             fanfic-universes)))))))
 
 (defun fanfic--dramatis-personae-function (cast)
   (--map (if (stringp it)
