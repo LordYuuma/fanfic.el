@@ -7,9 +7,9 @@
 ;; Created: Tue Sep 15 11:52:17 2015 (+0200)
 ;; Version: 2.1
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Sat Jan 16 12:48:06 2016 (+0100)
+;; Last-Updated: Tue Jan 19 20:14:55 2016 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 277
+;;     Update #: 279
 ;; URL:
 ;; Doc URL:
 ;; Keywords: convenience
@@ -528,13 +528,6 @@ Use `fanfic-add-universe' to make a universe \"available\"."
 
 
 ;;;###autoload
-(defcustom fanfic-dramatis-personae-annotate-group nil
-  "When activated, annotate each group with their group name, otherwise leave a blank line."
-  :type 'boolean
-  :safe 'booleanp
-  :group 'fanfic-dramatis-personae)
-
-;;;###autoload
 (defcustom fanfic-dramatis-personae-group-prefix ""
   "String to be inserted before each group in `fanfic-dramatis-personae'."
   :type 'string
@@ -544,13 +537,6 @@ Use `fanfic-add-universe' to make a universe \"available\"."
 ;;;###autoload
 (defcustom fanfic-dramatis-personae-group-suffix ""
   "String to be inserted after each group in `fanfic-dramatis-personae'."
-  :type 'string
-  :safe 'stringp
-  :group 'fanfic-dramatis-personae)
-
-;;;###autoload
-(defcustom fanfic-dramatis-personae-header "~ Dramatis Personae ~\n"
-  "Header to insert before the actual dramatis personae."
   :type 'string
   :safe 'stringp
   :group 'fanfic-dramatis-personae)
@@ -595,21 +581,22 @@ DO NOT MODIFY THIS VARIABLE! It is needed to properly undo any changes made.")
 
 
 (defun fanfic--dramatis-personae ()
-  (--reduce-from  (format "%s%s%s%s\n" acc fanfic-dramatis-personae-group-prefix
-                          (--reduce-from (format "%s\n%s%s%s" acc fanfic-dramatis-personae-item-prefix
-                                                 (if (stringp it) it (format "%s %s%s%s" (car it)
-                                                                             fanfic-dramatis-personae-nick-prefix
-                                                                             (car (cdr it))
-                                                                             fanfic-dramatis-personae-nick-suffix))
-                                                 fanfic-dramatis-personae-item-suffix)
-                                         (if fanfic-dramatis-personae-annotate-group
-                                             (nth 1 (assoc it
-                                                           '((fanfic-protagonists "Protagonists:")
-                                                             (fanfic-antagonists "Antagonists:")
-                                                             (fanfic-cast "Minor Characters:"))))
-                                           "")
-                                         (symbol-value it))
-                          fanfic-dramatis-personae-group-suffix) fanfic-dramatis-personae-header '(fanfic-protagonists fanfic-antagonists fanfic-cast)))
+  (--reduce (concat acc "\n" it)
+            (--map (concat fanfic-dramatis-personae-group-prefix
+                           it
+                           fanfic-dramatis-personae-group-suffix)
+                   (--map (--reduce (concat acc "\n" it) (fanfic--dramatis-personae-function (symbol-value it)))
+                          '(fanfic-protagonists fanfic-antagonists fanfic-cast)))))
+
+(defun fanfic--dramatis-personae-function (cast)
+  (--map (if (stringp it)
+             it
+           (concat (car it)
+                   " "
+                   fanfic-dramatis-personae-nick-prefix
+                   (car (cdr it))
+                   fanfic-dramatis-personae-nick-suffix))
+         cast))
 
 
 
@@ -647,13 +634,9 @@ DO NOT MODIFY THIS VARIABLE! It is needed to properly undo any changes made.")
 (put 'fanfic-universes 'safe-local-variable (lambda (xs) (-all-p 'stringp xs)))
 
 ;;;###autoload
-(put 'fanfic-dramatis-personae-annotate-group 'safe-local-variable 'booleanp)
-;;;###autoload
 (put 'fanfic-dramatis-personae-item-prefix 'safe-local-variable 'stringp)
 ;;;###autoload
 (put 'fanfic-dramatis-personae-item-suffix 'safe-local-variable 'stringp)
-;;;###autoload
-(put 'fanfic-dramatis-personae-header 'safe-local-variable 'stringp)
 ;;;###autoload
 (put 'fanfic-dramatis-personae-group-prefix 'safe-local-variable 'stringp)
 ;;;###autoload
