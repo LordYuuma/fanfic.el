@@ -7,9 +7,9 @@
 ;; Created: Tue Sep 15 11:52:17 2015 (+0200)
 ;; Version: 2.1
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Tue Feb  9 22:51:24 2016 (+0100)
+;; Last-Updated: Tue Feb  9 23:06:49 2016 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 286
+;;     Update #: 288
 ;; URL:
 ;; Doc URL:
 ;; Keywords: convenience
@@ -305,7 +305,7 @@ not yet added to font-lock and fontification is not run afterwards."
 (defun fanfic-add-universe (universe &optional overwrite)
   "Makes UNIVERSE available for use within `fanfic-mode', most notably for the use in `fanfic-universes'.
 This function performs type checks on UNIVERSE which may be stronger than `fanfic-universe-p'. An error
-is signaled when either a check fails.
+is signaled when either check fails.
 An error is also signaled, when UNIVERSE appears to have already been added and OVERWRITE is nil."
   (let ((name (fanfic-universe-name universe)))
     (cond ((not name) (error "Name of universe must not be empty"))
