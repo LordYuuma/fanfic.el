@@ -7,9 +7,9 @@
 ;; Created: Tue Sep 15 11:52:17 2015 (+0200)
 ;; Version: 2.1
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Tue Feb  9 23:19:55 2016 (+0100)
+;; Last-Updated: Tue Feb  9 23:45:24 2016 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 290
+;;     Update #: 291
 ;; URL:
 ;; Doc URL:
 ;; Keywords: convenience
@@ -583,6 +583,7 @@ DO NOT MODIFY THIS VARIABLE! It is needed to properly undo any changes made.")
 (make-variable-buffer-local 'fanfic--highlights)
 (defvar fanfic--universes (make-hash-table :test 'equal))
 (defvar fanfic--active-universes nil)
+(make-variable-buffer-local 'fanfic--active-universes)
 
 
 
