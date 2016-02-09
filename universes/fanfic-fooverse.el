@@ -7,9 +7,9 @@
 ;; Created: Fri Jan 15 20:55:03 2016 (+0100)
 ;; Version:
 ;; Package-Requires: (fanfic "2.1")
-;; Last-Updated: Sat Jan 16 12:06:28 2016 (+0100)
+;; Last-Updated: Tue Feb  9 23:11:29 2016 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 7
+;;     Update #: 9
 ;; Compatibility:
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -50,8 +50,7 @@
      ;; register Fooverse in fanfic without loading the whole file.
      ;; in this example this doesn't really do much, especially when it is not autoloaded,
      ;; when these files get longer, there'd be a bigger difference
-     (ignore-errors
-       (fanfic-add-universe (fanfic-make-universe :name "Fooverse" :requires 'fanfic-fooverse)))))
+     (fanfic-add-universe (fanfic-make-universe :name "Fooverse" :requires 'fanfic-fooverse) nil t)))
 
 (let ((fooverse (fanfic-make-universe :name "Fooverse")))
   (setf (fanfic-universe-cast fooverse)
