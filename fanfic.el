@@ -7,9 +7,9 @@
 ;; Created: Tue Sep 15 11:52:17 2015 (+0200)
 ;; Version: 2.1
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Tue Jan 19 21:07:22 2016 (+0100)
+;; Last-Updated: Tue Feb  9 22:51:24 2016 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 283
+;;     Update #: 286
 ;; URL:
 ;; Doc URL:
 ;; Keywords: convenience
@@ -165,9 +165,13 @@ You may feel the need to run it yourself after editing cast-related variables."
   (interactive)
   (fanfic--font-unlock)
   (setq fanfic--highlights nil)
+  (setq fanfic--active-universes nil)
 
   (when fanfic-mode
+    ;; Require "active universes" before setting them because of autoloads.
     (fanfic-require-active-universes)
+    ;; With this little gem, fanfic-active-universe-p gets reduced to a list lookup.
+    (setq fanfic--active-universes (-non-nil (--map (when (fanfic-safe-universe-p (gethash it fanfic--universes)) it) fanfic-universes)))
     (fanfic-add-highlights (-flatten fanfic-keywords) 'fanfic-keyword-face t)
     (run-hooks 'fanfic-special-keyword-hook)
     (--each '(fanfic-cast fanfic-antagonists fanfic-protagonists)
@@ -296,8 +300,7 @@ not yet added to font-lock and fontification is not run afterwards."
 
 (defun fanfic-active-universe-p (name)
   "Returns t if NAME is an entry in `fanfic-universes', that points to a safe universe."
-  (and (-contains-p fanfic-universes name)
-       (fanfic-safe-universe-p (gethash name fanfic--universes))))
+  (-contains-p fanfic--active-universes name))
 
 (defun fanfic-add-universe (universe &optional overwrite)
   "Makes UNIVERSE available for use within `fanfic-mode', most notably for the use in `fanfic-universes'.
@@ -578,6 +581,7 @@ Use `fanfic-add-universe' to make a universe \"available\"."
 DO NOT MODIFY THIS VARIABLE! It is needed to properly undo any changes made.")
 (make-variable-buffer-local 'fanfic--highlights)
 (defvar fanfic--universes (make-hash-table :test 'equal))
+(defvar fanfic--active-universes nil)
 
 
 
