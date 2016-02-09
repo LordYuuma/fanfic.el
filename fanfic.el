@@ -7,9 +7,9 @@
 ;; Created: Tue Sep 15 11:52:17 2015 (+0200)
 ;; Version: 2.1
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Tue Feb  9 23:09:02 2016 (+0100)
+;; Last-Updated: Tue Feb  9 23:19:55 2016 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 289
+;;     Update #: 290
 ;; URL:
 ;; Doc URL:
 ;; Keywords: convenience
@@ -257,7 +257,7 @@ are not yet removed from font-lock and fontification is not run afterwards."
   (unless fanfic-mode
     (error "Attempt to modify fanfic highlights outside of fanfic-mode"))
   (let ((highlight `((,(regexp-opt names 'words) 0 ',face t))))
-    (unless (-contains-p fanfic--highlights highlight t)
+    (unless (-contains-p fanfic--highlights highlight)
       (error "Attempt to remove non-present fanfic highlights"))
     (set 'fanfic--highlights (delq highlight fanfic--highlights))
     (unless skip-font-lock
