@@ -7,9 +7,9 @@
 ;; Created: Tue Sep 15 11:52:17 2015 (+0200)
 ;; Version: 2.1
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Thu Feb 11 15:50:45 2016 (+0100)
+;; Last-Updated: Thu Feb 11 16:49:50 2016 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 299
+;;     Update #: 300
 ;; URL:
 ;; Doc URL:
 ;; Keywords: convenience
@@ -204,28 +204,28 @@ to some degree. (This is mostly used as a hack for `markdown-mode'.)"
                              ("orb" "orbs" "crystal" "crystals" "whatever"))
   "Important objects/places/whatever your plot needs."
   :type '(repeat (choice (string :tag "Keyword") (repeat :tag "Keywords" string)))
-  :safe 'fanfic-safe-keywords-p
+  :safe #'fanfic-safe-keywords-p
   :group 'fanfic)
 
 ;;;###autoload
 (defcustom fanfic-cast '("Carol" "Dave")
   "The cast of the fic. Not necessarily important people, but they still are a part."
   :type 'fanfic-cast-type
-  :safe 'fanfic-safe-cast-p
+  :safe #'fanfic-safe-cast-p
   :group 'fanfic)
 
 ;;;###autoload
 (defcustom fanfic-protagonists '("Alice" "Bob")
   "Names of characters, which are always considered to be very important."
   :type 'fanfic-cast-type
-  :safe 'fanfic-safe-cast-p
+  :safe #'fanfic-safe-cast-p
   :group 'fanfic)
 
 ;;;###autoload
 (defcustom fanfic-antagonists '("Eve")
   "Who you're up against. The villains in most cases."
   :type 'fanfic-cast-type
-  :safe 'fanfic-safe-cast-p
+  :safe #'fanfic-safe-cast-p
   :group 'fanfic)
 
 
@@ -269,7 +269,7 @@ and their hook versions `fanfic-universes-special-keywords' and `fanfic-universe
 Use M-x `fanfic-available-universes' to get a list of meaningful values.
 Use `fanfic-add-universe' to make a universe \"available\"."
   :type '(repeat string)
-  :safe 'fanfic-safe-universes-p
+  :safe #'fanfic-safe-universes-p
   :group 'fanfic)
 
 
@@ -322,42 +322,42 @@ Use `fanfic-add-universe' to make a universe \"available\"."
 (defcustom fanfic-dramatis-personae-group-prefix ""
   "String to be inserted before each group in `fanfic-dramatis-personae'."
   :type 'string
-  :safe 'stringp
+  :safe #'stringp
   :group 'fanfic-dramatis-personae)
 
 ;;;###autoload
 (defcustom fanfic-dramatis-personae-group-suffix ""
   "String to be inserted after each group in `fanfic-dramatis-personae'."
   :type 'string
-  :safe 'stringp
+  :safe #'stringp
   :group 'fanfic-dramatis-personae)
 
 ;;;###autoload
 (defcustom fanfic-dramatis-personae-item-prefix ""
   "String to be inserted before each name in `fanfic-dramatis-personae'."
   :type 'string
-  :safe 'stringp
+  :safe #'stringp
   :group 'fanfic-dramatis-personae)
 
 ;;;###autoload
 (defcustom fanfic-dramatis-personae-item-suffix ""
   "String to be inserted after each name in `fanfic-dramatis-personae'."
   :type 'string
-  :safe 'stringp
+  :safe #'stringp
   :group 'fanfic-dramatis-personae)
 
 ;;;###autoload
 (defcustom fanfic-dramatis-personae-nick-prefix "(\""
   "String to be inserted before each nick in `fanfic-dramatis-personae'."
   :type 'string
-  :safe 'stringp
+  :safe #'stringp
   :group 'fanfic-dramatis-personae)
 
 ;;;###autoload
 (defcustom fanfic-dramatis-personae-nick-suffix "\")"
   "String to be inserted after each nick in `fanfic-dramatis-personae'."
   :type 'string
-  :safe 'stringp
+  :safe #'stringp
   :group 'fanfic-dramatis-personae)
 
 
@@ -369,7 +369,7 @@ Use `fanfic-add-universe' to make a universe \"available\"."
 
 (defvar fanfic--highlights nil "All `font-lock-keywords' for the current buffer which come from `fanfic-mode'.")
 (make-variable-buffer-local 'fanfic--highlights)
-(defvar fanfic--universes (make-hash-table :test 'equal))
+(defvar fanfic--universes (make-hash-table :test #'equal))
 (defvar fanfic--active-universes nil)
 (make-variable-buffer-local 'fanfic--active-universes)
 
@@ -423,7 +423,7 @@ If NAME-OR-NAMES is a string, a list is returned, in which each element is the c
 If NAME-OR-NAMES is a list, `fanfic-decline' is called recursively for each element in that list."
   (if (stringp name-or-names)
       (--map (replace-regexp-in-string "{name}" name-or-names it t t) fanfic-declinations)
-    (-map 'fanfic-decline name-or-names)))
+    (-map #'fanfic-decline name-or-names)))
 
 
 
@@ -577,18 +577,18 @@ The following have to be satisfied in order to make a universe \"safe\":
 ;;;###autoload
 (defun fanfic-safe-universes-p (universes)
   "Tests whether it is safe to use UNIVERSES as value for `fanfic-universes'."
-  (and (-all-p 'stringp universes)
+  (and (-all-p #'stringp universes)
        (--all-p (gethash it fanfic--universes) universes)))
 
 ;;;###autoload
 (defun fanfic-safe-cast-p (object)
   "Returns t if OBJECT is a cast safe for usage within fanfic functions."
-  (and (listp object) (--all-p (or (stringp it) (--all-p 'stringp it)) object)))
+  (and (listp object) (--all-p (or (stringp it) (-all-p #'stringp it)) object)))
 
 ;;;###autoload
 (defun fanfic-safe-keywords-p (object)
   "Returns t if OBJECT is safe to be used as keywords within fanfic."
-  (and (listp object) (-all-p 'stringp (-flatten object))))
+  (and (listp object) (-all-p #'stringp (-flatten object))))
 
 
 
@@ -641,18 +641,18 @@ The following have to be satisfied in order to make a universe \"safe\":
 ;; in the customization, we force these to appear in the autoloads
 ;; by generating a cookie for them.
 
-;;;###autoload(put 'fanfic-cast 'safe-local-variable 'fanfic-safe-cast-p)
-;;;###autoload(put 'fanfic-protagonists 'safe-local-variable 'fanfic-safe-cast-p)
-;;;###autoload(put 'fanfic-antagonists 'safe-local-variable 'fanfic-safe-cast-p)
-;;;###autoload(put 'fanfic-keywords 'safe-local-variable 'fanfic-safe-keywords-p)
-;;;###autoload(put 'fanfic-universes 'safe-local-variable 'fanfic-safe-universes-p)
+;;;###autoload(put 'fanfic-cast 'safe-local-variable #'fanfic-safe-cast-p)
+;;;###autoload(put 'fanfic-protagonists 'safe-local-variable #'fanfic-safe-cast-p)
+;;;###autoload(put 'fanfic-antagonists 'safe-local-variable #'fanfic-safe-cast-p)
+;;;###autoload(put 'fanfic-keywords 'safe-local-variable #'fanfic-safe-keywords-p)
+;;;###autoload(put 'fanfic-universes 'safe-local-variable #'fanfic-safe-universes-p)
 
-;;;###autoload(put 'fanfic-dramatis-personae-item-prefix 'safe-local-variable 'stringp)
-;;;###autoload(put 'fanfic-dramatis-personae-item-suffix 'safe-local-variable 'stringp)
-;;;###autoload(put 'fanfic-dramatis-personae-group-prefix 'safe-local-variable 'stringp)
-;;;###autoload(put 'fanfic-dramatis-personae-group-suffix 'safe-local-variable 'stringp)
-;;;###autoload(put 'fanfic-dramatis-personae-nick-prefix 'safe-local-variable 'stringp)
-;;;###autoload(put 'fanfic-dramatis-personae-nick-suffix 'safe-local-variable 'stringp)
+;;;###autoload(put 'fanfic-dramatis-personae-item-prefix 'safe-local-variable #'stringp)
+;;;###autoload(put 'fanfic-dramatis-personae-item-suffix 'safe-local-variable #'stringp)
+;;;###autoload(put 'fanfic-dramatis-personae-group-prefix 'safe-local-variable #'stringp)
+;;;###autoload(put 'fanfic-dramatis-personae-group-suffix 'safe-local-variable #'stringp)
+;;;###autoload(put 'fanfic-dramatis-personae-nick-prefix 'safe-local-variable #'stringp)
+;;;###autoload(put 'fanfic-dramatis-personae-nick-suffix 'safe-local-variable #'stringp)
 
 (provide 'fanfic)
 
