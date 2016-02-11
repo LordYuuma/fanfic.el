@@ -7,9 +7,9 @@
 ;; Created: Tue Sep 15 11:52:17 2015 (+0200)
 ;; Version: 2.1
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Wed Feb 10 01:58:56 2016 (+0100)
+;; Last-Updated: Thu Feb 11 15:49:31 2016 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 295
+;;     Update #: 298
 ;; URL:
 ;; Doc URL:
 ;; Keywords: convenience
@@ -139,8 +139,6 @@
 ;;; Code:
 
 (require 'cl-lib)
-
-;;;###autoload
 (require 'dash)
 
 (cl-defstruct (fanfic-universe (:constructor fanfic-make-universe)
@@ -271,7 +269,7 @@ and their hook versions `fanfic-universes-special-keywords' and `fanfic-universe
 Use M-x `fanfic-available-universes' to get a list of meaningful values.
 Use `fanfic-add-universe' to make a universe \"available\"."
   :type '(repeat string)
-  :safe (lambda (xs) (-all-p 'stringp xs))
+  :safe 'fanfic-safe-universes-p
   :group 'fanfic)
 
 
@@ -577,6 +575,12 @@ The following have to be satisfied in order to make a universe \"safe\":
        (symbolp (fanfic-universe-requires object))))
 
 ;;;###autoload
+(defun fanfic-safe-universes-p (universes)
+  "Tests whether it is safe to use UNIVERSES as value for `fanfic-universes'."
+  (and (-all-p 'stringp universes)
+       (--all-p (gethash it fanfic--universes) universes)))
+
+;;;###autoload
 (defun fanfic-safe-cast-p (object)
   "Returns t if OBJECT is a cast safe for usage within fanfic functions."
   (and (listp object) (--all-p (or (stringp it) (--all-p 'stringp it)) object)))
@@ -585,6 +589,7 @@ The following have to be satisfied in order to make a universe \"safe\":
 (defun fanfic-safe-keywords-p (object)
   "Returns t if OBJECT is safe to be used as keywords within fanfic."
   (and (listp object) (-all-p 'stringp (-flatten object))))
+
 
 
 
@@ -645,7 +650,7 @@ The following have to be satisfied in order to make a universe \"safe\":
 ;;;###autoload
 (put 'fanfic-keywords 'safe-local-variable 'fanfic-safe-keywords-p)
 ;;;###autoload
-(put 'fanfic-universes 'safe-local-variable (lambda (xs) (-all-p 'stringp xs)))
+(put 'fanfic-universes 'safe-local-variable 'fanfic-safe-universes-p)
 
 ;;;###autoload
 (put 'fanfic-dramatis-personae-item-prefix 'safe-local-variable 'stringp)
