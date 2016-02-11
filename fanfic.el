@@ -7,9 +7,9 @@
 ;; Created: Tue Sep 15 11:52:17 2015 (+0200)
 ;; Version: 2.1
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Thu Feb 11 15:49:31 2016 (+0100)
+;; Last-Updated: Thu Feb 11 15:50:45 2016 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 298
+;;     Update #: 299
 ;; URL:
 ;; Doc URL:
 ;; Keywords: convenience
@@ -641,29 +641,18 @@ The following have to be satisfied in order to make a universe \"safe\":
 ;; in the customization, we force these to appear in the autoloads
 ;; by generating a cookie for them.
 
-;;;###autoload
-(put 'fanfic-cast 'safe-local-variable 'fanfic-safe-cast-p)
-;;;###autoload
-(put 'fanfic-protagonists 'safe-local-variable 'fanfic-safe-cast-p)
-;;;###autoload
-(put 'fanfic-antagonists 'safe-local-variable 'fanfic-safe-cast-p)
-;;;###autoload
-(put 'fanfic-keywords 'safe-local-variable 'fanfic-safe-keywords-p)
-;;;###autoload
-(put 'fanfic-universes 'safe-local-variable 'fanfic-safe-universes-p)
+;;;###autoload(put 'fanfic-cast 'safe-local-variable 'fanfic-safe-cast-p)
+;;;###autoload(put 'fanfic-protagonists 'safe-local-variable 'fanfic-safe-cast-p)
+;;;###autoload(put 'fanfic-antagonists 'safe-local-variable 'fanfic-safe-cast-p)
+;;;###autoload(put 'fanfic-keywords 'safe-local-variable 'fanfic-safe-keywords-p)
+;;;###autoload(put 'fanfic-universes 'safe-local-variable 'fanfic-safe-universes-p)
 
-;;;###autoload
-(put 'fanfic-dramatis-personae-item-prefix 'safe-local-variable 'stringp)
-;;;###autoload
-(put 'fanfic-dramatis-personae-item-suffix 'safe-local-variable 'stringp)
-;;;###autoload
-(put 'fanfic-dramatis-personae-group-prefix 'safe-local-variable 'stringp)
-;;;###autoload
-(put 'fanfic-dramatis-personae-group-suffix 'safe-local-variable 'stringp)
-;;;###autoload
-(put 'fanfic-dramatis-personae-nick-prefix 'safe-local-variable 'stringp)
-;;;###autoload
-(put 'fanfic-dramatis-personae-nick-suffix 'safe-local-variable 'stringp)
+;;;###autoload(put 'fanfic-dramatis-personae-item-prefix 'safe-local-variable 'stringp)
+;;;###autoload(put 'fanfic-dramatis-personae-item-suffix 'safe-local-variable 'stringp)
+;;;###autoload(put 'fanfic-dramatis-personae-group-prefix 'safe-local-variable 'stringp)
+;;;###autoload(put 'fanfic-dramatis-personae-group-suffix 'safe-local-variable 'stringp)
+;;;###autoload(put 'fanfic-dramatis-personae-nick-prefix 'safe-local-variable 'stringp)
+;;;###autoload(put 'fanfic-dramatis-personae-nick-suffix 'safe-local-variable 'stringp)
 
 (provide 'fanfic)
 
