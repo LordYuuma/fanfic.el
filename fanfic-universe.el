@@ -7,9 +7,9 @@
 ;; Created: Fri Jun  3 09:47:57 2016 (+0200)
 ;; Version: 3.0
 ;; Package-Requires: ()
-;; Last-Updated: Fri Jun  3 23:59:08 2016 (+0200)
+;; Last-Updated: Sat Jun  4 00:13:29 2016 (+0200)
 ;;           By: Lord Yuuma
-;;     Update #: 73
+;;     Update #: 77
 ;; URL:
 ;; Doc URL:
 ;; Keywords:
@@ -51,6 +51,26 @@
 ;;; Code:
 
 (require 'fanfic-core)
+
+
+
+;;;###autoload
+(defcustom fanfic-universes nil
+  "Each entry is a name of a universe the current fic is set in.
+This is mostly useful for `fanfic-add-keywords-from-universes', `fanfic-add-cast-from-universes'
+and their hook versions `fanfic-universes-special-keywords' and `fanfic-universes-special-cast'.
+
+Use M-x `fanfic-available-universes' to get a list of meaningful values.
+Use `fanfic-add-universe' to make a universe \"available\"."
+  :type '(repeat string)
+  :safe #'fanfic-safe-universes-p
+  :group 'fanfic)
+
+;;;###autoload
+(defcustom fanfic-universe-dirs (list (expand-file-name "fanfic-universes" user-emacs-directory))
+  "Directories in which to search for fanfic universes."
+  :type '(repeat directory)
+  :group 'fanfic)
 
 
 
@@ -103,7 +123,7 @@ So far, these have been functions to provide the standard functionality of `fanf
             (`(character ,name . ,character)
              (let ((face (intern (concat "fanfic-" identifier "-" (symbol-name name) "-face"))))
                (push (cons character face) (fanfic-universe-cast universe))))
-            (_ (error "Unkown command encountered." obj))))
+            (_ (error "Unkown command encountered: %S" obj))))
       (end-of-file universe))))
 
 (defun fanfic-universe-from-file (file)
@@ -139,29 +159,12 @@ not affect the rest of the directory. "
           (with-demoted-errors "Error: %S" (fanfic-load-universe file))
         (fanfic-load-universe file)))))
 
+(defvar fanfic--universes-initialized-p nil)
+
 (defun fanfic-universes-init ()
   (let ((overwrite t))
-    (--each fanfic-universe-dirs (fanfic-load-universes it))))
-
-
-
-;;;###autoload
-(defcustom fanfic-universes nil
-  "Each entry is a name of a universe the current fic is set in.
-This is mostly useful for `fanfic-add-keywords-from-universes', `fanfic-add-cast-from-universes'
-and their hook versions `fanfic-universes-special-keywords' and `fanfic-universes-special-cast'.
-
-Use M-x `fanfic-available-universes' to get a list of meaningful values.
-Use `fanfic-add-universe' to make a universe \"available\"."
-  :type '(repeat string)
-  :safe #'fanfic-safe-universes-p
-  :group 'fanfic)
-
-;;;###autoload
-(defcustom fanfic-universe-dirs (list (expand-file-name "fanfic-universes" user-emacs-directory))
-  "Directories in which to search for fanfic universes."
-  :type '(repeat directory)
-  :group 'fanfic)
+    (--each fanfic-universe-dirs (fanfic-load-universes it)))
+  (setq fanfic--universes-initialized-p t))
 
 
 
