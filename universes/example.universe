@@ -1,0 +1,4 @@
+(name . "Example Universe")
+(protagonists "Alice" "Bob")
+(antagonists "Eve")
+(keywords ("foo" "bar" "baz") ("wibble" "wobble" "wubble") ("spam" "ham" "eggs"))
