@@ -7,9 +7,9 @@
 ;; Created: Fri Jun  3 09:47:57 2016 (+0200)
 ;; Version: 3.0
 ;; Package-Requires: ()
-;; Last-Updated: Fri Jun  3 23:16:48 2016 (+0200)
+;; Last-Updated: Fri Jun  3 23:59:08 2016 (+0200)
 ;;           By: Lord Yuuma
-;;     Update #: 67
+;;     Update #: 73
 ;; URL:
 ;; Doc URL:
 ;; Keywords:
@@ -128,6 +128,21 @@ to `fanfic-universe-from-file'. When called interactively, nil is assumed for bo
   (interactive "f")
   (fanfic-add-universe (fanfic-universe-from-file file) overwrite noerror))
 
+(defun fanfic-load-universes (directory &optional demote-errors)
+  "Load all universes defined in DIRECTORY.
+
+If DEMOTE-ERRORS is truthy, run each load with demoted errors, so that one malformed file does
+not affect the rest of the directory. "
+  (dolist (file (directory-files directory t))
+    (unless (file-directory-p file)
+      (if demote-errors
+          (with-demoted-errors "Error: %S" (fanfic-load-universe file))
+        (fanfic-load-universe file)))))
+
+(defun fanfic-universes-init ()
+  (let ((overwrite t))
+    (--each fanfic-universe-dirs (fanfic-load-universes it))))
+
 
 
 ;;;###autoload
@@ -140,6 +155,12 @@ Use M-x `fanfic-available-universes' to get a list of meaningful values.
 Use `fanfic-add-universe' to make a universe \"available\"."
   :type '(repeat string)
   :safe #'fanfic-safe-universes-p
+  :group 'fanfic)
+
+;;;###autoload
+(defcustom fanfic-universe-dirs (list (expand-file-name "fanfic-universes" user-emacs-directory))
+  "Directories in which to search for fanfic universes."
+  :type '(repeat directory)
   :group 'fanfic)
 
 
