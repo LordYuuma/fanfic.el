@@ -7,9 +7,9 @@
 ;; Created: Fri Jun  3 09:47:57 2016 (+0200)
 ;; Version: 3.0
 ;; Package-Requires: ()
-;; Last-Updated: Fri Jun  3 15:35:48 2016 (+0200)
+;; Last-Updated: Fri Jun  3 17:04:26 2016 (+0200)
 ;;           By: Lord Yuuma
-;;     Update #: 13
+;;     Update #: 14
 ;; URL:
 ;; Doc URL:
 ;; Keywords:
@@ -98,6 +98,12 @@ not yet added to font-lock and fontification is not run afterwards."
 (defun fanfic-active-universe-p (name)
   "Returns t if NAME is an entry in `fanfic-universes', that points to a safe universe."
   (-contains-p fanfic--active-universes name))
+
+(defun fanfic-update-active-universes ()
+  "Refreshes the list of active universes to contain all entries in `fanfic-universes' that point towards safe universes.
+This function is meant for internal use. Calling it from the outside may mess with the behavior of `fanfic-active-universe-p' as it refers to the aforementioned list of safe entries.
+It could thus also be used for debugging purposes, but I doubt that it makes much sense to do so."
+  (setq fanfic--active-universes (--filter (fanfic-safe-universe-p (gethash it fanfic--universes)) fanfic-universes)))
 
 (defun fanfic-add-universe (universe &optional overwrite noerror)
   "Makes UNIVERSE available for use within `fanfic-mode', most notably for the use in `fanfic-universes'.

@@ -7,9 +7,9 @@
 ;; Created: Tue Sep 15 11:52:17 2015 (+0200)
 ;; Version: 2.1
 ;; Package-Requires: ((dash "2.12.1") (cl-lib "0.5"))
-;; Last-Updated: Fri Jun  3 15:49:49 2016 (+0200)
+;; Last-Updated: Fri Jun  3 17:05:02 2016 (+0200)
 ;;           By: Lord Yuuma
-;;     Update #: 307
+;;     Update #: 308
 ;; URL:
 ;; Doc URL:
 ;; Keywords: convenience
@@ -168,7 +168,7 @@ You may feel the need to run it yourself after editing cast-related variables."
 
   (when fanfic-mode
     ;; With this little gem, fanfic-active-universe-p gets reduced to a list lookup.
-    (setq fanfic--active-universes (--filter (fanfic-safe-universe-p (gethash it fanfic--universes)) fanfic-universes))
+    (fanfic-update-active-universes)
     (fanfic-add-highlights (-flatten fanfic-keywords) 'fanfic-keyword-face t)
     (run-hooks 'fanfic-special-keyword-hook)
     (--each '(fanfic-cast fanfic-antagonists fanfic-protagonists)
