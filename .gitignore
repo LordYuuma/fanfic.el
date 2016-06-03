@@ -1,5 +1,8 @@
 # Compiled
 *.elc
-
+# Autoloads
+*-autoloads.el
+# Emacs desktop
+.emacs.desktop*
 # Packaging
 .cask
