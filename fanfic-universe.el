@@ -7,9 +7,9 @@
 ;; Created: Fri Jun  3 09:47:57 2016 (+0200)
 ;; Version: 3.0
 ;; Package-Requires: ()
-;; Last-Updated: Sat Jun  4 00:13:29 2016 (+0200)
+;; Last-Updated: Sat Jun  4 00:29:21 2016 (+0200)
 ;;           By: Lord Yuuma
-;;     Update #: 77
+;;     Update #: 78
 ;; URL:
 ;; Doc URL:
 ;; Keywords:
@@ -245,6 +245,7 @@ The following have to be satisfied in order to make a universe \"safe\":
 (defun fanfic-safe-universes-p (universes)
   "Test whether it is safe to use UNIVERSES as value for `fanfic-universes'."
   (and (-all-p #'stringp universes)
-       (--all-p (gethash it fanfic--universes) universes)))
+       (or (not fanfic--universes-initialized-p)
+           (--all-p (gethash it fanfic--universes) universes))))
 
 (provide 'fanfic-universe)
