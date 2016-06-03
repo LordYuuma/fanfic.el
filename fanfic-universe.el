@@ -7,9 +7,9 @@
 ;; Created: Fri Jun  3 09:47:57 2016 (+0200)
 ;; Version: 3.0
 ;; Package-Requires: ()
-;; Last-Updated: Fri Jun  3 20:34:08 2016 (+0200)
+;; Last-Updated: Fri Jun  3 21:09:04 2016 (+0200)
 ;;           By: Lord Yuuma
-;;     Update #: 55
+;;     Update #: 57
 ;; URL:
 ;; Doc URL:
 ;; Keywords:
@@ -120,9 +120,8 @@ Use `fanfic-add-universe' to make a universe \"available\"."
 
 
 (defun fanfic-add-keywords-from-universes (&optional skip-font-lock)
-  "Adds the keywords of all universes in `fanfic-universes' to the lists of fanfic generated highlights.
-If optional argument SKIP-FONT-LOCK is non-nil, keywords generated this way are
-not yet added to font-lock and fontification is not run afterwards."
+  "Add the keywords of all universes in `fanfic-universes' to the lists of fanfic generated highlights.
+If optional argument SKIP-FONT-LOCK is non-nil, do not run fontification afterwards."
   (--each fanfic-universes
     (let ((universe (gethash it fanfic--universes)))
       (when (fanfic-universe-p universe)
@@ -130,9 +129,8 @@ not yet added to font-lock and fontification is not run afterwards."
           (fanfic-add-highlights (-flatten (car it)) (cdr it) skip-font-lock))))))
 
 (defun fanfic-add-cast-from-universes (&optional skip-font-lock)
-  "Adds the casts of all universes in `fanfic-universes' to the lists of fanfic generated highlights.
-If optional argument SKIP-FONT-LOCK is non-nil, keywords generated this way are
-not yet added to font-lock and fontification is not run afterwards."
+  "Add the casts of all universes in `fanfic-universes' to the lists of fanfic generated highlights.
+If optional argument SKIP-FONT-LOCK is non-nil, do not run fontification afterwards."
   (--each fanfic-universes
     (let ((universe (gethash it fanfic--universes)))
       (when (fanfic-universe-p universe)
@@ -142,28 +140,29 @@ not yet added to font-lock and fontification is not run afterwards."
 
 
 (defun fanfic-active-universe-p (name)
-  "Returns t if NAME is an entry in `fanfic-universes', that points to a safe universe."
+  "Return t if NAME is an entry in `fanfic-universes', that points to a safe universe."
   (-contains-p fanfic--active-universes name))
 
 (defun fanfic-update-active-universes ()
-  "Refreshes the list of active universes to contain all entries in `fanfic-universes' that point towards safe universes.
+  "Refresh the list of active universes to contain all entries in `fanfic-universes' that point towards safe universes.
 This function is meant for internal use. Calling it from the outside may mess with the behavior of `fanfic-active-universe-p' as it refers to the aforementioned list of safe entries.
 It could thus also be used for debugging purposes, but I doubt that it makes much sense to do so."
   (setq fanfic--active-universes (--filter (fanfic-safe-universe-p (gethash it fanfic--universes)) fanfic-universes)))
 
 (defun fanfic-add-universe (universe &optional overwrite noerror)
-  "Makes UNIVERSE available for use within `fanfic-mode', most notably for the use in `fanfic-universes'.
-This function performs type checks on UNIVERSE which may be stronger than `fanfic-universe-p'. An error
-is signaled when either check fails.
-An error is also signaled, when UNIVERSE appears to have already been added and OVERWRITE is nil.
-When NOERROR is t, nil is returned instead, when an error would be signaled."
+  "Make UNIVERSE available for use within `fanfic-mode', most notably for the use in `fanfic-universes'.
+UNIVERSE must have a name, otherwise an error is signaled.
+
+When OVERWRITE is t, replace already existing universes when they exist. Otherwise signal an error in that case.
+
+When NOERROR is t and an error occurs, return nil instead of signaling the error."
   (let ((name (fanfic-universe-name universe)))
     (cond ((not name) (unless noerror (error "Name of universe must not be empty")))
           ((and (not overwrite) (gethash name fanfic--universes nil)) (unless noerror (error "%s already exists" universe)))
           (t (puthash name universe fanfic--universes)))))
 
 (defun fanfic-available-universes ()
-  "Returns names of all available fanfic universes."
+  "Return names of all available fanfic universes."
   (interactive)
   (-sort 'string< (let ((acc nil))
                     (maphash (lambda (k v) (add-to-list 'acc k))
@@ -173,7 +172,7 @@ When NOERROR is t, nil is returned instead, when an error would be signaled."
 
 ;;;###autoload
 (defun fanfic-safe-universe-p (object)
-  "Returns t if OBJECT is a universe safe for usage within fanfic.
+  "Return t if OBJECT is a universe safe for usage within fanfic.
 
 In order to create such an universe it is best to use `fanfic-make-universe'.
 The following have to be satisfied in order to make a universe \"safe\":
@@ -189,7 +188,7 @@ The following have to be satisfied in order to make a universe \"safe\":
 
 ;;;###autoload
 (defun fanfic-safe-universes-p (universes)
-  "Tests whether it is safe to use UNIVERSES as value for `fanfic-universes'."
+  "Test whether it is safe to use UNIVERSES as value for `fanfic-universes'."
   (and (-all-p #'stringp universes)
        (--all-p (gethash it fanfic--universes) universes)))
 

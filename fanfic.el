@@ -7,9 +7,9 @@
 ;; Created: Tue Sep 15 11:52:17 2015 (+0200)
 ;; Version: 2.1
 ;; Package-Requires: ((dash "2.12.1") (cl-lib "0.5"))
-;; Last-Updated: Fri Jun  3 17:05:02 2016 (+0200)
+;; Last-Updated: Fri Jun  3 21:23:11 2016 (+0200)
 ;;           By: Lord Yuuma
-;;     Update #: 308
+;;     Update #: 312
 ;; URL:
 ;; Doc URL:
 ;; Keywords: convenience
@@ -103,21 +103,20 @@
 
 ;;;###autoload
 (define-minor-mode fanfic-mode
-  "A minor mode for highlighting the name of a fanfic's cast.
+  "Toggle `fanfic-mode'.
 
-`fanfic-mode' reacts to `fanfic-keywords', `fanfic-protagonists',
-`fanfic-cast' and `fanfic-antagonists'. Of these, only `fanfic-keywords'
-are highlighted as they are.
+When `fanfic-mode' is t, `fanfic-keywords', `fanfic-protagonists',
+`fanfic-cast' and `fanfic-antagonists' are highlighted according to
+their faces.
 
-In the other three, strings or the cars of string lists are names,
-whereas the cdrs of string lists are nicknames. Names and nicknames are
-highlighted differently, but otherwise treated the same. Both of them are
-not added as-is, but first formatted as in the format strings given
-in `fanfic-declinations'.
+When `fanfic-universes' is non-nil also highlight the casts and
+keywords of all universes that satisfy `fanfic-safe-universe-p'.
 
-`fanfic-mode' internally uses `font-lock' for highlighting. While it is active,
-an advice, which is run after `font-lock-refresh-defaults' prevents their removal
-to some degree. (This is mostly used as a hack for `markdown-mode'.)"
+`fanfic-protagonists', `fanfic-cast' and `fanfic-antagonists' as well
+as the casts added by `fanfic-universes' are all declined using
+`fanfic-decline' before being highlighted.
+
+While `fanfic-mode' is t, font-locks are kept even along `font-lock-refresh-defaults'."
   nil " Fanfiction"
   :after-hook (fanfic-mode-recast)
   :group 'fanfic
@@ -150,14 +149,11 @@ already color coded cast."
 
 
 (defun fanfic-mode-recast ()
-  "Refreshes `font-lock-keywords' according to the `fanfic-' variables.
+  "Refresh `font-lock-keywords' according to the `fanfic-' variables.
 
-At the first step, highlights already set by `fanfic-mode' are reset.
-Afterwards, when `fanfic-mode' is truthy, keywords are set to what they
-should be according to `fanfic-cast', `fanfic-protagonists', `fanfic-antagonists',
-possible `fanfic-declinations' thereof and `fanfic-keywords'.
-As a last step, `font-lock-fontify-buffer' will be called to make these changes
-visible.
+At the first step, reset highlights already set by `fanfic-mode'.
+Afterwards, when `fanfic-mode' is truthy, change keywords according to its definition.
+As a last step, run `font-lock-fontify-buffer' to make these changes visible.
 
 This command is automatically run as a hook after `fanfic-mode'.
 You may feel the need to run it yourself after editing cast-related variables."
@@ -201,14 +197,14 @@ You may feel the need to run it yourself after editing cast-related variables."
 ;;; Private area.
 
 (defun fanfic--font-lock ()
-  "Adds all highlights in `fanfic--highlights' to `font-lock-keywords'. Not very meaningful when used externally."
+  "Add all highlights in `fanfic--highlights' to `font-lock-keywords'. Not very meaningful when used externally."
   (dolist (highlight fanfic--highlights)
     ;; any non-nil value would do as the fourth argument, but I figured 'append would make the most sense
     ;; from a semantic perspective.
     (font-lock-add-keywords nil highlight 'append)))
 
 (defun fanfic--font-unlock ()
-  "Removes all changes to `font-lock-keywords' done by `fanfic-mode'. Not intended for external use."
+  "Remove all changes to `font-lock-keywords' done by `fanfic-mode'. Not intended for external use."
   (dolist (highlight fanfic--highlights)
     (font-lock-remove-keywords nil highlight)))
 

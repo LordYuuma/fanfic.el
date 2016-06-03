@@ -7,9 +7,9 @@
 ;; Created: Fri Jun  3 12:09:38 2016 (+0200)
 ;; Version: 3.0
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Fri Jun  3 15:41:18 2016 (+0200)
+;; Last-Updated: Fri Jun  3 21:11:36 2016 (+0200)
 ;;           By: Lord Yuuma
-;;     Update #: 6
+;;     Update #: 7
 ;; URL:
 ;; Doc URL:
 ;; Keywords:
@@ -104,7 +104,7 @@
 
 ;;;###autoload
 (defun fanfic-dramatis-personae (&optional prefix)
-  "Inserts a dramatis personae at the current point.
+  "Insert a dramatis personae at the current point.
 If PREFIX is given, insert at the start of the file."
   (interactive "P")
   (save-excursion

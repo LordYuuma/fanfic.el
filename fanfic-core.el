@@ -7,9 +7,9 @@
 ;; Created: Fri Jun  3 09:49:03 2016 (+0200)
 ;; Version:
 ;; Package-Requires: ((dash "2.12.1") (cl-lib "0.5"))
-;; Last-Updated: Fri Jun  3 15:46:23 2016 (+0200)
+;; Last-Updated: Fri Jun  3 21:11:05 2016 (+0200)
 ;;           By: Lord Yuuma
-;;     Update #: 11
+;;     Update #: 13
 ;; URL:
 ;; Doc URL:
 ;; Keywords:
@@ -128,7 +128,8 @@
 Each value is a string in which `{name}' will get replaced by the name of your character
 when constructing a list of highlights."
   :type '(repeat string)
-  :safe (lambda (xs) (-all-p 'stringp xs)))
+  :safe (lambda (xs) (-all-p 'stringp xs))
+  :group 'fanfic)
 
 
 
@@ -194,9 +195,8 @@ If NAME-OR-NAMES is a list, `fanfic-decline' is called recursively for each elem
 
 
 (defun fanfic-add-highlights (names face &optional skip-font-lock)
-  "Adds NAMES highlighted under FACE to the list of fanfic generated highlights.
-If optional argument SKIP-FONT-LOCK is non-nil, keywords generated this way are
-not yet added to font-lock and fontification is not run afterwards."
+  "Add NAMES highlighted under FACE to the list of fanfic generated highlights.
+If optional argument SKIP-FONT-LOCK is non-nil, do not run fontification afterwards."
   (unless fanfic-mode
     (error "Attempt to modify fanfic highlights outside of fanfic-mode"))
   (let ((highlight `((,(regexp-opt names 'words) 0 ',face t))))
@@ -206,9 +206,8 @@ not yet added to font-lock and fontification is not run afterwards."
       (font-lock-fontify-buffer))))
 
 (defun fanfic-remove-highlights (names face &optional skip-font-lock)
-  "Removes NAMES highlighted under FACE from the list of fanfic generated highlights.
-If optional argument SKIP-FONT-LOCK is non-nil, keywords keywords generated this way
-are not yet removed from font-lock and fontification is not run afterwards."
+  "Remove NAMES highlighted under FACE from the list of fanfic generated highlights.
+If optional argument SKIP-FONT-LOCK is non-nil, do not run fontification afterwards."
   (unless fanfic-mode
     (error "Attempt to modify fanfic highlights outside of fanfic-mode"))
   (let ((highlight `((,(regexp-opt names 'words) 0 ',face t))))
@@ -223,12 +222,12 @@ are not yet removed from font-lock and fontification is not run afterwards."
 
 ;;;###autoload
 (defun fanfic-safe-cast-p (object)
-  "Returns t if OBJECT is a cast safe for usage within fanfic functions."
+  "Return t if OBJECT is a cast safe for usage within fanfic functions."
   (and (listp object) (--all-p (or (stringp it) (-all-p #'stringp it)) object)))
 
 ;;;###autoload
 (defun fanfic-safe-keywords-p (object)
-  "Returns t if OBJECT is safe to be used as keywords within fanfic."
+  "Return t if OBJECT is safe to be used as keywords within fanfic."
   (and (listp object) (-all-p #'stringp (-flatten object))))
 
 (provide 'fanfic-core)

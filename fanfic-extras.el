@@ -7,9 +7,9 @@
 ;; Created: Fri Jun  3 15:22:51 2016 (+0200)
 ;; Version: 3.0
 ;; Package-Requires: ()
-;; Last-Updated: Fri Jun  3 15:42:25 2016 (+0200)
+;; Last-Updated: Fri Jun  3 21:11:17 2016 (+0200)
 ;;           By: Lord Yuuma
-;;     Update #: 5
+;;     Update #: 6
 ;; URL:
 ;; Doc URL:
 ;; Keywords:
@@ -53,7 +53,7 @@
 
 ;;;###autoload
 (defun fanfic-strip-scenes (content &optional exclude)
-  "Strip the fanfic to paragraphs including CONTENT. Outputs to a new buffer."
+  "Strip the fanfic to paragraphs including CONTENT. Output to a new buffer."
   (interactive (list (read-string (format "%s: " this-command)) current-prefix-arg))
   (save-excursion
     (goto-char (point-min))
