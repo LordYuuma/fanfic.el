@@ -7,9 +7,9 @@
 ;; Created: Fri Jun  3 09:47:57 2016 (+0200)
 ;; Version: 3.0
 ;; Package-Requires: ()
-;; Last-Updated: Fri Jun  3 21:27:38 2016 (+0200)
+;; Last-Updated: Fri Jun  3 23:16:48 2016 (+0200)
 ;;           By: Lord Yuuma
-;;     Update #: 58
+;;     Update #: 67
 ;; URL:
 ;; Doc URL:
 ;; Keywords:
@@ -26,6 +26,7 @@
 ;;; Change Log:
 ;;
 ;;  3.0: Split from other fanfic modules.
+;;       Add functions to read universes from files.
 ;;
 ;;  Previously:
 ;;    2.1: Universe support first added.
@@ -54,6 +55,20 @@
 
 
 (defun fanfic-universe-from-string (str)
+  "Read a universe from STR.
+
+Universes are parsed according to their own LISP-like language. The following functions are defined:
+(name . NAME) set the universe name to NAME.
+(protagonists &rest PROTAGONISTS...) adds PROTAGONISTS under `fanfic-protagonist-face' to the universe's cast.
+(antagonists &rest ANTAGONISTS) adds ANTAGONIST under `fanfic-antagonist-face' to the universe's cast.
+(cast &rest CAST) adds CAST under `fanfic-cast-face' to the universe's cast.
+(keywords &rest KEYWORDS) adds KEYWORDS under `fanfic-keyword-face' to the universe's cast.
+
+So far, these have been functions to provide the standard functionality of `fanfic-mode' and conformity to
+`fanfic-add-universe' by giving the universe a name. The following functions add extended behavior.
+
+(make-face FACE &rest ATTS) defines FACE as a new face with ATTS as its face attributes for all display types.
+(character FACE &rest CHARACTER) adds CHARACTER with under the face FACE to the universe's cast."
   (let ((universe (fanfic-universe-from-string-1 str)))
     (setf (fanfic-universe-cast universe) (nreverse (fanfic-universe-cast universe)))
     (setf (fanfic-universe-keywords universe) (nreverse (fanfic-universe-keywords universe)))
@@ -92,10 +107,26 @@
       (end-of-file universe))))
 
 (defun fanfic-universe-from-file (file)
+  "Read a universe from FILE.
+
+See also: `fanfic-univere-from-string'"
   (fanfic-universe-from-string
    (with-temp-buffer
      (insert-file-contents file)
      (buffer-string))))
+
+;;;###autoload
+(defun fanfic-load-universe (file &optional overwrite noerror)
+  "Read a universe from FILE and add it to the list of available universes.
+
+This function acts as both a shortcut and user interface to `fanfic-add-universe'
+and `fanfic-universe-from-file' which make the most sense when combined.
+Naturally, it has an `interactive' form.
+
+OVERWRITE and NOERROR are passed to `fanfic-add-universe' while FILE is passed
+to `fanfic-universe-from-file'. When called interactively, nil is assumed for both."
+  (interactive "f")
+  (fanfic-add-universe (fanfic-universe-from-file file) overwrite noerror))
 
 
 
