@@ -7,9 +7,9 @@
 ;; Created: Tue Sep 15 11:52:17 2015 (+0200)
 ;; Version: 2.1
 ;; Package-Requires: ((dash "2.12.1") (cl-lib "0.5"))
-;; Last-Updated: Fri Jun  3 21:23:11 2016 (+0200)
+;; Last-Updated: Sat Jun  4 00:18:00 2016 (+0200)
 ;;           By: Lord Yuuma
-;;     Update #: 312
+;;     Update #: 318
 ;; URL:
 ;; Doc URL:
 ;; Keywords: convenience
@@ -99,6 +99,8 @@
 (require 'fanfic-universe)
 (require 'fanfic-dramatis-personae)
 
+(declare-function fanfic-universes-init "fanfic-universe")
+
 
 
 ;;;###autoload
@@ -161,6 +163,10 @@ You may feel the need to run it yourself after editing cast-related variables."
   (fanfic--font-unlock)
   (setq fanfic--highlights nil)
   (setq fanfic--active-universes nil)
+
+  (when (boundp 'fanfic--universes-initialized-p)
+    (unless fanfic--universes-initialized-p
+      (fanfic-universes-init)))
 
   (when fanfic-mode
     ;; With this little gem, fanfic-active-universe-p gets reduced to a list lookup.
