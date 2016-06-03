@@ -7,9 +7,9 @@
 ;; Created: Fri Jun  3 09:47:57 2016 (+0200)
 ;; Version: 3.0
 ;; Package-Requires: ()
-;; Last-Updated: Fri Jun  3 17:04:26 2016 (+0200)
+;; Last-Updated: Fri Jun  3 19:12:37 2016 (+0200)
 ;;           By: Lord Yuuma
-;;     Update #: 14
+;;     Update #: 46
 ;; URL:
 ;; Doc URL:
 ;; Keywords:
@@ -50,6 +50,38 @@
 ;;; Code:
 
 (require 'fanfic-core)
+
+
+
+(defun fanfic-universe-from-string (str)
+  (let ((universe (fanfic-universe-from-string-1 str)))
+    (setf (fanfic-universe-cast universe) (nreverse (fanfic-universe-cast universe)))
+    (setf (fanfic-universe-keywords universe) (nreverse (fanfic-universe-keywords universe)))
+    universe))
+
+(defun fanfic-universe-from-string-1 (str)
+  (let ((start 0)
+        (end (length str))
+        obj-and-idx obj
+        (universe (fanfic-make-universe)))
+    (condition-case error
+        (while t
+          (setq obj-and-idx (read-from-string str start end))
+          (setq obj (car obj-and-idx) start (cdr obj-and-idx))
+          (pcase obj
+            (`(name . ,name) (setf (fanfic-universe-name universe) name))
+            (`(protagonists . ,protagonists) (push (cons protagonists 'fanfic-protagonist-face) (fanfic-universe-cast universe)))
+            (`(antagonists . ,antagonists) (push (cons antagonists 'fanfic-antagonist-face) (fanfic-universe-cast universe)))
+            (`(cast . ,cast) (push (cons cast 'fanfic-cast-face) (fanfic-universe-cast universe)))
+            (`(keywords . ,keywords) (push (cons keywords 'fanfic-keyword-face) (fanfic-universe-keywords universe)))
+            (_ (print obj))))
+      (end-of-file universe))))
+
+(defun fanfic-universe-from-file (file)
+  (fanfic-universe-from-string
+   (with-temp-buffer
+     (insert-file-contents file)
+     (buffer-string))))
 
 
 
