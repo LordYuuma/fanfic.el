@@ -1,15 +1,15 @@
 ;;; fanfic-dramatis-personae.el ---
 ;;
 ;; Filename: fanfic-dramatis-personae.el
-;; Description:
+;; Description: Dramatis personae for fanfic.el
 ;; Author: Lord Yuuma
 ;; Maintainer: Lord Yuuma
 ;; Created: Fri Jun  3 12:09:38 2016 (+0200)
 ;; Version: 3.0
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Fri Jun  3 21:11:36 2016 (+0200)
+;; Last-Updated: Sat Jun  4 16:02:17 2016 (+0200)
 ;;           By: Lord Yuuma
-;;     Update #: 7
+;;     Update #: 8
 ;; URL:
 ;; Doc URL:
 ;; Keywords:
@@ -19,7 +19,12 @@
 ;;
 ;;; Commentary:
 ;;
-;;
+;;    The functions in this module list the cast of the current
+;;    buffer.
+;;    `fanfic-dramatis-personae' inserts this list at POINT.
+;;    Alternatively for debugging `fanfic--dramatis-personae'
+;;    returns the list itself. It is considered private, but not
+;;    much harm is done if it is used for debugging.
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;

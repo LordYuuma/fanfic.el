@@ -1,15 +1,15 @@
 ;;; fanfic-extras.el ---
 ;;
 ;; Filename: fanfic-extras.el
-;; Description:
+;; Description: Extra functionality for fanfic.el
 ;; Author: Lord Yuuma
 ;; Maintainer: Lord Yuuma
 ;; Created: Fri Jun  3 15:22:51 2016 (+0200)
 ;; Version: 3.0
 ;; Package-Requires: ()
-;; Last-Updated: Fri Jun  3 21:11:17 2016 (+0200)
+;; Last-Updated: Sat Jun  4 15:56:30 2016 (+0200)
 ;;           By: Lord Yuuma
-;;     Update #: 6
+;;     Update #: 7
 ;; URL:
 ;; Doc URL:
 ;; Keywords:
@@ -19,7 +19,7 @@
 ;;
 ;;; Commentary:
 ;;
-;;
+;;    As of now, this only holds `fanfic-strip-scenes'.
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;

@@ -1,15 +1,15 @@
 ;;; fanfic-universe.el ---
 ;;
 ;; Filename: fanfic-universe.el
-;; Description:
+;; Description: Universe related functions for fanfic.el
 ;; Author: Lord Yuuma
 ;; Maintainer: Lord Yuuma
 ;; Created: Fri Jun  3 09:47:57 2016 (+0200)
 ;; Version: 3.0
 ;; Package-Requires: ()
-;; Last-Updated: Sat Jun  4 00:29:21 2016 (+0200)
+;; Last-Updated: Sat Jun  4 16:00:09 2016 (+0200)
 ;;           By: Lord Yuuma
-;;     Update #: 78
+;;     Update #: 79
 ;; URL:
 ;; Doc URL:
 ;; Keywords:
@@ -19,7 +19,12 @@
 ;;
 ;;; Commentary:
 ;;
-;;
+;;    Defines `fanfic-universe-from' methods as well as
+;;    `fanfic-load-universe'.
+;;    Defines `fanfic-safe-universe-p'.
+;;    Defines how cast and keywords are handled for universes
+;;    (highlighting).
+;;    Defines `fanfic-add-universe' and `fanfic-available-universes'.
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;

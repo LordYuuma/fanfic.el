@@ -1,15 +1,15 @@
 ;;; fanfic-core.el ---
 ;;
 ;; Filename: fanfic-core.el
-;; Description:
+;; Description: Core functionality of fanfic.el
 ;; Author: Lord Yuuma
 ;; Maintainer: Lord Yuuma
 ;; Created: Fri Jun  3 09:49:03 2016 (+0200)
-;; Version:
+;; Version: 3.0
 ;; Package-Requires: ((dash "2.12.1") (cl-lib "0.5"))
-;; Last-Updated: Fri Jun  3 21:11:05 2016 (+0200)
+;; Last-Updated: Sat Jun  4 15:55:54 2016 (+0200)
 ;;           By: Lord Yuuma
-;;     Update #: 13
+;;     Update #: 14
 ;; URL:
 ;; Doc URL:
 ;; Keywords:
@@ -19,7 +19,13 @@
 ;;
 ;;; Commentary:
 ;;
+;;    The following functions are defined in this module:
 ;;
+;;    `fanfic-make-universe' and other low-level functions to
+;;    interact with the `fanfic-universe' struct.
+;;    `fanfic-decline'
+;;    `fanfic-add-highlights' and `fanfic-remove-highlights'.
+;;    `fanfic-safe-cast-p' and `fanfic-safe-keywords-p'.
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
