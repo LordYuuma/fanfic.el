@@ -7,9 +7,9 @@
 ;; Created: Fri Jun  3 09:47:57 2016 (+0200)
 ;; Version: 3.0
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Sat Jun  4 16:03:54 2016 (+0200)
+;; Last-Updated: Sat Jun  4 16:11:15 2016 (+0200)
 ;;           By: Lord Yuuma
-;;     Update #: 81
+;;     Update #: 83
 ;; URL:
 ;; Doc URL:
 ;; Keywords:
@@ -95,7 +95,8 @@ So far, these have been functions to provide the standard functionality of `fanf
 `fanfic-add-universe' by giving the universe a name. The following functions add extended behavior.
 
 (make-face FACE &rest ATTS) defines FACE as a new face with ATTS as its face attributes for all display types.
-(character FACE &rest CHARACTER) adds CHARACTER with under the face FACE to the universe's cast."
+(character FACE &rest CHARACTER) adds CHARACTER under the face FACE to the universe's cast.
+(keywords* FACE &rest KEYWORDS) adds KEYWORDS under the face FACE to the universe's cast."
   (let ((universe (fanfic-universe-from-string-1 str)))
     (setf (fanfic-universe-cast universe) (nreverse (fanfic-universe-cast universe)))
     (setf (fanfic-universe-keywords universe) (nreverse (fanfic-universe-keywords universe)))
@@ -130,6 +131,9 @@ So far, these have been functions to provide the standard functionality of `fanf
             (`(character ,name . ,character)
              (let ((face (intern (concat "fanfic-" identifier "-" (symbol-name name) "-face"))))
                (push (cons character face) (fanfic-universe-cast universe))))
+            (`(keywords* ,name . ,keywords)
+             (let ((face (intern (concat "fanfic-" identifier "-" (symbol-name name) "-face"))))
+               (push (cons keywords face) (fanfic-universe-keywords universe))))
             (_ (error "Unkown command encountered: %S" obj))))
       (end-of-file universe))))
 
