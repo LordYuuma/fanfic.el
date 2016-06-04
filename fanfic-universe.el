@@ -6,10 +6,10 @@
 ;; Maintainer: Lord Yuuma
 ;; Created: Fri Jun  3 09:47:57 2016 (+0200)
 ;; Version: 3.0
-;; Package-Requires: ()
-;; Last-Updated: Sat Jun  4 16:00:09 2016 (+0200)
+;; Package-Requires: ((dash "2.12.1"))
+;; Last-Updated: Sat Jun  4 16:03:54 2016 (+0200)
 ;;           By: Lord Yuuma
-;;     Update #: 79
+;;     Update #: 81
 ;; URL:
 ;; Doc URL:
 ;; Keywords:
@@ -54,6 +54,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;; Code:
+
+(require 'dash)
 
 (require 'fanfic-core)
 
