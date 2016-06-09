@@ -7,9 +7,9 @@
 ;; Created: Fri Jun  3 09:47:57 2016 (+0200)
 ;; Version: 3.0
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Sat Jun  4 16:11:15 2016 (+0200)
+;; Last-Updated: Thu Jun  9 17:59:08 2016 (+0200)
 ;;           By: Lord Yuuma
-;;     Update #: 83
+;;     Update #: 85
 ;; URL:
 ;; Doc URL:
 ;; Keywords:
@@ -145,6 +145,25 @@ See also: `fanfic-univere-from-string'"
    (with-temp-buffer
      (insert-file-contents file)
      (buffer-string))))
+
+
+
+(defun fanfic-universe-to-string (universe)
+  (concat
+   (format "(name %s)\n" (fanfic-universe-name universe))
+   (fanfic--universe-to-string-make-face (-map #'cdr (fanfic-universe-cast universe)))
+   (fanfic--universe-to-string-make-face (-map #'cdr (fanfic-universe-keywords universe)))
+   ;; TODO: add cast and keywords
+   ))
+
+(defun fanfic--universe-to-string-make-face (face-names)
+  (mapconcat
+   (lambda (it)
+     (format "(make-face %s %s)" (car it) (mapconcat (lambda (it) (format "%s" it)) (cdr it) " ")))
+   (-zip-pair face-names (--map (cdr (assoc t (face-default-spec it))) face-names))
+   "\n"))
+
+
 
 ;;;###autoload
 (defun fanfic-load-universe (file &optional overwrite noerror)
