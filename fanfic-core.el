@@ -7,9 +7,9 @@
 ;; Created: Fri Jun  3 09:49:03 2016 (+0200)
 ;; Version: 3.0
 ;; Package-Requires: ((dash "2.12.1") (cl-lib "0.5"))
-;; Last-Updated: Sat Jun  4 15:55:54 2016 (+0200)
+;; Last-Updated: Thu Jun  9 18:13:32 2016 (+0200)
 ;;           By: Lord Yuuma
-;;     Update #: 14
+;;     Update #: 15
 ;; URL:
 ;; Doc URL:
 ;; Keywords:
@@ -235,5 +235,19 @@ If optional argument SKIP-FONT-LOCK is non-nil, do not run fontification afterwa
 (defun fanfic-safe-keywords-p (object)
   "Return t if OBJECT is safe to be used as keywords within fanfic."
   (and (listp object) (-all-p #'stringp (-flatten object))))
+
+
+
+(defun fanfic-default-face-p (face)
+  "Return t if FACE is shipped with `fanfic-core'."
+  (-contains-p
+   '(fanfic-protagonist-face
+     fanfic-protagonist-nick-face
+     fanfic-antagonist-face
+     fanfic-antagonist-nick-face
+     fanfic-cast-face
+     fanfic-nick-face
+     fanfic-keyword-face)
+   face))
 
 (provide 'fanfic-core)
