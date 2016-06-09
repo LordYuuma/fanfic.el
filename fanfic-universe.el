@@ -6,10 +6,10 @@
 ;; Maintainer: Lord Yuuma
 ;; Created: Fri Jun  3 09:47:57 2016 (+0200)
 ;; Version: 3.0
-;; Package-Requires: ((dash "2.12.1") (s "1.10.0"))
-;; Last-Updated: Thu Jun  9 19:59:08 2016 (+0200)
+;; Package-Requires: ((dash "2.12.1"))
+;; Last-Updated: Thu Jun  9 20:19:09 2016 (+0200)
 ;;           By: Lord Yuuma
-;;     Update #: 94
+;;     Update #: 96
 ;; URL:
 ;; Doc URL:
 ;; Keywords:
@@ -56,7 +56,10 @@
 ;;; Code:
 
 (require 'dash)
-(require 's)
+
+(declare-function s-chop-prefix s (prefix str))
+(declare-function s-chop-suffix s (suffix str))
+(declare-function s-join s (sep strings))
 
 (require 'fanfic-core)
 
@@ -155,6 +158,10 @@ See also: `fanfic-univere-from-string'"
 
 
 (defun fanfic-universe-to-string (universe)
+  "Writes UNIVERSE to a string that can be read with `fanfic-universe-from-string'.
+
+This feature requires `s.el'."
+  (require 's)
   (s-join "\n"
           (-flatten
            (list
