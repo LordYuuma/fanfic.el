@@ -7,9 +7,9 @@
 ;; Created: Fri Jun  3 09:47:57 2016 (+0200)
 ;; Version: 3.0
 ;; Package-Requires: ((dash "2.12.1") (s "1.10.0"))
-;; Last-Updated: Thu Jun  9 19:10:10 2016 (+0200)
+;; Last-Updated: Thu Jun  9 19:32:53 2016 (+0200)
 ;;           By: Lord Yuuma
-;;     Update #: 91
+;;     Update #: 92
 ;; URL:
 ;; Doc URL:
 ;; Keywords:
@@ -160,7 +160,16 @@ See also: `fanfic-univere-from-string'"
    (fanfic--universe-to-string-make-face universe (-map #'cdr (fanfic-universe-cast universe)))
    (fanfic--universe-to-string-make-face universe (-map #'cdr (fanfic-universe-keywords universe)))
    ;; TODO: add cast and keywords
+   (s-join "\n" (--map (fanfic--universe-to-string-format-cast  (car it) (cdr it)) (fanfic-universe-cast universe)))
    ))
+
+(defun fanfic--universe-to-string-format-cast (cast face)
+  (let ((cast (s-join " " (--map (format "%S" it) cast))))
+   (pcase face
+     (`fanfic-protagonist-face (format "(protagonist %s)" cast))
+     (`fanfic-antagonist-face (format "(antagonist %s)" cast))
+     (`fanfic-cast-face (format "(cast %s)" cast))
+     (_ (format "(character %s %s)" face cast)))))
 
 (defun fanfic--universe-to-string-make-face (universe face-names)
   (let* ((prefix (concat "fanfic-" (fanfic-universe-identifier universe) "-"))
