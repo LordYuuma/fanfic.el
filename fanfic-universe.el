@@ -7,9 +7,9 @@
 ;; Created: Fri Jun  3 09:47:57 2016 (+0200)
 ;; Version: 3.0
 ;; Package-Requires: ((dash "2.12.1") (s "1.10.0"))
-;; Last-Updated: Thu Jun  9 19:32:53 2016 (+0200)
+;; Last-Updated: Thu Jun  9 19:44:41 2016 (+0200)
 ;;           By: Lord Yuuma
-;;     Update #: 92
+;;     Update #: 93
 ;; URL:
 ;; Doc URL:
 ;; Keywords:
@@ -157,23 +157,27 @@ See also: `fanfic-univere-from-string'"
 (defun fanfic-universe-to-string (universe)
   (concat
    (format "(name . \"%s\")\n" (fanfic-universe-name universe))
-   (fanfic--universe-to-string-make-face universe (-map #'cdr (fanfic-universe-cast universe)))
-   (fanfic--universe-to-string-make-face universe (-map #'cdr (fanfic-universe-keywords universe)))
-   ;; TODO: add cast and keywords
-   (s-join "\n" (--map (fanfic--universe-to-string-format-cast  (car it) (cdr it)) (fanfic-universe-cast universe)))
+   (let ((prefix (concat "fanfic-" (fanfic-universe-identifier universe) "-")))
+     (concat
+      (fanfic--universe-to-string-make-face prefix (-map #'cdr (fanfic-universe-cast universe)))
+      (fanfic--universe-to-string-make-face prefix (-map #'cdr (fanfic-universe-keywords universe)))
+      ;; TODO: add cast and keywords
+      (s-join "\n" (--map (fanfic--universe-to-string-format-cast prefix (car it) (cdr it)) (fanfic-universe-cast universe)))
+      )
+     )
    ))
 
-(defun fanfic--universe-to-string-format-cast (cast face)
+(defun fanfic--universe-to-string-format-cast (prefix cast face)
   (let ((cast (s-join " " (--map (format "%S" it) cast))))
-   (pcase face
-     (`fanfic-protagonist-face (format "(protagonist %s)" cast))
-     (`fanfic-antagonist-face (format "(antagonist %s)" cast))
-     (`fanfic-cast-face (format "(cast %s)" cast))
-     (_ (format "(character %s %s)" face cast)))))
+    (pcase face
+      (`fanfic-protagonist-face (format "(protagonist %s)" cast))
+      (`fanfic-antagonist-face (format "(antagonist %s)" cast))
+      (`fanfic-cast-face (format "(cast %s)" cast))
+      (_ (format "(character %s %s)" (s-chop-prefix prefix (s-chop-suffix "-face" (symbol-name face))) cast)))))
 
-(defun fanfic--universe-to-string-make-face (universe face-names)
-  (let* ((prefix (concat "fanfic-" (fanfic-universe-identifier universe) "-"))
-         (l (length prefix)))
+(defun fanfic--universe-to-string-make-face (prefix face-names)
+  ;; (princ face-names)
+  (let ((l (length prefix)))
     (setq face-names
           (--filter
            (and
@@ -181,11 +185,11 @@ See also: `fanfic-univere-from-string'"
             (string= prefix (substring (symbol-name it) 0 l)))
            face-names))
     (s-join "\n"
-     (--map
-      (format "(make-face %s %s)"
-              (s-chop-prefix prefix (s-chop-suffix "-face" (symbol-name (car it))))
-              (s-join " " (--map (format "%s" it) (cdr it))))
-      (-zip-pair face-names (--map (cdr (assoc t (face-default-spec it))) face-names))))))
+            (--map
+             (format "(make-face %s %s)"
+                     (s-chop-prefix prefix (s-chop-suffix "-face" (symbol-name (car it))))
+                     (s-join " " (--map (format "%s" it) (cdr it))))
+             (-zip-pair face-names (--map (cdr (assoc t (face-default-spec it))) face-names))))))
 
 
 
