@@ -7,7 +7,7 @@
 ;; Created: Fri Jun  3 09:47:57 2016 (+0200)
 ;; Version: 3.0
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Thu Jun  9 20:19:09 2016 (+0200)
+;; Last-Updated: Wed Jun 15 10:16:35 2016 (+0200)
 ;;           By: Lord Yuuma
 ;;     Update #: 96
 ;; URL:
@@ -235,7 +235,8 @@ not affect the rest of the directory. "
 
 (defun fanfic-universes-init ()
   (let ((overwrite t))
-    (--each fanfic-universe-dirs (fanfic-load-universes it)))
+    (--each fanfic-universe-dirs (when (file-directory-p it)
+                                   (fanfic-load-universes it))))
   (setq fanfic--universes-initialized-p t))
 
 
