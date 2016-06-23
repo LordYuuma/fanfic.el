@@ -7,9 +7,9 @@
 ;; Created: Fri Jun  3 09:47:57 2016 (+0200)
 ;; Version: 3.0
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Wed Jun 22 11:12:09 2016 (+0200)
+;; Last-Updated: Wed Jun 22 23:07:10 2016 (+0200)
 ;;           By: Lord Yuuma
-;;     Update #: 101
+;;     Update #: 104
 ;; URL:
 ;; Doc URL:
 ;; Keywords:
@@ -60,6 +60,7 @@
 (declare-function s-chop-prefix s (prefix str))
 (declare-function s-chop-suffix s (suffix str))
 (declare-function s-join s (sep strings))
+(declare-function s-prefix-p s (prefix s &optional ignore-case))
 
 (require 'fanfic-core)
 
@@ -168,21 +169,17 @@ This feature requires `s.el'."
             (format "(name . \"%s\")" (fanfic-universe-name universe))
             (let* ((short-prefix (concat (fanfic-universe-identifier universe) "-"))
                    (prefix (concat "fanfic-" short-prefix)))
-              (list
-               (fanfic--universe-to-string-make-face prefix
-                                                     (-map #'cdr (append (fanfic-universe-cast universe)
-                                                                         (fanfic-universe-keywords universe))))
-               (fanfic--universe-to-string-make-face short-prefix
-                                                     (-map #'cdr (append (fanfic-universe-cast universe)
-                                                                         (fanfic-universe-keywords universe))))
-               (--map (fanfic--universe-to-string-format-cast prefix (car it) (cdr it))
-                                   (fanfic-universe-cast universe))
-               (--map (fanfic--universe-to-string-format-keywords prefix (car it) (cdr it))
-                      (fanfic-universe-keywords universe))
-               (--map (fanfic--universe-to-string-format-cast short-prefix (car it) (cdr it))
-                      (fanfic-universe-cast universe))
-               (--map (fanfic--universe-to-string-format-keywords short-prefix (car it) (cdr it))
-                      (fanfic-universe-keywords universe))))))))
+              (-map
+               (lambda (prefix)
+                 (list
+                  (fanfic--universe-to-string-make-face prefix
+                                                        (-map #'cdr (append (fanfic-universe-cast universe)
+                                                                            (fanfic-universe-keywords universe))))
+                  (--map (fanfic--universe-to-string-format-cast prefix (car it) (cdr it))
+                         (fanfic-universe-cast universe))
+                  (--map (fanfic--universe-to-string-format-keywords prefix (car it) (cdr it))
+                         (fanfic-universe-keywords universe))))
+               (list short-prefix prefix)))))))
 
 (defun fanfic--universe-to-string-format-cast (prefix cast face)
   (let ((cast (s-join " " (--map (format "%S" it) cast))))
