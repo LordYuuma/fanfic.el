@@ -7,9 +7,9 @@
 ;; Created: Fri Jun  3 09:47:57 2016 (+0200)
 ;; Version: 3.0
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Sat Jun 25 21:40:11 2016 (+0200)
+;; Last-Updated: Sat Jun 25 21:48:09 2016 (+0200)
 ;;           By: Lord Yuuma
-;;     Update #: 110
+;;     Update #: 111
 ;; URL:
 ;; Doc URL:
 ;; Keywords:
@@ -329,6 +329,13 @@ When NOERROR is t and an error occurs, return nil instead of signaling the error
   (-sort 'string< (let ((acc nil))
                     (maphash (lambda (k v) (add-to-list 'acc k))
                              fanfic--universes) acc)))
+
+(defun fanfic-get-universe (universe)
+  "If UNIVERSE satisfies `fanfic-universe-p', return UNIVERSE.
+Otherwise look up UNIVERSE in the list of available universes and return the result of that lookup."
+  (if (fanfic-universe-p universe)
+      universe
+    (gethash universe fanfic--universes)))
 
 
 
