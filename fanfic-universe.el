@@ -7,9 +7,9 @@
 ;; Created: Fri Jun  3 09:47:57 2016 (+0200)
 ;; Version: 3.0
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Sat Jun 25 21:35:49 2016 (+0200)
+;; Last-Updated: Sat Jun 25 21:40:11 2016 (+0200)
 ;;           By: Lord Yuuma
-;;     Update #: 109
+;;     Update #: 110
 ;; URL:
 ;; Doc URL:
 ;; Keywords:
@@ -269,9 +269,8 @@ not affect the rest of the directory. "
 (defvar fanfic--universes-initialized-p nil)
 
 (defun fanfic-universes-init ()
-  (let ((overwrite t))
-    (--each fanfic-universe-dirs (when (file-directory-p it)
-                                   (fanfic-load-universes it))))
+  (--each fanfic-universe-dirs (when (file-directory-p it)
+                                 (fanfic-load-universes it t)))
   (setq fanfic--universes-initialized-p t))
 
 
