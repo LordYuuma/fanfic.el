@@ -7,9 +7,9 @@
 ;; Created: Fri Jun  3 09:47:57 2016 (+0200)
 ;; Version: 3.0
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Sat Jun 25 19:33:44 2016 (+0200)
+;; Last-Updated: Sat Jun 25 19:48:19 2016 (+0200)
 ;;           By: Lord Yuuma
-;;     Update #: 107
+;;     Update #: 108
 ;; URL:
 ;; Doc URL:
 ;; Keywords:
@@ -159,7 +159,7 @@ See also: `fanfic-univere-from-string'"
 
 
 (defun fanfic-universe-to-string (universe)
-  "Writes UNIVERSE to a string that can be read with `fanfic-universe-from-string'.
+  "Write UNIVERSE to a string that can be read with `fanfic-universe-from-string'.
 
 This feature requires `s.el'."
   (require 's)
@@ -183,6 +183,12 @@ This feature requires `s.el'."
                (list nil short-prefix prefix)))))))
 
 (defun fanfic--universe-to-string-format-cast (prefix cast face)
+  "Format CAST with FACE so that it can be read with `fanfic-universe-from-string'.
+
+If PREFIX is non-nil, check whether FACE starts with PREFIX and if it does, format it according to the
+(character FACE characters)
+syntax.
+If PREFIX is nil, match FACE against faces from `fanfic-core' and use the corresponding function."
   (let ((cast (s-join " " (--map (format "%S" it) cast))))
     (if prefix
         (when (s-prefix-p prefix (symbol-name face))
@@ -193,6 +199,12 @@ This feature requires `s.el'."
         (`fanfic-cast-face (format "(cast %s)" cast))))))
 
 (defun fanfic--universe-to-string-format-keywords (prefix kwds face)
+  "Format KWDS with FACE so that it can be read with `fanfic-universe-from-string'.
+
+If PREFIX is non-nil, check whether FACE starts with PREFIX and if it does, format it according to the
+(keywords* FACE characters)
+syntax.
+If PREFIX is nil, match FACE against faces from `fanfic-core' and use the corresponding function."
   (let ((kwds (s-join " " (--map (format "%S" it) kwds))))
     (if prefix
         (when (s-prefix-p prefix (symbol-name face))
@@ -201,6 +213,7 @@ This feature requires `s.el'."
         (format "(keywords %s)" kwds)))))
 
 (defun fanfic--universe-to-string-make-face (prefix face-names)
+  "Write (make-face FACE ATTS) for all faces in FACE-NAMES with prefix PREFIX."
   (let ((l (length prefix)))
     (setq face-names
           (--filter
