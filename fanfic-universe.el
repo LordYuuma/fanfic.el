@@ -5,11 +5,11 @@
 ;; Author: Lord Yuuma
 ;; Maintainer: Lord Yuuma
 ;; Created: Fri Jun  3 09:47:57 2016 (+0200)
-;; Version: 3.0
+;; Version: 3.1
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Sat Jun 25 22:18:36 2016 (+0200)
+;; Last-Updated: Sat Jun 25 22:47:08 2016 (+0200)
 ;;           By: Lord Yuuma
-;;     Update #: 113
+;;     Update #: 115
 ;; URL:
 ;; Doc URL:
 ;; Keywords:
@@ -30,6 +30,8 @@
 ;;
 ;;; Change Log:
 ;;
+;;  3.1: Add `fanfic-universe-to-string' and `fanfic-get-universe'.
+;;       Have `fanfic-universes-init' demote errors.
 ;;  3.0: Split from other fanfic modules.
 ;;       Add functions to read universes from files.
 ;;
@@ -109,8 +111,8 @@ So far, these have been functions to provide the standard functionality of `fanf
 (character FACE &rest CHARACTER) adds CHARACTER under the face FACE to the universe's cast.
 (keywords* FACE &rest KEYWORDS) adds KEYWORDS under the face FACE to the universe's cast."
   (let ((universe (fanfic-universe-from-string-1 str)))
-    (setf (fanfic-universe-cast universe) (nreverse (fanfic-universe-cast universe)))
-    (setf (fanfic-universe-keywords universe) (nreverse (fanfic-universe-keywords universe)))
+    (setf (fanfic-universe-cast universe) (nreverse (fanfic-universe-cast universe))
+          (fanfic-universe-keywords universe) (nreverse (fanfic-universe-keywords universe)))
     universe))
 
 (defun fanfic-universe-from-string-1 (str)
@@ -121,8 +123,9 @@ So far, these have been functions to provide the standard functionality of `fanf
         identifier)
     (condition-case error
         (while t
-          (setq obj-and-idx (read-from-string str start end))
-          (setq obj (car obj-and-idx) start (cdr obj-and-idx))
+          (setq obj-and-idx (read-from-string str start end)
+                obj (car obj-and-idx)
+                start (cdr obj-and-idx))
           (pcase obj
             (`(name . ,name)
              (setf (fanfic-universe-name universe) name)
