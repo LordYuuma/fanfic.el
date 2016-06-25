@@ -7,9 +7,9 @@
 ;; Created: Fri Jun  3 09:47:57 2016 (+0200)
 ;; Version: 3.0
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Sat Jun 25 22:17:26 2016 (+0200)
+;; Last-Updated: Sat Jun 25 22:18:36 2016 (+0200)
 ;;           By: Lord Yuuma
-;;     Update #: 112
+;;     Update #: 113
 ;; URL:
 ;; Doc URL:
 ;; Keywords:
@@ -225,7 +225,7 @@ If PREFIX is nil, match FACE against faces from `fanfic-core' and use the corres
   (let ((kwds (s-join " " (--map (format "%S" it) kwds))))
     (if prefix
         (when (s-prefix-p prefix (symbol-name face))
-          (format "(keywords* %s %s)" (s-chop-prefix prefix (s-chop-suffix "-face" (symbol-name face))) cast))
+          (format "(keywords* %s %s)" (s-chop-prefix prefix (s-chop-suffix "-face" (symbol-name face))) kwds))
       (when (eq face 'fanfic-keyword-face)
         (format "(keywords %s)" kwds)))))
 
