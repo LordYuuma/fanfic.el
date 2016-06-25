@@ -7,9 +7,9 @@
 ;; Created: Fri Jun  3 09:47:57 2016 (+0200)
 ;; Version: 3.0
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Sat Jun 25 19:24:33 2016 (+0200)
+;; Last-Updated: Sat Jun 25 19:33:44 2016 (+0200)
 ;;           By: Lord Yuuma
-;;     Update #: 105
+;;     Update #: 107
 ;; URL:
 ;; Doc URL:
 ;; Keywords:
@@ -172,28 +172,33 @@ This feature requires `s.el'."
               (-map
                (lambda (prefix)
                  (list
-                  (fanfic--universe-to-string-make-face prefix
-                                                        (-map #'cdr (append (fanfic-universe-cast universe)
-                                                                            (fanfic-universe-keywords universe))))
+                  (when prefix
+                    (fanfic--universe-to-string-make-face prefix
+                                                          (-map #'cdr (append (fanfic-universe-cast universe)
+                                                                              (fanfic-universe-keywords universe)))))
                   (--map (fanfic--universe-to-string-format-cast prefix (car it) (cdr it))
                          (fanfic-universe-cast universe))
                   (--map (fanfic--universe-to-string-format-keywords prefix (car it) (cdr it))
                          (fanfic-universe-keywords universe))))
-               (list short-prefix prefix)))))))
+               (list nil short-prefix prefix)))))))
 
 (defun fanfic--universe-to-string-format-cast (prefix cast face)
   (let ((cast (s-join " " (--map (format "%S" it) cast))))
-    (pcase face
-      (`fanfic-protagonist-face (format "(protagonist %s)" cast))
-      (`fanfic-antagonist-face (format "(antagonist %s)" cast))
-      (`fanfic-cast-face (format "(cast %s)" cast))
-      ((pred (s-prefix-p prefix (symbol-name face))) (format "(character %s %s)" (s-chop-prefix prefix (s-chop-suffix "-face" (symbol-name face))) cast)))))
+    (if prefix
+        (when (s-prefix-p prefix (symbol-name face))
+          (format "(character %s %s)" (s-chop-prefix prefix (s-chop-suffix "-face" (symbol-name face))) cast))
+      (pcase face
+        (`fanfic-protagonist-face (format "(protagonist %s)" cast))
+        (`fanfic-antagonist-face (format "(antagonist %s)" cast))
+        (`fanfic-cast-face (format "(cast %s)" cast))))))
 
 (defun fanfic--universe-to-string-format-keywords (prefix kwds face)
   (let ((kwds (s-join " " (--map (format "%S" it) kwds))))
-    (pcase face
-      (`fanfic-keyword-face (format "(keywords %s)" kwds))
-      ((pred (s-prefix-p prefix (symbol-name face)))  (format "(keywords* %s %s)" (s-chop-prefix prefix (s-chop-suffix "-face" (symbol-name face))) kwds)))))
+    (if prefix
+        (when (s-prefix-p prefix (symbol-name face))
+          (format "(keywords* %s %s)" (s-chop-prefix prefix (s-chop-suffix "-face" (symbol-name face))) cast))
+      (when (eq face 'fanfic-keyword-face)
+        (format "(keywords %s)" kwds)))))
 
 (defun fanfic--universe-to-string-make-face (prefix face-names)
   (let ((l (length prefix)))
