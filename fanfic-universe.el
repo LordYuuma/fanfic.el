@@ -7,9 +7,9 @@
 ;; Created: Fri Jun  3 09:47:57 2016 (+0200)
 ;; Version: 3.0
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Sat Jun 25 21:48:09 2016 (+0200)
+;; Last-Updated: Sat Jun 25 22:17:26 2016 (+0200)
 ;;           By: Lord Yuuma
-;;     Update #: 111
+;;     Update #: 112
 ;; URL:
 ;; Doc URL:
 ;; Keywords:
@@ -162,6 +162,9 @@ See also: `fanfic-univere-from-string'"
 (defun fanfic-universe-to-string (universe)
   "Write UNIVERSE to a string that can be read with `fanfic-universe-from-string' and return that string.
 
+UNIVERSE can either be a universe that satisfies `fanfic-universe-p' or the name of an available universe.
+In the case of the latter, let universe be that universe.
+
 First, write the name of UNIVERSE.
 Then, write the standard cast and keywords, that are highlighted with faces from `fanfic-core'.
 Then, write the face declarations for faces that have been defined by the universe.
@@ -176,6 +179,7 @@ that IDENTIFIER is the module name, in which it has been defined.
 
 This feature requires `s.el'."
   (require 's)
+  (setq universe (fanfic-get-universe universe))
   (s-join "\n"
           (-flatten
            (list
