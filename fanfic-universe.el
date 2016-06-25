@@ -7,9 +7,9 @@
 ;; Created: Fri Jun  3 09:47:57 2016 (+0200)
 ;; Version: 3.0
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Sat Jun 25 19:48:19 2016 (+0200)
+;; Last-Updated: Sat Jun 25 21:35:49 2016 (+0200)
 ;;           By: Lord Yuuma
-;;     Update #: 108
+;;     Update #: 109
 ;; URL:
 ;; Doc URL:
 ;; Keywords:
@@ -87,6 +87,7 @@ Use `fanfic-add-universe' to make a universe \"available\"."
 
 
 (defun fanfic-universe-identifier (universe)
+  "Return the universe identifier of UNIVERSE (the universe name downcased with non-alphanumerics replaced by dashes)."
   (replace-regexp-in-string "[^a-z0-9]+" "-" (downcase (fanfic-universe-name universe))))
 
 
@@ -159,7 +160,19 @@ See also: `fanfic-univere-from-string'"
 
 
 (defun fanfic-universe-to-string (universe)
-  "Write UNIVERSE to a string that can be read with `fanfic-universe-from-string'.
+  "Write UNIVERSE to a string that can be read with `fanfic-universe-from-string' and return that string.
+
+First, write the name of UNIVERSE.
+Then, write the standard cast and keywords, that are highlighted with faces from `fanfic-core'.
+Then, write the face declarations for faces that have been defined by the universe.
+Then, write special cast and keywords, that are highlighted with such faces.
+
+Face names, that have been defined by the universe are named either fanfic-IDENTIFIER-FACE-face or
+just IDENTIFIER-FACE-face, where IDENTIFIER is the `fanfic-universe-identifier' of UNIVERSE.
+A universe, that has been read by `fanfic-universe-from-string' will automatically follow the
+pattern fanfic-IDENTIFIER-FACE-face.
+A universe that has been defined in an Emacs Lisp module is encouraged to ensure,
+that IDENTIFIER is the module name, in which it has been defined.
 
 This feature requires `s.el'."
   (require 's)
