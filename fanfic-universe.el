@@ -7,9 +7,9 @@
 ;; Created: Fri Jun  3 09:47:57 2016 (+0200)
 ;; Version: 3.0
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Wed Jun 22 23:07:10 2016 (+0200)
+;; Last-Updated: Sat Jun 25 19:24:33 2016 (+0200)
 ;;           By: Lord Yuuma
-;;     Update #: 104
+;;     Update #: 105
 ;; URL:
 ;; Doc URL:
 ;; Keywords:
@@ -192,7 +192,7 @@ This feature requires `s.el'."
 (defun fanfic--universe-to-string-format-keywords (prefix kwds face)
   (let ((kwds (s-join " " (--map (format "%S" it) kwds))))
     (pcase face
-      (`fanfic-keyword-face (format "keywords %s" kwds))
+      (`fanfic-keyword-face (format "(keywords %s)" kwds))
       ((pred (s-prefix-p prefix (symbol-name face)))  (format "(keywords* %s %s)" (s-chop-prefix prefix (s-chop-suffix "-face" (symbol-name face))) kwds)))))
 
 (defun fanfic--universe-to-string-make-face (prefix face-names)
