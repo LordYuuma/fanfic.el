@@ -7,9 +7,9 @@
 ;; Created: Fri Jun  3 09:49:03 2016 (+0200)
 ;; Version: 3.0
 ;; Package-Requires: ((dash "2.12.1") (cl-lib "0.5"))
-;; Last-Updated: Thu Jun  9 18:13:32 2016 (+0200)
+;; Last-Updated: Tue Jun 28 16:29:42 2016 (+0200)
 ;;           By: Lord Yuuma
-;;     Update #: 15
+;;     Update #: 16
 ;; URL:
 ;; Doc URL:
 ;; Keywords:
@@ -235,6 +235,34 @@ If optional argument SKIP-FONT-LOCK is non-nil, do not run fontification afterwa
 (defun fanfic-safe-keywords-p (object)
   "Return t if OBJECT is safe to be used as keywords within fanfic."
   (and (listp object) (-all-p #'stringp (-flatten object))))
+
+
+
+(defun fanfic-make-snippets (cast)
+  "Make snippet definitions for CAST.
+
+The returned list of snippets can be used with `yas-define-snippets'.
+"
+  (-non-nil
+   (--mapcat
+    (when (listp it)
+      (-map (lambda (abbrev)
+              (list abbrev ; KEY
+                    (car it) ; TEMPLATE
+                    (car it) ; NAME
+                    'fanfic-mode ; CONDITION
+                    (list "Fanfiction") ; GROUP
+                    nil ; EXPAND-ENV
+                    nil ; LOAD-FILE
+                    nil ; KEYBINDING
+                    ;; UUID
+                    (concat
+                     "[Fanfic-Core] "
+                     abbrev
+                     " => "
+                     (car it))))
+            (cdr it)))
+    cast)))
 
 
 
