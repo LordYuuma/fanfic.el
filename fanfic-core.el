@@ -7,9 +7,9 @@
 ;; Created: Fri Jun  3 09:49:03 2016 (+0200)
 ;; Version: 3.0
 ;; Package-Requires: ((dash "2.12.1") (cl-lib "0.5"))
-;; Last-Updated: Tue Jun 28 16:29:42 2016 (+0200)
+;; Last-Updated: Tue Jun 28 16:40:20 2016 (+0200)
 ;;           By: Lord Yuuma
-;;     Update #: 16
+;;     Update #: 17
 ;; URL:
 ;; Doc URL:
 ;; Keywords:
@@ -227,22 +227,34 @@ If optional argument SKIP-FONT-LOCK is non-nil, do not run fontification afterwa
 
 
 ;;;###autoload
-(defun fanfic-safe-cast-p (object)
-  "Return t if OBJECT is a cast safe for usage within fanfic functions."
-  (and (listp object) (--all-p (or (stringp it) (-all-p #'stringp it)) object)))
+(defun fanfic-safe-cast-p (cast)
+  "Return t if CAST is a cast safe for usage within fanfic functions.
+
+A cast is considered safe, if its elements are either strings or list of strings.
+In the case of a single string element, this is interpreted as a cast member with only one name.
+In the case of a list of strings, this is interpreted as a cast member with one full name (or long name)
+and a list of nicknames in the format
+  (FULL-NAME NICK1 NICK2 ... NICKN)"
+  (and (listp cast) (--all-p (or (stringp it) (-all-p #'stringp it)) cast)))
 
 ;;;###autoload
-(defun fanfic-safe-keywords-p (object)
-  "Return t if OBJECT is safe to be used as keywords within fanfic."
-  (and (listp object) (-all-p #'stringp (-flatten object))))
+(defun fanfic-safe-keywords-p (keywords)
+  "Return t if KEYWORDS is safe to be used as keywords within fanfic."
+  (and (listp keywords) (-all-p #'stringp (-flatten keywords))))
 
 
 
 (defun fanfic-make-snippets (cast)
   "Make snippet definitions for CAST.
 
+CAST is a list that satisfies `fanfic-safe-cast-p'.
+For each cast member for each of his nicknames (assuming he has nicknames),
+a snippet is defined, so that the nickname is expanded to the member's full name.
+
 The returned list of snippets can be used with `yas-define-snippets'.
-"
+`yas-define-snippets' is not called directly.
+Due to the yasnippet internals it may become necessary to reverse the list before
+passing it onto yasnippet, if one insists on a given order."
   (-non-nil
    (--mapcat
     (when (listp it)
