@@ -7,9 +7,9 @@
 ;; Created: Fri Jun  3 09:47:57 2016 (+0200)
 ;; Version: 3.1
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Tue Jun 28 22:09:43 2016 (+0200)
+;; Last-Updated: Tue Jun 28 22:34:38 2016 (+0200)
 ;;           By: Lord Yuuma
-;;     Update #: 117
+;;     Update #: 118
 ;; URL:
 ;; Doc URL:
 ;; Keywords:
@@ -125,21 +125,40 @@ If optional argument REVERSE-CAST is truthy, use a reversed copy of the universe
 
 
 (defun fanfic-universe-from-string (str)
-  "Read a universe from STR.
+   "Read a universe from STR.
 
-Universes are parsed according to their own LISP-like language. The following functions are defined:
-(name . NAME) set the universe name to NAME.
-(protagonists &rest PROTAGONISTS...) adds PROTAGONISTS under `fanfic-protagonist-face' to the universe's cast.
-(antagonists &rest ANTAGONISTS) adds ANTAGONIST under `fanfic-antagonist-face' to the universe's cast.
-(cast &rest CAST) adds CAST under `fanfic-cast-face' to the universe's cast.
-(keywords &rest KEYWORDS) adds KEYWORDS under `fanfic-keyword-face' to the universe's cast.
+Universes are parsed according to their own LISP-like language.
+The following functions are defined:
 
-So far, these have been functions to provide the standard functionality of `fanfic-mode' and conformity to
-`fanfic-add-universe' by giving the universe a name. The following functions add extended behavior.
+  (name . NAME) set the universe name to NAME.
+  (protagonists &rest PROTAGONISTS...)  adds PROTAGONISTS under
+                                        `fanfic-protagonist-face' to the
+                                        universe's cast.
+  (antagonists &rest ANTAGONISTS)       adds ANTAGONIST under
+                                        `fanfic-antagonist-face' to the
+                                        universe's cast.
+  (cast &rest CAST)                     adds CAST under `fanfic-cast-face'
+                                        to the universe's cast.
+  (keywords &rest KEYWORDS)             adds KEYWORDS under
+                                        `fanfic-keyword-face' to the
+                                        universe's list of keywords.
 
-(make-face FACE &rest ATTS) defines FACE as a new face with ATTS as its face attributes for all display types.
-(character FACE &rest CHARACTER) adds CHARACTER under the face FACE to the universe's cast.
-(keywords* FACE &rest KEYWORDS) adds KEYWORDS under the face FACE to the universe's cast."
+So far, these have been functions to provide the standard functionality of
+`fanfic-mode' and conformity to `fanfic-add-universe' by giving the universe a
+name. The following functions add extended behavior.
+
+  (make-face FACE &rest ATTS)           defines FACE as a new face with ATTS as
+                                        its face attributes for all displays.
+  (character FACE &rest CHARACTER)      adds CHARACTER under the face FACE
+                                        to the universe's cast.
+  (keywords* FACE &rest KEYWORDS)       adds KEYWORDS under the face FACE
+                                        to the universe's list of keywords.
+  (make-snippets &rest MODES)           defines snippets for the universe using
+                                        `fanfic-universe-make-snippets' and
+                                        `yas-define-snippets'.
+                                        Does not explicitly require yasnippet.
+                                        Does nothing when yasnippet is not
+                                        loaded."
   (let ((universe (fanfic-universe-from-string-1 str)))
     (setf (fanfic-universe-cast universe) (nreverse (fanfic-universe-cast universe))
           (fanfic-universe-keywords universe) (nreverse (fanfic-universe-keywords universe)))
@@ -178,6 +197,13 @@ So far, these have been functions to provide the standard functionality of `fanf
             (`(keywords* ,name . ,keywords)
              (let ((face (intern (concat "fanfic-" identifier "-" (symbol-name name) "-face"))))
                (push (cons keywords face) (fanfic-universe-keywords universe))))
+            (`(make-snippets . ,modes)
+             (when (fboundp 'yas-define-snippets)
+               (setq modes (if modes modes '(text-mode)))
+               (-each modes
+                 (lambda (mode)
+                 (yas-define-snippets mode
+                  (reverse (fanfic-universe-make-snippets universe t)))))))
             (_ (error "Unkown command encountered: %S" obj))))
       (end-of-file universe))))
 
