@@ -7,9 +7,9 @@
 ;; Created: Fri Jun  3 09:47:57 2016 (+0200)
 ;; Version: 3.1
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Sat Jun 25 22:47:08 2016 (+0200)
+;; Last-Updated: Tue Jun 28 22:09:43 2016 (+0200)
 ;;           By: Lord Yuuma
-;;     Update #: 115
+;;     Update #: 117
 ;; URL:
 ;; Doc URL:
 ;; Keywords:
@@ -64,6 +64,8 @@
 (declare-function s-join s (sep strings))
 (declare-function s-prefix-p s (prefix s &optional ignore-case))
 
+(declare-function yas-define-snippets yasnippet (mode snippets))
+
 (require 'fanfic-core)
 
 
@@ -91,6 +93,34 @@ Use `fanfic-add-universe' to make a universe \"available\"."
 (defun fanfic-universe-identifier (universe)
   "Return the universe identifier of UNIVERSE (the universe name downcased with non-alphanumerics replaced by dashes)."
   (replace-regexp-in-string "[^a-z0-9]+" "-" (downcase (fanfic-universe-name universe))))
+
+
+
+(defun fanfic-universe-make-snippets (universe &optional reverse-cast)
+  "Make snippet definitions for the cast of UNIVERSE for the use with yasnippet.
+
+UNIVERSE maybe a universe or the name of a universe in `fanfic-available-universes'.
+
+See also `fanfic-make-snippets'. Some universe specific changes are applied.
+If optional argument REVERSE-CAST is truthy, use a reversed copy of the universe's cast."
+  (setq universe (fanfic-get-universe universe))
+  (let ((name (fanfic-universe-name universe))
+        (cast (fanfic-universe-cast universe))
+        snippets)
+    (setq
+     cast (if reverse-cast (reverse cast) cast)
+     snippets (-non-nil (-mapcat #'fanfic-make-snippets (-map #'car cast))))
+    (dolist (snippet snippets snippets)
+      (setf
+       ;; CONDITION
+       (nth 3 snippet) (list #'fanfic-active-universe-p name)
+       ;; GROUP
+       (nth 4 snippet) (list "Fanfiction" name)
+       ;; UUID
+       (nth 8 snippet)
+       (concat "[Fanfic] " name ": "
+               ;; KEY " => " TEMPLATE
+               (nth 0 snippet) " => " (nth 1 snippet))))))
 
 
 
