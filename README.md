@@ -67,7 +67,7 @@ For the specifications of the universe file, have a look at `fanfic-universe-fro
 
 The function `fanfic-safe-universe-p` checks, whether a universe adheres to the specification. If this predicate returns t, it can be added to the list of available universes using `fanfic-add-universe`, after which it can be used with `fanfic-universes` as it was mentioned before. In order to load a universe from a file, `fanfic-load-universe` can be used instead.
 
-**Important note when upgrading from version 2:** In version 2, universes had an additional field, that allowed the loading of an external LISP library to define one's universe. This field is no longer in use and has been removed. Instead, add universes that are to be loaded on the first use to the `fanfic-universe-dirs`. As of now, universes must be manually converted. A function to convert a universe to a file may later be written if the need arises (or someone is bored enough to do it either way).
+**Important note when upgrading from version 2:** In version 2, universes had an additional field, that allowed the loading of an external Emacs Lisp module to define one's universe. This field is no longer in use and has been removed. Instead, add universes that are to be loaded on the first use to the `fanfic-universe-dirs`. Universes can under some circumstances be converted to the new format with `fanfic-universe-to-string`. Of course, modules written in Emacs Lisp can still be used to define universes.
 
 #### Other modules
 
