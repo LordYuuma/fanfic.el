@@ -7,9 +7,9 @@
 ;; Created: Fri Jun  3 12:09:38 2016 (+0200)
 ;; Version: 3.0
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Sat Jun  4 16:02:17 2016 (+0200)
+;; Last-Updated: Wed Jun 29 00:05:07 2016 (+0200)
 ;;           By: Lord Yuuma
-;;     Update #: 8
+;;     Update #: 9
 ;; URL:
 ;; Doc URL:
 ;; Keywords:
@@ -124,20 +124,34 @@ If PREFIX is given, insert at the start of the file."
 (put 'fanfic-dramatis-personae 'delete-selection t)
 
 (defun fanfic--dramatis-personae ()
+  ;; TODO: document or refactor
   (--reduce (concat acc "\n" it)
             (--map (concat fanfic-dramatis-personae-group-prefix
                            it
                            fanfic-dramatis-personae-group-suffix)
                    (-flatten
                     (list
-                     (--map (--reduce (if it (concat acc "\n" it) acc) (fanfic--dramatis-personae-function (symbol-value it)))
-                            '(fanfic-protagonists fanfic-antagonists fanfic-cast))
-                     (--map (let ((universe (gethash it fanfic--universes)))
-                              (when (fanfic-safe-universe-p universe)
-                                (--reduce (if it (concat acc "\n" it) acc) (fanfic--dramatis-personae-function (-mapcat 'car (fanfic-universe-cast universe))))))
-                            fanfic-universes))))))
+                     (--map (--reduce (if it (concat acc "\n" it) acc)
+                                      (fanfic--dramatis-personae-function
+                                       (symbol-value it)))
+                            '(fanfic-protagonists
+                              fanfic-antagonists
+                              fanfic-cast))
+                     ;; FIXME: the way universes are handled here creates
+                     ;;        tight coupling. Loosen up a bit, so that
+                     ;;        not everything must be loaded.
+                     (--map
+                      (let ((universe (gethash it fanfic--universes)))
+                        (when (fanfic-safe-universe-p universe)
+                          (--reduce (if it (concat acc "\n" it) acc)
+                                    (fanfic--dramatis-personae-function
+                                     (-mapcat 'car
+                                              (fanfic-universe-cast
+                                               universe))))))
+                      fanfic-universes))))))
 
 (defun fanfic--dramatis-personae-function (cast)
+  ;; TODO: document or refactor
   (--map (if (stringp it)
              it
            (concat (car it)

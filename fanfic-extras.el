@@ -7,9 +7,9 @@
 ;; Created: Fri Jun  3 15:22:51 2016 (+0200)
 ;; Version: 3.0
 ;; Package-Requires: ()
-;; Last-Updated: Sat Jun  4 15:56:30 2016 (+0200)
+;; Last-Updated: Wed Jun 29 00:06:07 2016 (+0200)
 ;;           By: Lord Yuuma
-;;     Update #: 7
+;;     Update #: 8
 ;; URL:
 ;; Doc URL:
 ;; Keywords:
@@ -54,7 +54,8 @@
 ;;;###autoload
 (defun fanfic-strip-scenes (content &optional exclude)
   "Strip the fanfic to paragraphs including CONTENT. Output to a new buffer."
-  (interactive (list (read-string (format "%s: " this-command)) current-prefix-arg))
+  (interactive (list (read-string (format "%s: " this-command))
+                     current-prefix-arg))
   (save-excursion
     (goto-char (point-min))
     (let ((output (generate-new-buffer "*Stripped*")))

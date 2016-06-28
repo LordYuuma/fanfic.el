@@ -7,9 +7,9 @@
 ;; Created: Fri Jun  3 09:49:03 2016 (+0200)
 ;; Version: 3.0
 ;; Package-Requires: ((dash "2.12.1") (cl-lib "0.5"))
-;; Last-Updated: Thu Jun  9 18:13:32 2016 (+0200)
+;; Last-Updated: Wed Jun 29 00:05:21 2016 (+0200)
 ;;           By: Lord Yuuma
-;;     Update #: 15
+;;     Update #: 16
 ;; URL:
 ;; Doc URL:
 ;; Keywords:
@@ -77,7 +77,8 @@
   :group 'convenience)
 
 ;;;###autoload
-(defgroup fanfic-universes nil "(Third Party) settings for fanfics set in specific universes."
+(defgroup fanfic-universes nil
+  "(Third Party) settings for fanfics set in specific universes."
   :group 'fanfic)
 
 ;;;###autoload
@@ -93,20 +94,23 @@
                          (string :tag "Name")
                          (list :tag "Name and Nicknames"
                                (string :tag "Name")
-                               (repeat :tag "Nicknames" :inline t (string :tag "Nick"))))))
+                               (repeat :tag "Nicknames"
+                                       :inline t
+                                       (string :tag "Nick"))))))
 
 
 ;;;###autoload
 (defcustom fanfic-keywords '(("MacGuffin" "Phlebotinum" "Plot Device")
                              ("orb" "orbs" "crystal" "crystals" "whatever"))
   "Important objects/places/whatever your plot needs."
-  :type '(repeat (choice (string :tag "Keyword") (repeat :tag "Keywords" string)))
+  :type '(repeat (choice (string :tag "Keyword")
+                         (repeat :tag "Keywords" string)))
   :safe #'fanfic-safe-keywords-p
   :group 'fanfic)
 
 ;;;###autoload
 (defcustom fanfic-cast '("Carol" "Dave")
-  "The cast of the fic. Not necessarily important people, but they still are a part."
+  "The cast of the fic."
   :type 'fanfic-cast-type
   :safe #'fanfic-safe-cast-p
   :group 'fanfic)
@@ -130,9 +134,8 @@
 ;;;###autoload
 (defcustom fanfic-declinations '("{name}" "{name}'s")
   "Ways in which a name may appear in the language the fic is written in.
-
-Each value is a string in which `{name}' will get replaced by the name of your character
-when constructing a list of highlights."
+Each value is a string in which `{name}' will get replaced by the name of
+your character when constructing a list of highlights."
   :type '(repeat string)
   :safe (lambda (xs) (-all-p 'stringp xs))
   :group 'fanfic)
@@ -184,18 +187,21 @@ when constructing a list of highlights."
 
 
 (defvar fanfic-mode nil "Whether fanfic-mode is activated")
-(defvar fanfic--highlights nil "All `font-lock-keywords' for the current buffer which come from `fanfic-mode'.")
+(defvar fanfic--highlights nil
+  "`font-lock-keywords' for the current buffer which come from `fanfic-mode'.")
 (make-variable-buffer-local 'fanfic--highlights)
 
 
 
 (defun fanfic-decline (name-or-names)
   "Decline NAME-OR-NAMES according to `fanfic-declinations'.
-If NAME-OR-NAMES is a string, a list is returned, in which each element is the corresponding element of
-`fanfic-declination' with {name} replaced by NAME-OR-NAMES.
-If NAME-OR-NAMES is a list, `fanfic-decline' is called recursively for each element in that list."
+If NAME-OR-NAMES is a string, return a list, in which each element is the
+corresponding element of `fanfic-declination' with {name} replaced by
+NAME-OR-NAMES.
+If NAME-OR-NAMES is a list, run `fanfic-decline' recursively for each element."
   (if (stringp name-or-names)
-      (--map (replace-regexp-in-string "{name}" name-or-names it t t) fanfic-declinations)
+      (--map (replace-regexp-in-string "{name}" name-or-names it t t)
+             fanfic-declinations)
     (-map #'fanfic-decline name-or-names)))
 
 
