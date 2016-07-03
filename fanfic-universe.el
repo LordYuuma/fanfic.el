@@ -7,9 +7,9 @@
 ;; Created: Fri Jun  3 09:47:57 2016 (+0200)
 ;; Version: 3.1
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Sun Jul  3 21:12:45 2016 (+0200)
+;; Last-Updated: Sun Jul  3 22:05:42 2016 (+0200)
 ;;           By: Lord Yuuma
-;;     Update #: 125
+;;     Update #: 126
 ;; URL:
 ;; Doc URL:
 ;; Keywords:
@@ -499,7 +499,8 @@ The following have to be satisfied in order to make a universe \"safe\":
 (defvar fanfic-universe-keywords
   '("name"
     "protagonists" "antagonists" "cast" "keywords"
-    "make-face" "character" "keywords*"))
+    "make-face" "character" "keywords*"
+    "make-snippets"))
 
 (defvar fanfic-universe-syntax-table
   (let ((syntax-table (make-syntax-table lisp-mode-syntax-table)))
@@ -508,6 +509,8 @@ The following have to be satisfied in order to make a universe \"safe\":
 
 (defvar fanfic-universe-font-lock
   `((,(regexp-opt fanfic-universe-keywords 'symbols) . font-lock-keyword-face)
+    ;; mostly useful for the properties in make-face
+    ("\\_<:\\sw+\\_>" . font-lock-builtin-face)
     ("\\(?:make-face\\|character\\|keywords\\*\\)\\(?:\\s-\\|\n\\)+\\(\\sw+\\)"
      (1 font-lock-variable-name-face))))
 
