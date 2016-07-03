@@ -7,9 +7,9 @@
 ;; Created: Fri Jun  3 09:47:57 2016 (+0200)
 ;; Version: 3.1
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Sat Jun 25 22:47:08 2016 (+0200)
+;; Last-Updated: Sun Jul  3 17:42:38 2016 (+0200)
 ;;           By: Lord Yuuma
-;;     Update #: 115
+;;     Update #: 119
 ;; URL:
 ;; Doc URL:
 ;; Keywords:
@@ -368,5 +368,27 @@ The following have to be satisfied in order to make a universe \"safe\":
   (and (-all-p #'stringp universes)
        (or (not fanfic--universes-initialized-p)
            (--all-p (gethash it fanfic--universes) universes))))
+
+
+
+(defvar fanfic-universe-keywords
+  '("name"
+    "protagonists" "antagonists" "cast" "keywords"
+    "make-face" "character" "keywords*"))
+
+(defvar fanfic-universe-syntax-table
+  (let ((syntax-table (make-syntax-table lisp-mode-syntax-table)))
+    (modify-syntax-entry ?* "_" syntax-table)
+    syntax-table))
+
+(defvar fanfic-universe-font-lock
+  `((,(regexp-opt fanfic-universe-keywords 'symbols) . font-lock-keyword-face)
+    ("\\(?:make-face\\|character\\|keywords\\*\\)\\(?:\\s-\\|\n\\)+\\(\\sw+\\)"
+     (1 font-lock-variable-name-face))))
+
+;;;###autoload
+(define-derived-mode fanfic-universe-mode lisp-mode "Fanfic-Universe"
+  ;; TODO: insert docstring
+  (setq font-lock-defaults '((fanfic-universe-font-lock))))
 
 (provide 'fanfic-universe)
