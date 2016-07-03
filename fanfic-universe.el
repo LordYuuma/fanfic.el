@@ -7,9 +7,9 @@
 ;; Created: Fri Jun  3 09:47:57 2016 (+0200)
 ;; Version: 3.1
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Sun Jul  3 18:43:45 2016 (+0200)
+;; Last-Updated: Sun Jul  3 20:58:24 2016 (+0200)
 ;;           By: Lord Yuuma
-;;     Update #: 121
+;;     Update #: 123
 ;; URL:
 ;; Doc URL:
 ;; Keywords:
@@ -25,6 +25,8 @@
 ;;    Defines how cast and keywords are handled for universes
 ;;    (highlighting).
 ;;    Defines `fanfic-add-universe' and `fanfic-available-universes'.
+;;    Defines `fanfic-universe-mode', a major mode for writing
+;;    fanfic-universes.
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -32,6 +34,8 @@
 ;;
 ;;  3.1: Add `fanfic-universe-to-string' and `fanfic-get-universe'.
 ;;       Have `fanfic-universes-init' demote errors.
+;;       Add snippet support.
+;;       Add `fanfic-universe-mode'.
 ;;  3.0: Split from other fanfic modules.
 ;;       Add functions to read universes from files.
 ;;

@@ -5,11 +5,11 @@
 ;; Author: Lord Yuuma
 ;; Maintainer: Lord Yuuma
 ;; Created: Tue Sep 15 11:52:17 2015 (+0200)
-;; Version: 2.1
+;; Version: 3.1
 ;; Package-Requires: ((dash "2.12.1") (cl-lib "0.5"))
-;; Last-Updated: Sun Jul  3 15:25:50 2016 (+0200)
+;; Last-Updated: Sun Jul  3 20:01:38 2016 (+0200)
 ;;           By: Lord Yuuma
-;;     Update #: 321
+;;     Update #: 322
 ;; URL:
 ;; Doc URL:
 ;; Keywords: convenience
@@ -70,6 +70,7 @@
 ;;
 ;;  For module-specific Change Log, look into the module's files.
 ;;
+;;  3.1:   Move `fanfic-mode-recast' to `fanfic-core'.
 ;;  3.0:   Split into modules.
 ;;
 ;;  Previously:
@@ -116,7 +117,8 @@ keywords of all universes that satisfy `fanfic-safe-universe-p'.
 as the casts added by `fanfic-universes' are all declined using
 `fanfic-decline' before being highlighted.
 
-While `fanfic-mode' is t, font-locks are kept even along `font-lock-refresh-defaults'."
+While `fanfic-mode' is t, font-locks are kept even along
+`font-lock-refresh-defaults'."
   nil " Fanfiction"
   :after-hook (fanfic-mode-recast)
   :group 'fanfic
@@ -129,14 +131,15 @@ While `fanfic-mode' is t, font-locks are kept even along `font-lock-refresh-defa
 ;;;###autoload
 (defcustom fanfic-special-keyword-hook '(fanfic-universes-special-keywords)
   "Hook to run after adding `fanfic-keywords' to the list of fanfic highlights.
-This hook is run before any cast related keywords are added and should be used to define
-special keywords, which are to be highlighted differently than `fanfic-keywords'."
+This hook is run before any cast related keywords are added and should be used
+to define special keywords, which are to be highlighted differently than
+`fanfic-keywords'."
   :type 'hook
   :group 'fanfic)
 
 ;;;###autoload
 (defcustom fanfic-special-cast-hook '(fanfic-universes-special-cast)
-  "Hook to run after adding cast related keywords to the list of fanfic highlights.
+  "Hook to run after adding the cast to the list of fanfic highlights.
 This hook should be used to add names of characters, who don't fit any of the
 categories provided by fanfic.el or need to be colored differently because of an
 already color coded cast."

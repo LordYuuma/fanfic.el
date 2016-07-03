@@ -5,11 +5,11 @@
 ;; Author: Lord Yuuma
 ;; Maintainer: Lord Yuuma
 ;; Created: Fri Jun  3 09:49:03 2016 (+0200)
-;; Version: 3.0
+;; Version: 3.1
 ;; Package-Requires: ((dash "2.12.1") (cl-lib "0.5"))
-;; Last-Updated: Sun Jul  3 15:40:44 2016 (+0200)
+;; Last-Updated: Sun Jul  3 20:19:04 2016 (+0200)
 ;;           By: Lord Yuuma
-;;     Update #: 26
+;;     Update #: 28
 ;; URL:
 ;; Doc URL:
 ;; Keywords:
@@ -26,12 +26,16 @@
 ;;    `fanfic-decline'
 ;;    `fanfic-add-highlights' and `fanfic-remove-highlights'.
 ;;    `fanfic-safe-cast-p' and `fanfic-safe-keywords-p'.
+;;    `fanfic-mode-recast'
+;;    `fanfic-make-snippets'
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;; Change Log:
 ;;
-;;  3.0: Split from other modules.
+;;  3.1:   Add snippet support.
+;;         Import `fanfic-mode-recast'.
+;;  3.0:   Split from other modules.
 ;;
 ;;  Previously:
 ;;    2.0: Removed alists.
