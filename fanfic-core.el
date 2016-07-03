@@ -7,9 +7,9 @@
 ;; Created: Fri Jun  3 09:49:03 2016 (+0200)
 ;; Version: 3.0
 ;; Package-Requires: ((dash "2.12.1") (cl-lib "0.5"))
-;; Last-Updated: Sun Jul  3 15:25:58 2016 (+0200)
+;; Last-Updated: Sun Jul  3 15:40:44 2016 (+0200)
 ;;           By: Lord Yuuma
-;;     Update #: 24
+;;     Update #: 26
 ;; URL:
 ;; Doc URL:
 ;; Keywords:
@@ -267,16 +267,20 @@ You may feel the need to run it yourself after editing cast-related variables."
     (fanfic-add-highlights (-flatten fanfic-keywords) 'fanfic-keyword-face t)
     (run-hooks 'fanfic-special-keyword-hook)
     (--each '(fanfic-cast fanfic-antagonists fanfic-protagonists)
-      (let ((personae (-flatten (fanfic-decline (--map (if (listp it) (car it) it) (symbol-value it)))))
-            (nicks (-flatten (fanfic-decline (--mapcat (if (listp it) (cdr it) nil) (symbol-value it)))))
-            (personae-face (nth 1 (assoc it '((fanfic-protagonists fanfic-protagonist-face)
-                                              (fanfic-antagonists fanfic-antagonist-face)
-                                              (fanfic-cast fanfic-cast-face)))))
-            (nick-face (nth 1 (assoc it '((fanfic-protagonists fanfic-protagonist-nick-face)
-                                          (fanfic-antagonists fanfic-antagonist-nick-face)
-                                          (fanfic-cast fanfic-nick-face))))))
+      (let* ((names-and-nicks (fanfic--names-and-nicks (symbol-value it)))
+             (names (car names-and-nicks))
+             (nicks (cdr names-and-nicks))
+             (personae-face
+              (cdr (assoc it '((fanfic-protagonists . fanfic-protagonist-face)
+                               (fanfic-antagonists . fanfic-antagonist-face)
+                               (fanfic-cast . fanfic-cast-face)))))
+             (nick-face
+              (cdr (assoc it
+                          '((fanfic-protagonists . fanfic-protagonist-nick-face)
+                            (fanfic-antagonists . fanfic-antagonist-nick-face)
+                            (fanfic-cast . fanfic-nick-face))))))
         (fanfic-add-highlights nicks nick-face t)
-        (fanfic-add-highlights personae personae-face t)))
+        (fanfic-add-highlights names personae-face t)))
     (run-hooks 'fanfic-special-cast-hook)
     (fanfic--font-lock))
   (font-lock-fontify-buffer))
@@ -324,6 +328,11 @@ Not very meaningful when used externally."
 Not intended for external use."
   (dolist (highlight fanfic--highlights)
     (font-lock-remove-keywords nil highlight)))
+
+(defun fanfic--names-and-nicks (cast)
+  (cons
+   (-flatten (fanfic-decline (--map (if (listp it) (car it) it) cast)))
+   (-flatten (fanfic-decline (--mapcat (when (listp it) (cdr it)) cast)))))
 
 
 
