@@ -7,9 +7,9 @@
 ;; Created: Fri Jun  3 09:47:57 2016 (+0200)
 ;; Version: 3.1
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Sun Jul  3 20:58:24 2016 (+0200)
+;; Last-Updated: Sun Jul  3 21:12:45 2016 (+0200)
 ;;           By: Lord Yuuma
-;;     Update #: 123
+;;     Update #: 125
 ;; URL:
 ;; Doc URL:
 ;; Keywords:
@@ -511,6 +511,11 @@ The following have to be satisfied in order to make a universe \"safe\":
     ("\\(?:make-face\\|character\\|keywords\\*\\)\\(?:\\s-\\|\n\\)+\\(\\sw+\\)"
      (1 font-lock-variable-name-face))))
 
+(defvar fanfic-universe-mode-map
+  (let ((keymap (make-sparse-keymap)))
+    (define-key keymap (kbd "C-c C-c") #'fanfic-universe-mode-preview)
+    keymap))
+
 ;;;###autoload
 (define-derived-mode fanfic-universe-mode lisp-mode "Fanfic-Universe"
   ;; TODO: insert docstring
@@ -519,6 +524,8 @@ The following have to be satisfied in order to make a universe \"safe\":
   (add-hook 'after-save-hook #'fanfic-universe-mode-preview nil t))
 
 (defun fanfic-universe-mode-preview ()
+  "Preview the currently edited universe.
+(Add highlights for all characters and keywords.)"
   (interactive)
   (fanfic-mode-recast)
   (let ((fanfic-mode t)
