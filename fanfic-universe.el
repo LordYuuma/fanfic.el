@@ -71,8 +71,9 @@
 ;;;###autoload
 (defcustom fanfic-universes nil
   "Each entry is a name of a universe the current fic is set in.
-This is mostly useful for `fanfic-add-keywords-from-universes', `fanfic-add-cast-from-universes'
-and their hook versions `fanfic-universes-special-keywords' and `fanfic-universes-special-cast'.
+This is mostly useful for `fanfic-add-keywords-from-universes',
+`fanfic-add-cast-from-universes' and their hook versions
+`fanfic-universes-special-keywords' and `fanfic-universes-special-cast'.
 
 Use M-x `fanfic-available-universes' to get a list of meaningful values.
 Use `fanfic-add-universe' to make a universe \"available\"."
@@ -81,7 +82,8 @@ Use `fanfic-add-universe' to make a universe \"available\"."
   :group 'fanfic)
 
 ;;;###autoload
-(defcustom fanfic-universe-dirs (list (expand-file-name "fanfic-universes" user-emacs-directory))
+(defcustom fanfic-universe-dirs (list (expand-file-name "fanfic-universes"
+                                                        user-emacs-directory))
   "Directories in which to search for fanfic universes."
   :type '(repeat directory)
   :group 'fanfic)
@@ -89,27 +91,80 @@ Use `fanfic-add-universe' to make a universe \"available\"."
 
 
 (defun fanfic-universe-identifier (universe)
-  "Return the universe identifier of UNIVERSE (the universe name downcased with non-alphanumerics replaced by dashes)."
-  (replace-regexp-in-string "[^a-z0-9]+" "-" (downcase (fanfic-universe-name universe))))
+  "Return the universe identifier of UNIVERSE.
+
+The identifier of a universe is a downcase of its name with non-alphanumerics
+replaced by dashes."
+  (replace-regexp-in-string "[^a-z0-9]+" "-"
+                            (downcase (fanfic-universe-name universe))))
+
+
+
+(defun fanfic-universe-make-snippets (universe &optional reverse-cast)
+  "Make snippet definitions for the cast of UNIVERSE for the use with yasnippet.
+
+UNIVERSE maybe a universe or the name of a universe in
+`fanfic-available-universes'.
+
+See also `fanfic-make-snippets'. Some universe specific changes are applied.
+If optional argument REVERSE-CAST is truthy, use a reversed copy of the
+universe's cast."
+  (setq universe (fanfic-get-universe universe))
+  (let ((name (fanfic-universe-name universe))
+        (cast (fanfic-universe-cast universe))
+        snippets)
+    (setq
+     cast (if reverse-cast (reverse cast) cast)
+     snippets (-non-nil (-mapcat #'fanfic-make-snippets (-map #'car cast))))
+    (dolist (snippet snippets snippets)
+      (setf
+       ;; CONDITION
+       (nth 3 snippet) (list #'fanfic-active-universe-p name)
+       ;; GROUP
+       (nth 4 snippet) (list "Fanfiction" name)
+       ;; UUID
+       (nth 8 snippet)
+       (concat "[Fanfic] " name ": "
+               ;; KEY " => " TEMPLATE
+               (nth 0 snippet) " => " (nth 1 snippet))))))
 
 
 
 (defun fanfic-universe-from-string (str)
-  "Read a universe from STR.
+   "Read a universe from STR.
 
-Universes are parsed according to their own LISP-like language. The following functions are defined:
-(name . NAME) set the universe name to NAME.
-(protagonists &rest PROTAGONISTS...) adds PROTAGONISTS under `fanfic-protagonist-face' to the universe's cast.
-(antagonists &rest ANTAGONISTS) adds ANTAGONIST under `fanfic-antagonist-face' to the universe's cast.
-(cast &rest CAST) adds CAST under `fanfic-cast-face' to the universe's cast.
-(keywords &rest KEYWORDS) adds KEYWORDS under `fanfic-keyword-face' to the universe's cast.
+Universes are parsed according to their own LISP-like language.
+The following functions are defined:
 
-So far, these have been functions to provide the standard functionality of `fanfic-mode' and conformity to
-`fanfic-add-universe' by giving the universe a name. The following functions add extended behavior.
+  (name . NAME) set the universe name to NAME.
+  (protagonists &rest PROTAGONISTS...)  adds PROTAGONISTS under
+                                        `fanfic-protagonist-face' to the
+                                        universe's cast.
+  (antagonists &rest ANTAGONISTS)       adds ANTAGONIST under
+                                        `fanfic-antagonist-face' to the
+                                        universe's cast.
+  (cast &rest CAST)                     adds CAST under `fanfic-cast-face'
+                                        to the universe's cast.
+  (keywords &rest KEYWORDS)             adds KEYWORDS under
+                                        `fanfic-keyword-face' to the
+                                        universe's list of keywords.
 
-(make-face FACE &rest ATTS) defines FACE as a new face with ATTS as its face attributes for all display types.
-(character FACE &rest CHARACTER) adds CHARACTER under the face FACE to the universe's cast.
-(keywords* FACE &rest KEYWORDS) adds KEYWORDS under the face FACE to the universe's cast."
+So far, these have been functions to provide the standard functionality of
+`fanfic-mode' and conformity to `fanfic-add-universe' by giving the universe a
+name. The following functions add extended behavior.
+
+  (make-face FACE &rest ATTS)           defines FACE as a new face with ATTS as
+                                        its face attributes for all displays.
+  (character FACE &rest CHARACTER)      adds CHARACTER under the face FACE
+                                        to the universe's cast.
+  (keywords* FACE &rest KEYWORDS)       adds KEYWORDS under the face FACE
+                                        to the universe's list of keywords.
+  (make-snippets &rest MODES)           defines snippets for the universe using
+                                        `fanfic-universe-make-snippets' and
+                                        `yas-define-snippets'.
+                                        Does not explicitly require yasnippet.
+                                        Does nothing when yasnippet is not
+                                        loaded."
   (let ((universe (fanfic-universe-from-string-1 str)))
     (setf (fanfic-universe-cast universe) (nreverse (fanfic-universe-cast universe))
           (fanfic-universe-keywords universe) (nreverse (fanfic-universe-keywords universe)))
@@ -130,24 +185,46 @@ So far, these have been functions to provide the standard functionality of `fanf
             (`(name . ,name)
              (setf (fanfic-universe-name universe) name)
              (setq identifier (fanfic-universe-identifier universe))
-             (custom-declare-group (intern (concat "fanfic-universe-" identifier)) nil
-                      (format "Options generated by `fanfic-universe' for \"%s\"" name)
-                      :group 'fanfic-universes))
-            (`(protagonists . ,protagonists) (push (cons protagonists 'fanfic-protagonist-face) (fanfic-universe-cast universe)))
-            (`(antagonists . ,antagonists) (push (cons antagonists 'fanfic-antagonist-face) (fanfic-universe-cast universe)))
-            (`(cast . ,cast) (push (cons cast 'fanfic-cast-face) (fanfic-universe-cast universe)))
-            (`(keywords . ,keywords) (push (cons keywords 'fanfic-keyword-face) (fanfic-universe-keywords universe)))
+             (custom-declare-group
+              (intern (concat "fanfic-universe-" identifier)) nil
+              (format "Options generated by `fanfic-universe' for \"%s\"" name)
+              :group 'fanfic-universes))
+            (`(protagonists . ,protagonists)
+             (push (cons protagonists 'fanfic-protagonist-face)
+                   (fanfic-universe-cast universe)))
+            (`(antagonists . ,antagonists)
+             (push (cons antagonists 'fanfic-antagonist-face)
+                   (fanfic-universe-cast universe)))
+            (`(cast . ,cast)
+             (push (cons cast 'fanfic-cast-face)
+                   (fanfic-universe-cast universe)))
+            (`(keywords . ,keywords)
+             (push (cons keywords 'fanfic-keyword-face)
+                   (fanfic-universe-keywords universe)))
             (`(make-face ,name . ,facespec)
-             (let ((face (intern (concat "fanfic-" identifier "-" (symbol-name name) "-face"))))
+             (let ((face (intern (concat "fanfic-" identifier "-"
+                                         (symbol-name name) "-face"))))
                (custom-declare-face face `((t . ,facespec))
                         "Face generated by `fanfic-universe'."
-                        :group (intern (concat "fanfic-universe-" identifier)))))
+                        :group (intern (concat "fanfic-universe-"
+                                               identifier)))))
             (`(character ,name . ,character)
-             (let ((face (intern (concat "fanfic-" identifier "-" (symbol-name name) "-face"))))
-               (push (cons character face) (fanfic-universe-cast universe))))
+             (let ((face (intern (concat "fanfic-" identifier "-"
+                                         (symbol-name name) "-face"))))
+               (push (cons character face)
+                     (fanfic-universe-cast universe))))
             (`(keywords* ,name . ,keywords)
-             (let ((face (intern (concat "fanfic-" identifier "-" (symbol-name name) "-face"))))
-               (push (cons keywords face) (fanfic-universe-keywords universe))))
+             (let ((face (intern (concat "fanfic-" identifier "-"
+                                         (symbol-name name) "-face"))))
+               (push (cons keywords face)
+                     (fanfic-universe-keywords universe))))
+            (`(make-snippets . ,modes)
+             (when (fboundp 'yas-define-snippets)
+               (setq modes (if modes modes '(text-mode)))
+               (-each modes
+                 (lambda (mode)
+                 (yas-define-snippets mode
+                  (reverse (fanfic-universe-make-snippets universe t)))))))
             (_ (error "Unkown command encountered: %S" obj))))
       (end-of-file universe))))
 
@@ -163,22 +240,26 @@ See also: `fanfic-univere-from-string'"
 
 
 (defun fanfic-universe-to-string (universe)
-  "Write UNIVERSE to a string that can be read with `fanfic-universe-from-string' and return that string.
+  "Return UNIVERSE as a string readable with `fanfic-universe-from-string'.
 
-UNIVERSE can either be a universe that satisfies `fanfic-universe-p' or the name of an available universe.
+UNIVERSE can either be a universe that satisfies `fanfic-universe-p'
+or the name of an available universe.
 In the case of the latter, let universe be that universe.
 
 First, write the name of UNIVERSE.
-Then, write the standard cast and keywords, that are highlighted with faces from `fanfic-core'.
-Then, write the face declarations for faces that have been defined by the universe.
+Then, write the standard cast and keywords, that are highlighted with faces
+from `fanfic-core'.
+Then, write the face declarations for faces that have been defined by the
+universe itself.
 Then, write special cast and keywords, that are highlighted with such faces.
 
-Face names, that have been defined by the universe are named either fanfic-IDENTIFIER-FACE-face or
-just IDENTIFIER-FACE-face, where IDENTIFIER is the `fanfic-universe-identifier' of UNIVERSE.
-A universe, that has been read by `fanfic-universe-from-string' will automatically follow the
-pattern fanfic-IDENTIFIER-FACE-face.
-A universe that has been defined in an Emacs Lisp module is encouraged to ensure,
-that IDENTIFIER is the module name, in which it has been defined.
+Face names, that have been defined by the universe are named either
+fanfic-IDENTIFIER-FACE-face or just IDENTIFIER-FACE-face,
+where IDENTIFIER is the `fanfic-universe-identifier' of UNIVERSE.
+A universe, that has been read by `fanfic-universe-from-string' will
+automatically follow the pattern fanfic-IDENTIFIER-FACE-face.
+A universe that has been defined in an Emacs Lisp module is encouraged to
+ensure, that IDENTIFIER is the module name, in which it has been defined.
 
 This feature requires `s.el'."
   (require 's)
@@ -187,48 +268,60 @@ This feature requires `s.el'."
           (-flatten
            (list
             (format "(name . \"%s\")" (fanfic-universe-name universe))
-            (let* ((short-prefix (concat (fanfic-universe-identifier universe) "-"))
+            (let* ((short-prefix (concat
+                                  (fanfic-universe-identifier universe) "-"))
                    (prefix (concat "fanfic-" short-prefix)))
               (-map
                (lambda (prefix)
                  (list
                   (when prefix
-                    (fanfic--universe-to-string-make-face prefix
-                                                          (-map #'cdr (append (fanfic-universe-cast universe)
-                                                                              (fanfic-universe-keywords universe)))))
-                  (--map (fanfic--universe-to-string-format-cast prefix (car it) (cdr it))
+                    (fanfic--universe-to-string-make-face
+                     prefix
+                     (-map #'cdr (append (fanfic-universe-cast universe)
+                                         (fanfic-universe-keywords universe)))))
+                  (--map (fanfic--universe-to-string-format-cast
+                          prefix (car it) (cdr it))
                          (fanfic-universe-cast universe))
-                  (--map (fanfic--universe-to-string-format-keywords prefix (car it) (cdr it))
+                  (--map (fanfic--universe-to-string-format-keywords
+                          prefix (car it) (cdr it))
                          (fanfic-universe-keywords universe))))
                (list nil short-prefix prefix)))))))
 
 (defun fanfic--universe-to-string-format-cast (prefix cast face)
-  "Format CAST with FACE so that it can be read with `fanfic-universe-from-string'.
+  "Format CAST with FACE to be readable by `fanfic-universe-from-string'.
 
-If PREFIX is non-nil, check whether FACE starts with PREFIX and if it does, format it according to the
-(character FACE characters)
-syntax.
-If PREFIX is nil, match FACE against faces from `fanfic-core' and use the corresponding function."
+If PREFIX is non-nil, check whether FACE starts with PREFIX and if it does,
+format it according to the (character FACE characters) syntax.
+If PREFIX is nil, match FACE against faces from `fanfic-core' and use the
+corresponding function."
   (let ((cast (s-join " " (--map (format "%S" it) cast))))
     (if prefix
         (when (s-prefix-p prefix (symbol-name face))
-          (format "(character %s %s)" (s-chop-prefix prefix (s-chop-suffix "-face" (symbol-name face))) cast))
+          (format "(character %s %s)"
+                  (s-chop-prefix prefix
+                                 (s-chop-suffix "-face"
+                                                (symbol-name face)))
+                  cast))
       (pcase face
         (`fanfic-protagonist-face (format "(protagonist %s)" cast))
         (`fanfic-antagonist-face (format "(antagonist %s)" cast))
         (`fanfic-cast-face (format "(cast %s)" cast))))))
 
 (defun fanfic--universe-to-string-format-keywords (prefix kwds face)
-  "Format KWDS with FACE so that it can be read with `fanfic-universe-from-string'.
+  "Format KWDS with FACE to be readable by `fanfic-universe-from-string'.
 
-If PREFIX is non-nil, check whether FACE starts with PREFIX and if it does, format it according to the
-(keywords* FACE characters)
-syntax.
-If PREFIX is nil, match FACE against faces from `fanfic-core' and use the corresponding function."
+If PREFIX is non-nil, check whether FACE starts with PREFIX and if it does,
+format it according to the (keywords* FACE characters) syntax.
+If PREFIX is nil, match FACE against faces from `fanfic-core' and use the
+corresponding function."
   (let ((kwds (s-join " " (--map (format "%S" it) kwds))))
     (if prefix
         (when (s-prefix-p prefix (symbol-name face))
-          (format "(keywords* %s %s)" (s-chop-prefix prefix (s-chop-suffix "-face" (symbol-name face))) kwds))
+          (format "(keywords* %s %s)"
+                  (s-chop-prefix prefix
+                                 (s-chop-suffix "-face"
+                                                (symbol-name face)))
+                  kwds))
       (when (eq face 'fanfic-keyword-face)
         (format "(keywords %s)" kwds)))))
 
@@ -243,9 +336,12 @@ If PREFIX is nil, match FACE against faces from `fanfic-core' and use the corres
            face-names))
     (--map
      (format "(make-face %s %s)"
-             (s-chop-prefix prefix (s-chop-suffix "-face" (symbol-name (car it))))
+             (s-chop-prefix prefix
+                            (s-chop-suffix "-face"
+                                           (symbol-name (car it))))
              (s-join " " (--map (format "%s" it) (cdr it))))
-     (-zip-pair face-names (--map (cdr (assoc t (face-default-spec it))) face-names)))))
+     (-zip-pair face-names (--map (cdr (assoc t (face-default-spec it)))
+                                  face-names)))))
 
 
 
@@ -253,20 +349,20 @@ If PREFIX is nil, match FACE against faces from `fanfic-core' and use the corres
 (defun fanfic-load-universe (file &optional overwrite noerror)
   "Read a universe from FILE and add it to the list of available universes.
 
-This function acts as both a shortcut and user interface to `fanfic-add-universe'
-and `fanfic-universe-from-file' which make the most sense when combined.
-Naturally, it has an `interactive' form.
+This function acts as both a shortcut and user interface to
+`fanfic-add-universe'mand `fanfic-universe-from-file' which make the most sense
+when combined. Naturally, it has an `interactive' form.
 
 OVERWRITE and NOERROR are passed to `fanfic-add-universe' while FILE is passed
-to `fanfic-universe-from-file'. When called interactively, nil is assumed for both."
+to `fanfic-universe-from-file'. When called interactively, both assume nil."
   (interactive "f")
   (fanfic-add-universe (fanfic-universe-from-file file) overwrite noerror))
 
 (defun fanfic-load-universes (directory &optional demote-errors)
   "Load all universes defined in DIRECTORY.
 
-If DEMOTE-ERRORS is truthy, run each load with demoted errors, so that one malformed file does
-not affect the rest of the directory. "
+If DEMOTE-ERRORS is truthy, run each load with demoted errors, so that one
+malformed file does not affect the rest of the directory. "
   (dolist (file (directory-files directory t))
     (unless (file-directory-p file)
       (if demote-errors
@@ -297,22 +393,26 @@ not affect the rest of the directory. "
     (fanfic-add-highlights (-flatten (car it)) (cdr it) skip-font-lock)))
 
 (defun fanfic-add-keywords-from-universes (&optional skip-font-lock)
-  "Add the keywords of all universes in `fanfic-universes' to the lists of fanfic generated highlights.
+  "Generate highlights for the keywords of all universes in `fanfic-universes'.
+
+Highlights are added via `fanfic-add-highlights'.
 If optional argument SKIP-FONT-LOCK is non-nil, do not run fontification afterwards."
   (--each fanfic-universes
     (let ((universe (gethash it fanfic--universes)))
       (when (fanfic-universe-p universe)
         (--each (fanfic-universe-keywords universe)
-          (fanfic-add-highlights (-flatten (car it)) (cdr it) skip-font-lock))))))
+          (fanfic-add-highlights (-flatten (car it)) (cdr it)
+                                 skip-font-lock))))))
 
 (defun fanfic-add-cast-from-universes (&optional skip-font-lock)
-  "Add the casts of all universes in `fanfic-universes' to the lists of fanfic generated highlights.
+  "Generate highlights for the cast(s) of all universes in `fanfic-universes'.
 If optional argument SKIP-FONT-LOCK is non-nil, do not run fontification afterwards."
   (--each fanfic-universes
     (let ((universe (gethash it fanfic--universes)))
       (when (fanfic-universe-p universe)
         (--each (fanfic-universe-cast universe)
-          (fanfic-add-highlights (-flatten (fanfic-decline (car it))) (cdr it) skip-font-lock))))))
+          (fanfic-add-highlights (-flatten (fanfic-decline (car it))) (cdr it)
+                                 skip-font-lock))))))
 
 
 
@@ -321,21 +421,29 @@ If optional argument SKIP-FONT-LOCK is non-nil, do not run fontification afterwa
   (-contains-p fanfic--active-universes name))
 
 (defun fanfic-update-active-universes ()
-  "Refresh the list of active universes to contain all entries in `fanfic-universes' that point towards safe universes.
-This function is meant for internal use. Calling it from the outside may mess with the behavior of `fanfic-active-universe-p' as it refers to the aforementioned list of safe entries.
-It could thus also be used for debugging purposes, but I doubt that it makes much sense to do so."
-  (setq fanfic--active-universes (--filter (fanfic-safe-universe-p (gethash it fanfic--universes)) fanfic-universes)))
+  "Update the list of active universes.
+
+This function adds all elements of `fanfic-universes' that satisfy
+`fanfic-safe-universe-p' to the list of active universes.
+It is meant for internal use.
+Calling it from the outside may mess with `fanfic-active-universe-p'."
+  (setq fanfic--active-universes
+        (--filter (fanfic-safe-universe-p (gethash it fanfic--universes))
+                  fanfic-universes)))
 
 (defun fanfic-add-universe (universe &optional overwrite noerror)
-  "Make UNIVERSE available for use within `fanfic-mode', most notably for the use in `fanfic-universes'.
+  "Make UNIVERSE available for use within `fanfic-mode'.
+
 UNIVERSE must have a name, otherwise an error is signaled.
-
-When OVERWRITE is t, replace already existing universes when they exist. Otherwise signal an error in that case.
-
-When NOERROR is t and an error occurs, return nil instead of signaling the error."
+When OVERWRITE is t, replace already existing universes when they exist.
+Otherwise signal an error in that case.
+When NOERROR is t and an error occurs, return nil instead."
   (let ((name (fanfic-universe-name universe)))
-    (cond ((not name) (unless noerror (error "Name of universe must not be empty")))
-          ((and (not overwrite) (gethash name fanfic--universes nil)) (unless noerror (error "%s already exists" universe)))
+    (cond ((not name)
+           (unless noerror (error "Name of universe must not be empty")))
+          ((and (not overwrite)
+                (gethash name fanfic--universes nil))
+           (unless noerror (error "%s already exists" universe)))
           (t (puthash name universe fanfic--universes)))))
 
 (defun fanfic-available-universes ()
@@ -347,7 +455,8 @@ When NOERROR is t and an error occurs, return nil instead of signaling the error
 
 (defun fanfic-get-universe (universe)
   "If UNIVERSE satisfies `fanfic-universe-p', return UNIVERSE.
-Otherwise look up UNIVERSE in the list of available universes and return the result of that lookup."
+Otherwise look up UNIVERSE in the list of available universes and return the
+result of that lookup."
   (if (fanfic-universe-p universe)
       universe
     (gethash universe fanfic--universes)))
@@ -367,8 +476,12 @@ The following have to be satisfied in order to make a universe \"safe\":
     satisfies `fanfic-safe-keywords-p' and each cdr is a face."
   (and (fanfic-universe-p object)
        (stringp (fanfic-universe-name object))
-       (--all-p (and (fanfic-safe-cast-p (car it)) (facep (cdr it))) (fanfic-universe-cast object))
-       (--all-p (and (fanfic-safe-keywords-p (car it)) (facep (cdr it))) (fanfic-universe-keywords object))))
+       (--all-p (and (fanfic-safe-cast-p (car it))
+                     (facep (cdr it)))
+                (fanfic-universe-cast object))
+       (--all-p (and (fanfic-safe-keywords-p (car it))
+                     (facep (cdr it)))
+                (fanfic-universe-keywords object))))
 
 ;;;###autoload
 (defun fanfic-safe-universes-p (universes)
