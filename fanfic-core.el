@@ -7,9 +7,9 @@
 ;; Created: Fri Jun  3 09:49:03 2016 (+0200)
 ;; Version: 3.0
 ;; Package-Requires: ((dash "2.12.1") (cl-lib "0.5"))
-;; Last-Updated: Wed Jun 29 00:05:21 2016 (+0200)
+;; Last-Updated: Sun Jul  3 15:25:58 2016 (+0200)
 ;;           By: Lord Yuuma
-;;     Update #: 16
+;;     Update #: 24
 ;; URL:
 ;; Doc URL:
 ;; Keywords:
@@ -64,6 +64,9 @@
 
 (require 'cl-lib)
 (require 'dash)
+
+(declare-function fanfic-universes-init "fanfic-universe.el")
+(declare-function fanfic-update-active-universes "fanfic-universe.el")
 
 (cl-defstruct (fanfic-universe (:constructor fanfic-make-universe)
                                (:copier fanfic-copy-universe))
@@ -191,6 +194,10 @@ your character when constructing a list of highlights."
   "`font-lock-keywords' for the current buffer which come from `fanfic-mode'.")
 (make-variable-buffer-local 'fanfic--highlights)
 
+;; forward declarations
+(defvar fanfic-special-keyword-hook nil "This variable should have been redefined by `fanfic.el'.")
+(defvar fanfic-special-cast-hook nil "This variable should have been redefined by `fanfic.el'.")
+
 
 
 (defun fanfic-decline (name-or-names)
@@ -232,6 +239,50 @@ If optional argument SKIP-FONT-LOCK is non-nil, do not run fontification afterwa
 
 
 
+(defun fanfic-mode-recast ()
+  "Refresh `font-lock-keywords' according to the `fanfic-' variables.
+
+At the first step, reset highlights already set by `fanfic-mode'.
+Afterwards, when `fanfic-mode' is truthy, manage font-lock keywords accordingly.
+As a last step, run `font-lock-fontify-buffer' to make these changes visible.
+
+This command is automatically run as a hook after `fanfic-mode'.
+You may feel the need to run it yourself after editing cast-related variables."
+  (interactive)
+  (fanfic--font-unlock)
+  (setq fanfic--highlights nil)
+
+  (when (boundp 'fanfic--active-universes)
+    (setq fanfic--active-universes nil))
+
+  (when (and (boundp 'fanfic--universes-initialized-p)
+             (fboundp #'fanfic-universes-init))
+    (unless fanfic--universes-initialized-p
+      (fanfic-universes-init)))
+
+  (when fanfic-mode
+    (when (fboundp #'fanfic-update-active-universes)
+      (fanfic-update-active-universes))
+
+    (fanfic-add-highlights (-flatten fanfic-keywords) 'fanfic-keyword-face t)
+    (run-hooks 'fanfic-special-keyword-hook)
+    (--each '(fanfic-cast fanfic-antagonists fanfic-protagonists)
+      (let ((personae (-flatten (fanfic-decline (--map (if (listp it) (car it) it) (symbol-value it)))))
+            (nicks (-flatten (fanfic-decline (--mapcat (if (listp it) (cdr it) nil) (symbol-value it)))))
+            (personae-face (nth 1 (assoc it '((fanfic-protagonists fanfic-protagonist-face)
+                                              (fanfic-antagonists fanfic-antagonist-face)
+                                              (fanfic-cast fanfic-cast-face)))))
+            (nick-face (nth 1 (assoc it '((fanfic-protagonists fanfic-protagonist-nick-face)
+                                          (fanfic-antagonists fanfic-antagonist-nick-face)
+                                          (fanfic-cast fanfic-nick-face))))))
+        (fanfic-add-highlights nicks nick-face t)
+        (fanfic-add-highlights personae personae-face t)))
+    (run-hooks 'fanfic-special-cast-hook)
+    (fanfic--font-lock))
+  (font-lock-fontify-buffer))
+
+
+
 ;;;###autoload
 (defun fanfic-safe-cast-p (object)
   "Return t if OBJECT is a cast safe for usage within fanfic functions."
@@ -255,5 +306,25 @@ If optional argument SKIP-FONT-LOCK is non-nil, do not run fontification afterwa
      fanfic-nick-face
      fanfic-keyword-face)
    face))
+
+
+
+;;; Private area.
+
+(defun fanfic--font-lock ()
+  "Add all highlights in `fanfic--highlights' to `font-lock-keywords'.
+Not very meaningful when used externally."
+  (dolist (highlight fanfic--highlights)
+    ;; any non-nil value would do as the fourth argument
+    ;; but I really want the keywords to be appended
+    (font-lock-add-keywords nil highlight 'append)))
+
+(defun fanfic--font-unlock ()
+  "Remove all changes to `font-lock-keywords' done by `fanfic-mode'.
+Not intended for external use."
+  (dolist (highlight fanfic--highlights)
+    (font-lock-remove-keywords nil highlight)))
+
+
 
 (provide 'fanfic-core)
