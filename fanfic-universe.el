@@ -7,9 +7,9 @@
 ;; Created: Fri Jun  3 09:47:57 2016 (+0200)
 ;; Version: 3.1
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Sun Jul  3 17:42:38 2016 (+0200)
+;; Last-Updated: Sun Jul  3 18:43:45 2016 (+0200)
 ;;           By: Lord Yuuma
-;;     Update #: 119
+;;     Update #: 121
 ;; URL:
 ;; Doc URL:
 ;; Keywords:
@@ -288,6 +288,14 @@ not affect the rest of the directory. "
 
 
 
+(defun fanfic-add-cast-from-universe (universe &optional skip-font-lock)
+  (--each (fanfic-universe-cast universe)
+    (fanfic-add-highlights (-flatten (car it)) (cdr it) skip-font-lock)))
+
+(defun fanfic-add-keywords-from-universe (universe &optional skip-font-lock)
+  (--each (fanfic-universe-keywords universe)
+    (fanfic-add-highlights (-flatten (car it)) (cdr it) skip-font-lock)))
+
 (defun fanfic-add-keywords-from-universes (&optional skip-font-lock)
   "Add the keywords of all universes in `fanfic-universes' to the lists of fanfic generated highlights.
 If optional argument SKIP-FONT-LOCK is non-nil, do not run fontification afterwards."
@@ -389,6 +397,16 @@ The following have to be satisfied in order to make a universe \"safe\":
 ;;;###autoload
 (define-derived-mode fanfic-universe-mode lisp-mode "Fanfic-Universe"
   ;; TODO: insert docstring
-  (setq font-lock-defaults '((fanfic-universe-font-lock))))
+  (setq font-lock-defaults '((fanfic-universe-font-lock)))
+  (fanfic-universe-mode-preview)
+  (add-hook 'after-save-hook #'fanfic-universe-mode-preview nil t))
+
+(defun fanfic-universe-mode-preview ()
+  (interactive)
+  (fanfic-mode-recast)
+  (let ((fanfic-mode t)
+        (previewverse (fanfic-universe-from-string (buffer-string))))
+    (fanfic-add-keywords-from-universe previewverse)
+    (fanfic-add-cast-from-universe previewverse)))
 
 (provide 'fanfic-universe)
