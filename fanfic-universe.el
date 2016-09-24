@@ -7,9 +7,9 @@
 ;; Created: Fri Jun  3 09:47:57 2016 (+0200)
 ;; Version: 3.1
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Sun Jul  3 22:05:42 2016 (+0200)
+;; Last-Updated: Sat Sep 24 09:15:20 2016 (+0200)
 ;;           By: Lord Yuuma
-;;     Update #: 126
+;;     Update #: 128
 ;; URL:
 ;; Doc URL:
 ;; Keywords:
@@ -69,6 +69,9 @@
 (declare-function s-prefix-p s (prefix s &optional ignore-case))
 
 (require 'fanfic-core)
+
+;; s is only needed for some features, so we don't force the user to have it.
+(require 's nil t)
 
 
 
@@ -266,8 +269,10 @@ A universe that has been defined in an Emacs Lisp module is encouraged to
 ensure, that IDENTIFIER is the module name, in which it has been defined.
 
 This feature requires `s.el'."
-  (require 's)
-  (setq universe (fanfic-get-universe universe))
+  (unless (featurep 's) (error "s is required to make use of this function"))
+  (setq universe
+        (or (fanfic-get-universe universe)
+            (error "Universe %s could not be found." universe)))
   (s-join "\n"
           (-flatten
            (list
