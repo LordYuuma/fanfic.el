@@ -7,9 +7,9 @@
 ;; Created: Fri Jun  3 09:49:03 2016 (+0200)
 ;; Version: 3.1
 ;; Package-Requires: ((dash "2.12.1") (cl-lib "0.5"))
-;; Last-Updated: Sat Feb 11 12:08:23 2017 (+0100)
+;; Last-Updated: Sat Feb 11 12:15:30 2017 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 44
+;;     Update #: 45
 ;; URL:
 ;; Doc URL:
 ;; Keywords:
@@ -349,7 +349,7 @@ You may feel the need to run it yourself after editing cast-related variables."
   "Transform OBJ-OR-OBJS according to TRANSFORM.
 If OBJ-OR-OBJS is a string, return a list with each occurence of {base} replaced by OBJ-OR-OBJS.
 If OBJ-OR-OBJS is a list, apply the transformation recursively."
-  (or transform (setq transform '("{base}")))
+  (unless transform (setq transform '("{base}")))
   (if (stringp obj-or-objs)
       (--map (replace-regexp-in-string "{base}" obj-or-objs it t t)
              transform)
