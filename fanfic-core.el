@@ -7,9 +7,9 @@
 ;; Created: Fri Jun  3 09:49:03 2016 (+0200)
 ;; Version: 3.1
 ;; Package-Requires: ((dash "2.12.1") (cl-lib "0.5"))
-;; Last-Updated: Sat Feb 11 14:16:49 2017 (+0100)
+;; Last-Updated: Sat Feb 11 14:57:41 2017 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 53
+;;     Update #: 54
 ;; URL:
 ;; Doc URL:
 ;; Keywords:
@@ -230,7 +230,9 @@ your character when constructing a list of highlights."
 (defvar fanfic-mode nil "Whether fanfic-mode is activated")
 (defvar fanfic--highlights nil
   "`font-lock-keywords' for the current buffer which come from `fanfic-mode'.")
+(defvar fanfic--setting nil "The default setting for the current buffer.")
 (make-variable-buffer-local 'fanfic--highlights)
+(make-variable-buffer-local 'fanfic--setting)
 
 
 

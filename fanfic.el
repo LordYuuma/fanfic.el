@@ -7,9 +7,9 @@
 ;; Created: Tue Sep 15 11:52:17 2015 (+0200)
 ;; Version: 3.1
 ;; Package-Requires: ((dash "2.12.1") (cl-lib "0.5"))
-;; Last-Updated: Sat Feb 11 14:18:12 2017 (+0100)
+;; Last-Updated: Sat Feb 11 15:05:21 2017 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 328
+;;     Update #: 329
 ;; URL:
 ;; Doc URL:
 ;; Keywords: convenience
@@ -101,9 +101,6 @@
 (require 'fanfic-dramatis-personae)
 
 
-
-(defvar fanfic--setting nil "The default setting for the current buffer.")
-(make-variable-buffer-local 'fanfic--setting)
 
 (defun fanfic-setting-init ()
   (let (objects metadata)
