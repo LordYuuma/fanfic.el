@@ -7,9 +7,9 @@
 ;; Created: Tue Sep 15 11:52:17 2015 (+0200)
 ;; Version: 3.1
 ;; Package-Requires: ((dash "2.12.1") (cl-lib "0.5"))
-;; Last-Updated: Sat Feb 11 15:05:21 2017 (+0100)
+;; Last-Updated: Sat Feb 11 15:10:37 2017 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 329
+;;     Update #: 330
 ;; URL:
 ;; Doc URL:
 ;; Keywords: convenience
@@ -124,16 +124,19 @@
   (setq fanfic--highlights nil)
 
   (when fanfic-mode
-    (setq fanfic--setting (or setting fanfic--setting (fanfic-setting-init)))
-    (when fanfic-universes
-      (fanfic-universes-init)
-      (setq fanfic--setting
-            (apply #'fanfic-merge-settings fanfic--setting
-                   (let (universe-settings)
-                     (dolist (it fanfic-universes (reverse universe-settings))
-                       (push (fanfic-universe-to-setting
-                              (fanfic-get-universe it))
-                             universe-settings))))))
+    (setq fanfic--setting
+          (or setting
+              fanfic--setting
+              (apply #'fanfic-merge-settings
+                     (fanfic-setting-init)
+                     (when fanfic-universes
+                       (fanfic-universes-init)
+                       (let (universe-settings)
+                         (dolist (it fanfic-universes
+                                     (reverse universe-settings))
+                           (push (fanfic-universe-to-setting
+                                  (fanfic-get-universe it))
+                                 universe-settings)))))))
     (fanfic-setting-highlight fanfic--setting)))
 
 ;;;###autoload
