@@ -7,9 +7,9 @@
 ;; Created: Fri Jun  3 09:49:03 2016 (+0200)
 ;; Version: 3.1
 ;; Package-Requires: ((dash "2.12.1") (cl-lib "0.5"))
-;; Last-Updated: Sat Feb 11 12:15:30 2017 (+0100)
+;; Last-Updated: Sat Feb 11 13:35:54 2017 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 45
+;;     Update #: 47
 ;; URL:
 ;; Doc URL:
 ;; Keywords:
@@ -71,10 +71,6 @@
 
 (declare-function fanfic-universes-init "fanfic-universe.el")
 (declare-function fanfic-update-active-universes "fanfic-universe.el")
-
-(cl-defstruct (fanfic-universe (:constructor fanfic-make-universe)
-                               (:copier fanfic-copy-universe))
-  name cast keywords)
 
 
 
@@ -328,22 +324,6 @@ You may feel the need to run it yourself after editing cast-related variables."
   (font-lock-fontify-buffer))
 
 
-
-(defun fanfic-setting-init ()
-  (let (objects metadata)
-    (when fanfic-keywords
-      (push (fanfic-make-object
-             ;; flatten is needed as we don't impose any structure on keywords
-             (-flatten fanfic-keywords)
-             :face 'fanfic-keyword-face)
-            objects))
-    (when fanfic-antagonists
-      (push (fanfic-make-antagonist fanfic-antagonists) objects))
-    (when fanfic-protagonists
-      (push (fanfic-make-protagonist fanfic-protagonists) objects))
-    (when fanfic-cast
-      (push (fanfic-make-cast fanfic-cast) objects))
-    (fanfic-make-setting objects metadata)))
 
 (defun fanfic--object-do-transform (obj-or-objs &optional transform)
   "Transform OBJ-OR-OBJS according to TRANSFORM.

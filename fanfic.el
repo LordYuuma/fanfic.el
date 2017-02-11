@@ -7,9 +7,9 @@
 ;; Created: Tue Sep 15 11:52:17 2015 (+0200)
 ;; Version: 3.1
 ;; Package-Requires: ((dash "2.12.1") (cl-lib "0.5"))
-;; Last-Updated: Sun Jul  3 20:01:38 2016 (+0200)
+;; Last-Updated: Sat Feb 11 13:31:12 2017 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 322
+;;     Update #: 323
 ;; URL:
 ;; Doc URL:
 ;; Keywords: convenience
@@ -101,6 +101,34 @@
 (require 'fanfic-dramatis-personae)
 
 
+
+(defvar fanfic--setting nil "The default setting for the current buffer.")
+(make-variable-buffer-local 'fanfic--setting)
+
+(defun fanfic-setting-init ()
+  (let (objects metadata)
+    (when fanfic-keywords
+      (push (fanfic-make-object
+             ;; flatten is needed as we don't impose any structure on keywords
+             (-flatten fanfic-keywords)
+             :face 'fanfic-keyword-face)
+            objects))
+    (when fanfic-antagonists
+      (push (fanfic-make-antagonist fanfic-antagonists) objects))
+    (when fanfic-protagonists
+      (push (fanfic-make-protagonist fanfic-protagonists) objects))
+    (when fanfic-cast
+      (push (fanfic-make-cast fanfic-cast) objects))
+    (fanfic-make-setting objects metadata)))
+
+(defun fanfic-reset (&optional setting)
+  (interactive)
+  (fanfic--font-unlock)
+  (setq fanfic--highlights nil)
+
+  (when fanfic-mode
+    (setq fanfic--setting (or setting fanfic--setting (fanfic-setting-init)))
+    (fanfic-setting-highlight fanfic--setting)))
 
 ;;;###autoload
 (define-minor-mode fanfic-mode
