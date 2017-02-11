@@ -7,9 +7,9 @@
 ;; Created: Fri Jun  3 09:47:57 2016 (+0200)
 ;; Version: 3.1
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Sat Feb 11 15:03:33 2017 (+0100)
+;; Last-Updated: Sat Feb 11 15:14:18 2017 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 142
+;;     Update #: 143
 ;; URL:
 ;; Doc URL:
 ;; Keywords:
@@ -67,6 +67,7 @@
 (declare-function s-chop-suffix "s" (suffix str))
 (declare-function s-join "s" (sep strings))
 (declare-function s-prefix-p "s" (prefix s &optional ignore-case))
+(declare-function fanfic-reset "fanfic" (&optional setting))
 
 (require 'fanfic-core)
 
