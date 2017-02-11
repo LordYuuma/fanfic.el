@@ -7,9 +7,9 @@
 ;; Created: Fri Jun  3 09:47:57 2016 (+0200)
 ;; Version: 3.1
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Sat Feb 11 14:46:21 2017 (+0100)
+;; Last-Updated: Sat Feb 11 15:03:33 2017 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 140
+;;     Update #: 142
 ;; URL:
 ;; Doc URL:
 ;; Keywords:
@@ -394,12 +394,6 @@ malformed file does not affect the rest of the directory. "
 
 
 
-(defvar fanfic--universes (make-hash-table :test #'equal))
-(defvar fanfic--active-universes nil)
-(make-variable-buffer-local 'fanfic--active-universes)
-
-
-
 (defun fanfic-universe-to-setting (universe)
   (let ((metadata (list (fanfic-make-metadata 'universe
                                               (fanfic-universe-name universe))))
@@ -410,22 +404,14 @@ malformed file does not affect the rest of the directory. "
       (push (fanfic-make-cast (car it) :face (cdr it)) objects))
     (fanfic-make-setting (nreverse objects) metadata)))
 
-
-
 (defun fanfic-active-universe-p (name)
   "Return t if NAME is an entry in `fanfic-universes', that points to a safe universe."
-  (-contains-p fanfic--active-universes name))
+  (-contains-p (fanfic-setting-metadata fanfic--setting)
+               (fanfic-make-metadata 'universe name)))
 
-(defun fanfic-update-active-universes ()
-  "Update the list of active universes.
+
 
-This function adds all elements of `fanfic-universes' that satisfy
-`fanfic-safe-universe-p' to the list of active universes.
-It is meant for internal use.
-Calling it from the outside may mess with `fanfic-active-universe-p'."
-  (setq fanfic--active-universes
-        (--filter (fanfic-safe-universe-p (gethash it fanfic--universes))
-                  fanfic-universes)))
+(defvar fanfic--universes (make-hash-table :test #'equal))
 
 (defun fanfic-add-universe (universe &optional overwrite noerror)
   "Make UNIVERSE available for use within `fanfic-mode'.
