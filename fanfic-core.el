@@ -7,9 +7,9 @@
 ;; Created: Fri Jun  3 09:49:03 2016 (+0200)
 ;; Version: 3.1
 ;; Package-Requires: ((dash "2.12.1") (cl-lib "0.5"))
-;; Last-Updated: Sun Jul  3 20:19:04 2016 (+0200)
+;; Last-Updated: Sat Feb 11 09:56:03 2017 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 28
+;;     Update #: 33
 ;; URL:
 ;; Doc URL:
 ;; Keywords:
@@ -75,6 +75,37 @@
 (cl-defstruct (fanfic-universe (:constructor fanfic-make-universe)
                                (:copier fanfic-copy-universe))
   name cast keywords)
+
+
+
+(cl-defstruct (fanfic-object (:type list) :named)
+  face base transform)
+
+(cl-defstruct (fanfic-cast-like
+               (:include fanfic-object)
+               (:constructor nil)
+               (:constructor fanfic-make-cast
+                             (base &key
+                                   (face 'fanfic-cast-face)
+                                   (transform 'fanfic-declinations)))
+               (:constructor fanfic-make-protagonist
+                             (base &key
+                                   (transform 'fanfic-declinations)
+                                   &aux
+                                   (face 'fanfic-protagonist-face)))
+               (:constructor fanfic-make-antagonist
+                             (base &key
+                                   (transform 'fanfic-declinations)
+                                   &aux
+                                   (face 'fanfic-antagonist-face)))))
+
+(cl-defstruct (fanfic-metadata (:type list) :named
+                               (:constructor fanfic-make-metadata (key value)))
+  key value)
+
+(cl-defstruct (fanfic-setting (:type list)
+                              (:constructor fanfic-make-setting (&rest objects &key metadata)))
+  objects metadata)
 
 
 
