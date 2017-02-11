@@ -7,9 +7,9 @@
 ;; Created: Fri Jun  3 09:47:57 2016 (+0200)
 ;; Version: 3.1
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Sat Sep 24 09:15:20 2016 (+0200)
+;; Last-Updated: Sat Feb 11 13:30:52 2017 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 128
+;;     Update #: 129
 ;; URL:
 ;; Doc URL:
 ;; Keywords:
@@ -72,6 +72,10 @@
 
 ;; s is only needed for some features, so we don't force the user to have it.
 (require 's nil t)
+
+(cl-defstruct (fanfic-universe (:constructor fanfic-make-universe)
+                               (:copier fanfic-copy-universe))
+  name cast keywords)
 
 
 
@@ -422,6 +426,16 @@ If optional argument SKIP-FONT-LOCK is non-nil, do not run fontification afterwa
         (--each (fanfic-universe-cast universe)
           (fanfic-add-highlights (-flatten (fanfic-decline (car it))) (cdr it)
                                  skip-font-lock))))))
+
+(defun fanfic-universe-to-setting (universe)
+  (let ((metadata (list (fanfic-make-metadata 'universe
+                                              (fanfic-universe-name universe))))
+        objects)
+    (--each (fanfic-universe-keywords universe)
+      (push (fanfic-make-object (car it) :face (cdr it)) objects))
+    (--each (fanfic-universe-cast universe)
+      (push (fanfic-make-cast (car it) :face (cdr it)) objects))
+    (fanfic-make-setting (nreverse objects) metadata)))
 
 
 
