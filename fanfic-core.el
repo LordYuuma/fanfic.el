@@ -7,9 +7,9 @@
 ;; Created: Fri Jun  3 09:49:03 2016 (+0200)
 ;; Version: 3.1
 ;; Package-Requires: ((dash "2.12.1") (cl-lib "0.5"))
-;; Last-Updated: Sat Feb 11 14:57:41 2017 (+0100)
+;; Last-Updated: Sat Feb 11 15:22:36 2017 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 54
+;;     Update #: 56
 ;; URL:
 ;; Doc URL:
 ;; Keywords:
@@ -68,9 +68,6 @@
 
 (require 'cl-lib)
 (require 'dash)
-
-(declare-function fanfic-universes-init "fanfic-universe.el")
-(declare-function fanfic-update-active-universes "fanfic-universe.el")
 
 
 
@@ -233,19 +230,6 @@ your character when constructing a list of highlights."
 (defvar fanfic--setting nil "The default setting for the current buffer.")
 (make-variable-buffer-local 'fanfic--highlights)
 (make-variable-buffer-local 'fanfic--setting)
-
-
-
-(defun fanfic-decline (name-or-names)
-  "Decline NAME-OR-NAMES according to `fanfic-declinations'.
-If NAME-OR-NAMES is a string, return a list, in which each element is the
-corresponding element of `fanfic-declination' with {name} replaced by
-NAME-OR-NAMES.
-If NAME-OR-NAMES is a list, run `fanfic-decline' recursively for each element."
-  (if (stringp name-or-names)
-      (--map (replace-regexp-in-string "{name}" name-or-names it t t)
-             fanfic-declinations)
-    (-map #'fanfic-decline name-or-names)))
 
 
 
