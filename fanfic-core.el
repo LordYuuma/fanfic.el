@@ -7,9 +7,9 @@
 ;; Created: Fri Jun  3 09:49:03 2016 (+0200)
 ;; Version: 3.1
 ;; Package-Requires: ((dash "2.12.1") (cl-lib "0.5"))
-;; Last-Updated: Sat Feb 11 14:13:35 2017 (+0100)
+;; Last-Updated: Sat Feb 11 14:16:49 2017 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 52
+;;     Update #: 53
 ;; URL:
 ;; Doc URL:
 ;; Keywords:
@@ -232,10 +232,6 @@ your character when constructing a list of highlights."
   "`font-lock-keywords' for the current buffer which come from `fanfic-mode'.")
 (make-variable-buffer-local 'fanfic--highlights)
 
-;; forward declarations
-(defvar fanfic-special-keyword-hook nil "This variable should have been redefined by `fanfic.el'.")
-(defvar fanfic-special-cast-hook nil "This variable should have been redefined by `fanfic.el'.")
-
 
 
 (defun fanfic-decline (name-or-names)
@@ -274,54 +270,6 @@ If optional argument SKIP-FONT-LOCK is non-nil, do not run fontification afterwa
     (unless skip-font-lock
       (font-lock-remove-keywords nil highlight)
       (font-lock-fontify-buffer))))
-
-
-
-(defun fanfic-mode-recast ()
-  "Refresh `font-lock-keywords' according to the `fanfic-' variables.
-
-At the first step, reset highlights already set by `fanfic-mode'.
-Afterwards, when `fanfic-mode' is truthy, manage font-lock keywords accordingly.
-As a last step, run `font-lock-fontify-buffer' to make these changes visible.
-
-This command is automatically run as a hook after `fanfic-mode'.
-You may feel the need to run it yourself after editing cast-related variables."
-  (interactive)
-  (fanfic--font-unlock)
-  (setq fanfic--highlights nil)
-
-  (when (boundp 'fanfic--active-universes)
-    (setq fanfic--active-universes nil))
-
-  (when (and (boundp 'fanfic--universes-initialized-p)
-             (fboundp #'fanfic-universes-init))
-    (unless fanfic--universes-initialized-p
-      (fanfic-universes-init)))
-
-  (when fanfic-mode
-    (when (fboundp #'fanfic-update-active-universes)
-      (fanfic-update-active-universes))
-
-    (fanfic-add-highlights (-flatten fanfic-keywords) 'fanfic-keyword-face t)
-    (run-hooks 'fanfic-special-keyword-hook)
-    (--each '(fanfic-cast fanfic-antagonists fanfic-protagonists)
-      (let* ((names-and-nicks (fanfic--names-and-nicks (symbol-value it)))
-             (names (car names-and-nicks))
-             (nicks (cdr names-and-nicks))
-             (personae-face
-              (cdr (assoc it '((fanfic-protagonists . fanfic-protagonist-face)
-                               (fanfic-antagonists . fanfic-antagonist-face)
-                               (fanfic-cast . fanfic-cast-face)))))
-             (nick-face
-              (cdr (assoc it
-                          '((fanfic-protagonists . fanfic-protagonist-nick-face)
-                            (fanfic-antagonists . fanfic-antagonist-nick-face)
-                            (fanfic-cast . fanfic-nick-face))))))
-        (fanfic-add-highlights nicks nick-face t)
-        (fanfic-add-highlights names personae-face t)))
-    (run-hooks 'fanfic-special-cast-hook)
-    (fanfic--font-lock))
-  (font-lock-fontify-buffer))
 
 
 
@@ -451,11 +399,6 @@ Not very meaningful when used externally."
 Not intended for external use."
   (dolist (highlight fanfic--highlights)
     (font-lock-remove-keywords nil highlight)))
-
-(defun fanfic--names-and-nicks (cast)
-  (cons
-   (-flatten (fanfic-decline (--map (if (listp it) (car it) it) cast)))
-   (-flatten (fanfic-decline (--mapcat (when (listp it) (cdr it)) cast)))))
 
 
 

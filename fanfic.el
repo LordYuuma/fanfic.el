@@ -7,9 +7,9 @@
 ;; Created: Tue Sep 15 11:52:17 2015 (+0200)
 ;; Version: 3.1
 ;; Package-Requires: ((dash "2.12.1") (cl-lib "0.5"))
-;; Last-Updated: Sat Feb 11 13:31:12 2017 (+0100)
+;; Last-Updated: Sat Feb 11 14:18:12 2017 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 323
+;;     Update #: 328
 ;; URL:
 ;; Doc URL:
 ;; Keywords: convenience
@@ -128,6 +128,15 @@
 
   (when fanfic-mode
     (setq fanfic--setting (or setting fanfic--setting (fanfic-setting-init)))
+    (when fanfic-universes
+      (fanfic-universes-init)
+      (setq fanfic--setting
+            (apply #'fanfic-merge-settings fanfic--setting
+                   (let (universe-settings)
+                     (dolist (it fanfic-universes (reverse universe-settings))
+                       (push (fanfic-universe-to-setting
+                              (fanfic-get-universe it))
+                             universe-settings))))))
     (fanfic-setting-highlight fanfic--setting)))
 
 ;;;###autoload
@@ -148,44 +157,12 @@ as the casts added by `fanfic-universes' are all declined using
 While `fanfic-mode' is t, font-locks are kept even along
 `font-lock-refresh-defaults'."
   nil " Fanfiction"
-  :after-hook (fanfic-mode-recast)
+  :after-hook (fanfic-reset)
   :group 'fanfic
   (if fanfic-mode
       (ad-activate-regexp "fanfic-font-lock-default")
     (ad-deactivate-regexp "fanfic-font-lock-default")))
 
-
-
-;;;###autoload
-(defcustom fanfic-special-keyword-hook '(fanfic-universes-special-keywords)
-  "Hook to run after adding `fanfic-keywords' to the list of fanfic highlights.
-This hook is run before any cast related keywords are added and should be used
-to define special keywords, which are to be highlighted differently than
-`fanfic-keywords'."
-  :type 'hook
-  :group 'fanfic)
-
-;;;###autoload
-(defcustom fanfic-special-cast-hook '(fanfic-universes-special-cast)
-  "Hook to run after adding the cast to the list of fanfic highlights.
-This hook should be used to add names of characters, who don't fit any of the
-categories provided by fanfic.el or need to be colored differently because of an
-already color coded cast."
-  :type 'hook
-  :group 'fanfic)
-
-;;;###autoload
-(defadvice font-lock-refresh-defaults (after fanfic-font-lock-defaults) (when fanfic-mode (fanfic--font-lock)))
-
-
-
-(defun fanfic-universes-special-keywords ()
-  "A version of `fanfic-add-keywords-from-universes', that can be used as hook for `fanfic-special-keyword-hook'."
-  (fanfic-add-keywords-from-universes t))
-
-(defun fanfic-universes-special-cast ()
-  "A version of `fanfic-add-cast-from-universes', that can be used as hook for `fanfic-special-cast-hook'."
-  (fanfic-add-cast-from-universes t))
 
 
 
