@@ -7,9 +7,9 @@
 ;; Created: Fri Jun  3 09:49:03 2016 (+0200)
 ;; Version: 3.1
 ;; Package-Requires: ((dash "2.12.1") (cl-lib "0.5"))
-;; Last-Updated: Sat Feb 11 11:52:07 2017 (+0100)
+;; Last-Updated: Sat Feb 11 12:08:23 2017 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 42
+;;     Update #: 44
 ;; URL:
 ;; Doc URL:
 ;; Keywords:
@@ -78,7 +78,10 @@
 
 
 
-(cl-defstruct (fanfic-object (:type list) :named)
+(cl-defstruct (fanfic-object (:type list) :named
+                             (:constructor nil)
+                             (:constructor fanfic-make-object
+                                           (base &key face transform)))
   face base transform)
 
 (cl-defstruct (fanfic-cast-like
@@ -328,6 +331,12 @@ You may feel the need to run it yourself after editing cast-related variables."
 
 (defun fanfic-setting-init ()
   (let (objects metadata)
+    (when fanfic-keywords
+      (push (fanfic-make-object
+             ;; flatten is needed as we don't impose any structure on keywords
+             (-flatten fanfic-keywords)
+             :face 'fanfic-keyword-face)
+            objects))
     (when fanfic-antagonists
       (push (fanfic-make-antagonist fanfic-antagonists) objects))
     (when fanfic-protagonists
