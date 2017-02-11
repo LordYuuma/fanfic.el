@@ -7,9 +7,9 @@
 ;; Created: Fri Jun  3 09:49:03 2016 (+0200)
 ;; Version: 3.1
 ;; Package-Requires: ((dash "2.12.1") (cl-lib "0.5"))
-;; Last-Updated: Sat Feb 11 14:11:52 2017 (+0100)
+;; Last-Updated: Sat Feb 11 14:13:35 2017 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 51
+;;     Update #: 52
 ;; URL:
 ;; Doc URL:
 ;; Keywords:
@@ -173,9 +173,9 @@
 
 
 ;;;###autoload
-(defcustom fanfic-declinations '("{name}" "{name}'s")
+(defcustom fanfic-declinations '("{base}" "{base}'s")
   "Ways in which a name may appear in the language the fic is written in.
-Each value is a string in which `{name}' will get replaced by the name of
+Each value is a string in which `{base}' will get replaced by the name of
 your character when constructing a list of highlights."
   :type '(repeat string)
   :safe (lambda (xs) (-all-p 'stringp xs))
