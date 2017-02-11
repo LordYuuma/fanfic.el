@@ -7,9 +7,9 @@
 ;; Created: Fri Jun  3 09:47:57 2016 (+0200)
 ;; Version: 3.1
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Sat Feb 11 13:30:52 2017 (+0100)
+;; Last-Updated: Sat Feb 11 13:47:28 2017 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 129
+;;     Update #: 130
 ;; URL:
 ;; Doc URL:
 ;; Keywords:
@@ -384,9 +384,11 @@ malformed file does not affect the rest of the directory. "
 
 (defvar fanfic--universes-initialized-p nil)
 
-(defun fanfic-universes-init ()
-  (--each fanfic-universe-dirs (when (file-directory-p it)
-                                 (fanfic-load-universes it t)))
+(defun fanfic-universes-init (&optional force)
+  (unless (and fanfic--universes-initialized-p (not force))
+    (--each fanfic-universe-dirs
+      (when (file-directory-p it)
+        (fanfic-load-universes it t))))
   (setq fanfic--universes-initialized-p t))
 
 
