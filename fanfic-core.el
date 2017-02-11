@@ -7,9 +7,9 @@
 ;; Created: Fri Jun  3 09:49:03 2016 (+0200)
 ;; Version: 3.1
 ;; Package-Requires: ((dash "2.12.1") (cl-lib "0.5"))
-;; Last-Updated: Sat Feb 11 09:56:03 2017 (+0100)
+;; Last-Updated: Sat Feb 11 11:52:07 2017 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 33
+;;     Update #: 42
 ;; URL:
 ;; Doc URL:
 ;; Keywords:
@@ -86,25 +86,29 @@
                (:constructor nil)
                (:constructor fanfic-make-cast
                              (base &key
-                                   (face 'fanfic-cast-face)
+                                   (face '(fanfic-cast-face
+                                           fanfic-cast-nick-face))
                                    (transform 'fanfic-declinations)))
                (:constructor fanfic-make-protagonist
                              (base &key
                                    (transform 'fanfic-declinations)
                                    &aux
-                                   (face 'fanfic-protagonist-face)))
+                                   (face '(fanfic-protagonist-face
+                                           fanfic-protagonist-nick-face))))
                (:constructor fanfic-make-antagonist
                              (base &key
                                    (transform 'fanfic-declinations)
                                    &aux
-                                   (face 'fanfic-antagonist-face)))))
+                                   (face '(fanfic-antagonist-face
+                                           fanfic-antagonist-nick-face))))))
 
 (cl-defstruct (fanfic-metadata (:type list) :named
                                (:constructor fanfic-make-metadata (key value)))
   key value)
 
 (cl-defstruct (fanfic-setting (:type list)
-                              (:constructor fanfic-make-setting (&rest objects &key metadata)))
+                              (:constructor fanfic-make-setting
+                                            (objects &optional metadata)))
   objects metadata)
 
 
@@ -318,6 +322,56 @@ You may feel the need to run it yourself after editing cast-related variables."
         (fanfic-add-highlights names personae-face t)))
     (run-hooks 'fanfic-special-cast-hook)
     (fanfic--font-lock))
+  (font-lock-fontify-buffer))
+
+
+
+(defun fanfic-setting-init ()
+  (let (objects metadata)
+    (when fanfic-antagonists
+      (push (fanfic-make-antagonist fanfic-antagonists) objects))
+    (when fanfic-protagonists
+      (push (fanfic-make-protagonist fanfic-protagonists) objects))
+    (when fanfic-cast
+      (push (fanfic-make-cast fanfic-cast) objects))
+    (fanfic-make-setting objects metadata)))
+
+(defun fanfic--object-do-transform (obj-or-objs &optional transform)
+  "Transform OBJ-OR-OBJS according to TRANSFORM.
+If OBJ-OR-OBJS is a string, return a list with each occurence of {base} replaced by OBJ-OR-OBJS.
+If OBJ-OR-OBJS is a list, apply the transformation recursively."
+  (or transform (setq transform '("{base}")))
+  (if (stringp obj-or-objs)
+      (--map (replace-regexp-in-string "{base}" obj-or-objs it t t)
+             transform)
+    (--map (fanfic--object-do-transform it transform) obj-or-objs)))
+
+
+(defun fanfic-object-do-transform (object)
+  (let ((transform (fanfic-object-transform object)))
+    (fanfic--object-do-transform
+     (fanfic-object-base object)
+     (if (symbolp transform)
+         (symbol-value transform)
+       transform))))
+
+(defun fanfic--object-primary-and-secondary (object)
+  (let ((transformed (fanfic-object-do-transform object)))
+    (cons
+     (-flatten (--map (if (listp (car it)) (caar it) (car it)) transformed))
+     (-flatten (--mapcat (when (listp (car it)) (cadr it)) transformed)))))
+
+(defun fanfic-setting-highlight (setting)
+  (--each (fanfic-setting-objects setting)
+    (let* ((face (fanfic-object-face it))
+           (primary-face (if (listp face) (car face) face))
+           (secondary-face (if (listp face) (cdr face) face))
+           (primary-and-secondary (fanfic--object-primary-and-secondary it))
+           (primary (car primary-and-secondary))
+           (secondary (cdr primary-and-secondary)))
+      (fanfic-add-highlights secondary secondary-face t)
+      (fanfic-add-highlights primary primary-face t)))
+  (fanfic--font-lock)
   (font-lock-fontify-buffer))
 
 
