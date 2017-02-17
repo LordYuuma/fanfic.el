@@ -7,9 +7,9 @@
 ;; Created: Fri Jun  3 09:47:57 2016 (+0200)
 ;; Version: 3.1
 ;; Package-Requires: ((dash "2.12.1"))
-;; Last-Updated: Sat Feb 11 15:14:18 2017 (+0100)
+;; Last-Updated: Fri Feb 17 10:38:25 2017 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 143
+;;     Update #: 144
 ;; URL:
 ;; Doc URL:
 ;; Keywords:
@@ -459,10 +459,12 @@ The following have to be satisfied in order to make a universe \"safe\":
     satisfies `fanfic-safe-keywords-p' and each cdr is a face."
   (and (fanfic-universe-p object)
        (stringp (fanfic-universe-name object))
-       (--all-p (and (fanfic-safe-cast-p (car it))
+       (--all-p (and (consp it)
+                     (fanfic-safe-cast-p (car it))
                      (facep (cdr it)))
                 (fanfic-universe-cast object))
-       (--all-p (and (fanfic-safe-keywords-p (car it))
+       (--all-p (and (consp it)
+                     (fanfic-safe-keywords-p (car it))
                      (facep (cdr it)))
                 (fanfic-universe-keywords object))))
 
