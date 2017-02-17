@@ -7,9 +7,9 @@
 ;; Created: Fri Jun  3 09:49:03 2016 (+0200)
 ;; Version: 3.1
 ;; Package-Requires: ((dash "2.12.1") (cl-lib "0.5"))
-;; Last-Updated: Sun Feb 12 01:41:35 2017 (+0100)
+;; Last-Updated: Sun Feb 12 09:32:06 2017 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 57
+;;     Update #: 59
 ;; URL:
 ;; Doc URL:
 ;; Keywords:
@@ -281,8 +281,8 @@ If OBJ-OR-OBJS is a list, apply the transformation recursively."
 (defun fanfic--object-primary-and-secondary (object)
   (let ((transformed (fanfic-object-do-transform object)))
     (cons
-     (-flatten (--map (if (listp (car it)) (caar it) it) transformed))
-     (-flatten (--mapcat (when (listp (car it)) (cadr it)) transformed)))))
+     (-flatten (--map (if (listp (car it)) (car it) it) transformed))
+     (-flatten (--mapcat (when (listp (car it)) (cdr it)) transformed)))))
 
 (defun fanfic-setting-highlight (setting)
   (--each (fanfic-setting-objects setting)
