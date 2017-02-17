@@ -7,9 +7,9 @@
 ;; Created: Tue Sep 15 11:52:17 2015 (+0200)
 ;; Version: 3.1
 ;; Package-Requires: ((dash "2.12.1") (cl-lib "0.5"))
-;; Last-Updated: Sat Feb 11 15:10:37 2017 (+0100)
+;; Last-Updated: Fri Feb 17 10:25:28 2017 (+0100)
 ;;           By: Lord Yuuma
-;;     Update #: 330
+;;     Update #: 331
 ;; URL:
 ;; Doc URL:
 ;; Keywords: convenience
@@ -134,9 +134,10 @@
                        (let (universe-settings)
                          (dolist (it fanfic-universes
                                      (reverse universe-settings))
-                           (push (fanfic-universe-to-setting
-                                  (fanfic-get-universe it))
-                                 universe-settings)))))))
+                           (let ((universe (fanfic-get-universe it)))
+                             (when (fanfic-safe-universe-p universe)
+                               (push (fanfic-universe-to-setting universe)
+                                     universe-settings)))))))))
     (fanfic-setting-highlight fanfic--setting)))
 
 ;;;###autoload
